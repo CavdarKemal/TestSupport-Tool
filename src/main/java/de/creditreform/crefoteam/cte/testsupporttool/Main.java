@@ -5,26 +5,21 @@ import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
-import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
+import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.env.EnvironmentLockManager;
 import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
-import de.creditreform.crefoteam.cte.testsupporttool.process.TestAutomationProcess;
-import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
+import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Demo-Einstieg ohne GUI. Demonstriert das vollständige Bootstrap:
- * Env laden → Lock erwerben → Logger konfigurieren → Prozess → Cleanup.
- *
- * <p>Aufruf: {@code java ... Main}           → Demo-Mode (ohne REST-Aufrufe)<br>
- * Aufruf: {@code java ... Main ENE}         → lädt {@code ENE-config.properties}
+ * Demo-Einstieg ohne GUI. Startet die volle CTE Test-Automatisierung im
+ * Demo-Mode (alle externen Aufrufe werden simuliert).
  */
 public final class Main {
 
@@ -37,40 +32,29 @@ public final class Main {
                 : EnvironmentConfig.forDemo("http://unused-in-demo");
 
         EnvironmentLockManager.registerShutdownHook();
-
         if (!TestEnvironmentManager.switchEnvironment(env)) {
-            TimelineLogger.error(Main.class,
-                    "Konnte Umgebung {} nicht aktivieren — Abbruch.", env.getCurrentEnvName());
+            TimelineLogger.error(Main.class, "Konnte Umgebung {} nicht aktivieren — Abbruch.", env.getCurrentEnvName());
             System.exit(2);
         }
 
-        try (TimelineLogger.Action overall =
-                     TimelineLogger.action("TestAutomationProcess", env.getCurrentEnvName())) {
-
-            TesunRestService rest = new TesunRestService(resolveRestBaseUrl(env));
-            ProcessDefinition definition = TestAutomationProcess.build(env, rest);
+        try (TimelineLogger.Action action = TimelineLogger.action("CteAutomatedTestProcess", env.getCurrentEnvName())) {
+            ConsoleProcessListener listener = new ConsoleProcessListener();
+            ProcessDefinition definition = CteAutomatedTestProcess.build(env, null);
 
             Map<String, Object> initialVariables = new HashMap<>();
-            initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, "PHASE_2");
+            initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE,
+                    TestSupportClientKonstanten.TEST_PHASE.PHASE_2);
             initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE,
-                    TestAutomationProcess.TEST_TYPE_PHASE1_AND_PHASE2);
+                    CteAutomatedTestProcess.TEST_TYPE_PHASE1_AND_PHASE2);
             initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE,
                     args.length == 0 ? Boolean.TRUE : Boolean.FALSE);
 
             ProcessOutcome outcome = new ProcessRunner().run(definition, initialVariables);
-            overall.result(outcome.name());
+            action.result(outcome.name());
             TimelineLogger.info(Main.class, "Endzustand: {}", outcome);
         } finally {
             TestEnvironmentManager.reset();
         }
-    }
-
-    private static String resolveRestBaseUrl(EnvironmentConfig env) throws PropertiesException {
-        List<RestInvokerConfig> configs = env.getRestServiceConfigsForMasterkonsole();
-        if (configs.isEmpty()) {
-            throw new IllegalStateException("Keine Masterkonsole-URL in der Environment-Config gesetzt.");
-        }
-        return configs.get(0).getServiceURI();
     }
 
     private Main() { }

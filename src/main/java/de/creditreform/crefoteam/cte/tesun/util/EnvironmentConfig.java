@@ -169,12 +169,28 @@ public class EnvironmentConfig {
                                             long jobTimeoutMillis) {
         EnvironmentConfig ec = new EnvironmentConfig("DEMO", true);
         ec.mainProperties.setProperty(PROPNAME_MASTERKONSOLE_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_JVM_INSOBACKEND_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_BATCH_GUI_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_JVM_INSO_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_JVM_IMPCYCLE_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_JVM_BIC_URLS, masterkonsoleUrl);
+        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_URLS, masterkonsoleUrl);
         // PT-Format unterstützt nur ganze Sekunden → auf 1s runden
         long pollSecs = Math.max(1, (jobStatusPollingMillis + 999) / 1000);
         long timeoutSecs = Math.max(1, (jobTimeoutMillis + 999) / 1000);
         ec.mainProperties.setProperty(PROPNAME_JOBSTATUS_QUERY_SLEEPTIME, "PT" + pollSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_IMPORT_CYCLE_TIME_OUT, "PT" + timeoutSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_TEST_RSC_DIR, "X-TESTS");
+        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_IMPORT_CYCLE,
+                "IMPORTCYCLE;importcycle.importCycle;BETEILIGUNGEN_IMPORT,ENTSCHEIDUNGSTRAEGER_BERECHNUNG,BTLG_UPDATE_TRIGGER,FROM_STAGING_INTO_CTE");
+        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_BTLG_IMPORT_DELTA,
+                "IMPORTCYCLE;importcycle.beteiligungenImportDelta;BETEILIGUNGEN_IMPORT");
+        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_ENTG_BERECHNUNG,
+                "IMPORTCYCLE;importcycle.entgBerechnung;ENTSCHEIDUNGSTRAEGER_BERECHNUNG");
+        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_BTLG_UPDATE_TRIGGER,
+                "IMPORTCYCLE;importcycle.btlnAktualisierung;BTLG_UPDATE_TRIGGER");
+        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_CT_IMPORT_DELTA,
+                "IMPORTCYCLE;importcycle.ctImportDelta;FROM_STAGING_INTO_CTE");
         return ec;
     }
 
