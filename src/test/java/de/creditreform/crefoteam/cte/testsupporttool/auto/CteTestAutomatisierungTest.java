@@ -6,12 +6,7 @@ import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.env.EnvironmentLockManager;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,33 +14,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * End-to-End-Test der Headless-Variante. Verifiziert, dass die gesamte
  * Initialisierung in {@link CteTestAutomatisierung} liegt und der
  * Test selbst nur noch konstruiert + startet.
+ *
+ * <p>Voraussetzung: {@code X-TESTS/ITSQ/REF-EXPORTS/PHASE-{1,2}} existiert
+ * im Projekt-Root — wird durch das {@code maven-dependency-plugin} in der
+ * {@code generate-resources}-Phase aus dem {@code itsq_testfaelle}-Artefakt
+ * entpackt. In Produktion liefert der Assembly-Descriptor dasselbe
+ * Verzeichnis mit.
  */
 class CteTestAutomatisierungTest {
 
-    private String originalUserDir;
     private CteTestAutomatisierung runner;
-
-    @BeforeEach
-    void redirectUserDirToTmp(@TempDir Path tmp) {
-        originalUserDir = System.getProperty("user.dir");
-        System.setProperty("user.dir", tmp.toAbsolutePath().toString());
-
-        // X-TESTS/ITSQ/REF-EXPORTS/PHASE-{1,2} ist Pflicht für
-        // EnvironmentConfig.forDemo + CteTestAutomatisierung.initForEnvironment.
-        // Demo-Mode schließt nur REST-Aufrufe aus, nicht die Kunden-Init.
-        File itsqRoot = new File(tmp.toFile(), "X-TESTS/ITSQ/REF-EXPORTS");
-        assertThat(new File(itsqRoot, "PHASE-1").mkdirs()).isTrue();
-        assertThat(new File(itsqRoot, "PHASE-2").mkdirs()).isTrue();
-    }
 
     @AfterEach
     void cleanup() {
         if (runner != null) {
             runner.shutdown();
             runner = null;
-        }
-        if (originalUserDir != null) {
-            System.setProperty("user.dir", originalUserDir);
         }
     }
 
