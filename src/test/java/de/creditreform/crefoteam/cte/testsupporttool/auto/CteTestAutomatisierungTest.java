@@ -67,18 +67,27 @@ class CteTestAutomatisierungTest {
     }
 
     @Test
-    void buildTaskVariablesMap_containsAllRequiredKeys() {
+    void buildTaskVariablesMap_containsAllSixteenOriginalKeys() throws Exception {
         EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
         runner = new CteTestAutomatisierung(env);
 
-        var vars = runner.buildTaskVariablesMap(true);
+        var vars = runner.buildTaskVariablesMap(
+                true,
+                runner.getTestCustomerMapMap(),
+                TestSupportClientKonstanten.TEST_TYPES.PHASE1_AND_PHASE2,
+                TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
+                true,
+                false);
 
-        assertThat(vars)
-                .containsKey("TEST_TYPE")
-                .containsKey("TEST_PHASE")
-                .containsKey("DEMO_MODE")
-                .containsKey("ACTIVE_CUSTOMERS")
-                .containsKey("USE_ONLY_TEST_CLZ");
+        // Alle 16 Keys, die ActivitiTestSupport.buildTaskVariablesMap setzt
+        assertThat(vars).containsKeys(
+                "DEMO_MODE", "MEIN_KEY", "ACTIVITI_PROCESS_NAME",
+                "TIME_BEFORE_BTLG_IMPORT", "TIME_BEFORE_CT_IMPORT", "TIME_BEFORE_EXPORT",
+                "TIME_BEFORE_EXPORTS_COLLECT", "TIME_BEFORE_SFTP_COLLECT",
+                "EMAIL_FROM", "SUCCESS_MAIL_TO", "FAILURE_MAIL_TO",
+                "ACTIVE_CUSTOMERS", "TEST_TYPE", "TEST_PHASE",
+                "USE_ONLY_TEST_CLZ", "UPLOAD_SYNTH_TEST_CREFOS");
+        assertThat(vars).hasSize(16);
         assertThat(vars.get("DEMO_MODE")).isEqualTo(Boolean.TRUE);
     }
 

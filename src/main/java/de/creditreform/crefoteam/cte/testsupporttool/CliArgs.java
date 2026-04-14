@@ -69,29 +69,36 @@ public final class CliArgs {
         throw new IllegalArgumentException("Boolean-Wert '" + value + "' nicht erkannt (true/false/1/0/ja/nein)");
     }
 
-    /** Gewählter Umgebungsname; {@code null} = Demo-Config ohne Properties-Datei. */
+    /** Gewählter Umgebungsname; nie {@code null} (Pflicht-Argument). */
     public String getEnvName() { return envName; }
 
     /**
-     * Effektiver Demo-Mode: wenn explizit gesetzt, dieser Wert; sonst
-     * {@code true}, falls kein Env angegeben wurde.
+     * Effektiver Demo-Mode: explizit gesetzter Wert oder {@code false}.
+     * Im Original {@code ActivitiTestAutomatisierung} immer {@code false}.
      */
     public boolean isDemoMode() {
-        if (demoMode != null) return demoMode;
-        return envName == null;
+        return demoMode != null && demoMode;
     }
 
-    /** Liefert {@code true}, falls Demo-Mode explizit gesetzt wurde. */
     public boolean isDemoExplicit() { return demoMode != null; }
 
+    /** Wirft {@link IllegalArgumentException}, wenn Pflicht-Argumente fehlen. */
+    public void requireValid() {
+        if (envName == null || envName.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Pflicht-Argument fehlt: e:<envName> (z. B. e:ENE).");
+        }
+    }
+
     public static String usage() {
-        return "Usage: java ... Main [e:<envName>] [Demo:<true|false>]\n"
-                + "  e:<envName>       Lädt <envName>-config.properties (z. B. e:ENE).\n"
-                + "                    Ohne diesen Parameter wird die in-memory Demo-Config genutzt.\n"
-                + "  Demo:<true|false> Override für den Demo-Mode (default: true ohne env, false mit env).\n"
+        return "Usage: java ... Main e:<envName> [Demo:<true|false>]\n"
+                + "  e:<envName>       Pflicht. Lädt <envName>-config.properties (z. B. e:ENE).\n"
+                + "                    Aliases: env, environment. Mit oder ohne führendes '-'.\n"
+                + "  Demo:<true|false> Optional. Default false (Real-Mode).\n"
+                + "                    Wirkt ausschließlich in den Handlern via checkDemoMode.\n"
                 + "Beispiele:\n"
-                + "  Main                       → Demo-Mode mit in-memory Config\n"
                 + "  Main e:ENE                 → Real-Mode gegen ENE-config.properties\n"
-                + "  Main e:ENE -Demo:true      → Lädt ENE-Config, läuft aber im Demo-Mode (kein REST)";
+                + "  Main e:ENE -Demo:true      → ENE-Config, Handler simulieren REST-Aufrufe\n"
+                + "  Main env:GEE Demo:false    → Real-Mode gegen GEE-config.properties";
     }
 }

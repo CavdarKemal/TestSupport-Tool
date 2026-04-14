@@ -1,6 +1,7 @@
 package de.creditreform.crefoteam.cte.testsupporttool.auto;
 
 import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
+import de.creditreform.crefoteam.cte.statemachine.ProcessEngine;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
@@ -14,6 +15,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -22,50 +24,43 @@ import java.util.TreeMap;
 
 /**
  * Headless-Variante des TestSupport-Tools — Pendant zu
- * {@code testsupport_client.TestSupportGUI...ActivitiTestAutomatisierung}.
+ * {@code testsupport_client.TestSupportGUI...ActivitiTestAutomatisierung},
+ * gleiche Funktionalität minus Activiti.
  *
- * <p>Übernimmt den vollen Bootstrap: Lock erwerben, {@link TimelineLogger}
- * konfigurieren, {@code testResourcesDir} setzen, Kunden-Konfiguration
- * laden, {@link CteAutomatedTestProcess} starten, am Ende sauber aufräumen.
+ * <p>Implementiert {@link TesunClientJobListener} selbst, sodass der Runner
+ * gleichzeitig der Listener für Handler-Notifications ist (genau wie das
+ * Original).
  *
- * <p>Aufrufpfad:
- * <pre>{@code
- *   EnvironmentConfig env = EnvironmentConfig.forDemo("...");
- *   CteTestAutomatisierung runner = new CteTestAutomatisierung(env);
- *   ProcessOutcome outcome = runner.startProcess(true);
- * }</pre>
+ * <p><b>Demo-Mode-Verhalten:</b> {@code isDemoMode} wirkt ausschließlich
+ * über die Task-Variable {@link TesunClientJobListener#UT_TASK_PARAM_NAME_DEMO_MODE},
+ * die einzelne Handler via {@code checkDemoMode(...)} auswerten. Der Runner
+ * selbst hat keinen demoMode-Branch.
  *
- * <p>Lifecycle-Reihenfolge (analog {@code ActivitiTestAutomatisierung#initForEnvironment}):
+ * <p>Lifecycle (analog Original {@code initForEnvironment}):
  * <ol>
  *   <li>{@link EnvironmentLockManager#registerShutdownHook}</li>
  *   <li>{@link TestEnvironmentManager#switchEnvironment} — Lock + Logger</li>
+ *   <li>Logger-Konfig auf {@code <PHASE1_AND_PHASE2>.log} + {@code TimeLine.log}</li>
  *   <li>{@link EnvironmentConfig#setTestResourcesDir} auf {@code <root>/<DEFAUL_TESTS_SOURCE>}</li>
- *   <li>{@link EnvironmentConfig#getCustomerTestInfoMapMap} — tolerant gegen fehlende Daten</li>
+ *   <li>{@link EnvironmentConfig#getCustomerTestInfoMapMap}</li>
  * </ol>
  */
-public final class CteTestAutomatisierung {
+public final class CteTestAutomatisierung implements TesunClientJobListener {
+
+    private static final Logger LOGGER = Logger.getLogger(CteTestAutomatisierung.class);
 
     public static final String APP_LOG_FILE = TestSupportClientKonstanten.TEST_TYPES.PHASE1_AND_PHASE2 + ".log";
     public static final String TIMELINE_LOG_FILE = "TimeLine.log";
 
     private final EnvironmentConfig environmentConfig;
-    private final TesunClientJobListener tesunClientJobListener;
     private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> testCustomerMapMap;
 
     public CteTestAutomatisierung(EnvironmentConfig environmentConfig) {
-        this(environmentConfig, null);
-    }
-
-    public CteTestAutomatisierung(EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
         this.environmentConfig = environmentConfig;
-        this.tesunClientJobListener = listener;
         initForEnvironment();
     }
 
-    /**
-     * Initialisiert die Umgebung — entspricht
-     * {@code ActivitiTestAutomatisierung#initForEnvironment}.
-     */
+    /** Pendant zu {@code ActivitiTestAutomatisierung#initForEnvironment}. */
     private void initForEnvironment() {
         try {
             notifyClientJob(Level.INFO, String.format(
@@ -74,12 +69,11 @@ public final class CteTestAutomatisierung {
 
             EnvironmentLockManager.registerShutdownHook();
             if (!TestEnvironmentManager.switchEnvironment(environmentConfig)) {
-                notifyClientJob(Level.ERROR, "Konnte Umgebung "
-                        + environmentConfig.getCurrentEnvName() + " nicht aktivieren!");
-                throw new IllegalStateException("Umgebungs-Lock konnte nicht erworben werden.");
+                throw new IllegalStateException("Umgebungs-Lock für '"
+                        + environmentConfig.getCurrentEnvName() + "' konnte nicht erworben werden.");
             }
 
-            // Logs zusätzlich an die Original-Dateinamen koppeln
+            // Logger-Dateien analog zum Original benennen
             File logsDir = environmentConfig.getLogOutputsRootForEnv(environmentConfig.getCurrentEnvName());
             if (!TimelineLogger.configure(logsDir, APP_LOG_FILE, TIMELINE_LOG_FILE)) {
                 notifyClientJob(Level.ERROR, "Exception beim Konfigurieren der LOG-Dateien!\n");
@@ -105,10 +99,6 @@ public final class CteTestAutomatisierung {
         }
     }
 
-    /**
-     * Lädt das Kunden-Map-Map. Liefert leere Maps zurück, wenn die
-     * X-TESTS/ITSQ-Daten fehlen — Demo-Mode bleibt damit lauffähig.
-     */
     private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> loadCustomerTestInfoMapMapTolerant() {
         try {
             return environmentConfig.getCustomerTestInfoMapMap();
@@ -129,25 +119,31 @@ public final class CteTestAutomatisierung {
             Map<String, TestCustomer> customers = mapMap.get(phase);
             notifyClientJob(Level.INFO, "\n" + customers.size() + " Kunden für " + phase + " ausgewählt.");
             for (TestCustomer testCustomer : customers.values()) {
-                notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle des Kunden "
-                        + testCustomer.getCustomerName() + " in " + phase);
+                notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle für " + testCustomer.getCustomerName() + " in " + phase);
             }
         }
     }
 
     /**
-     * Startet den State-Machine-Prozess für den gewählten Modus.
+     * Startet den State-Machine-Prozess. {@code isDemoMode} wird in die
+     * Task-Variablen geschrieben und ausschließlich von den Handlern
+     * ausgewertet — der Runner verzweigt selbst nicht.
      *
-     * @param isDemoMode {@code true} = REST-Aufrufe werden simuliert
+     * <p>Pendant zu {@code ActivitiTestAutomatisierung#startActivitiProcess},
+     * das im Original {@code setTaskVariablesMap(false)} hart kodiert.
      */
     public ProcessOutcome startProcess(boolean isDemoMode) throws PropertiesException {
         try (TimelineLogger.Action overall =
                      TimelineLogger.action("CteAutomatedTestProcess", environmentConfig.getCurrentEnvName())) {
-            ProcessDefinition definition = CteAutomatedTestProcess.build(environmentConfig, tesunClientJobListener);
-            Map<String, Object> taskVariablesMap = buildTaskVariablesMap(isDemoMode);
-            ProcessRunner runner = new ProcessRunner(
-                    new de.creditreform.crefoteam.cte.statemachine.ProcessEngine(),
-                    new ConsoleProcessListener());
+            ProcessDefinition definition = CteAutomatedTestProcess.build(environmentConfig, this);
+            Map<String, Object> taskVariablesMap = buildTaskVariablesMap(
+                    isDemoMode,
+                    testCustomerMapMap,
+                    TestSupportClientKonstanten.TEST_TYPES.PHASE1_AND_PHASE2,
+                    TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
+                    true,
+                    false);
+            ProcessRunner runner = new ProcessRunner(new ProcessEngine(), new ConsoleProcessListener());
             ProcessOutcome outcome = runner.run(definition, taskVariablesMap);
             overall.result(outcome.name());
             TimelineLogger.info(getClass(), "Endzustand: {}", outcome);
@@ -155,26 +151,41 @@ public final class CteTestAutomatisierung {
         }
     }
 
-    /** Pendant zu {@code ActivitiTestSupport#buildTaskVariablesMap}. */
-    public Map<String, Object> buildTaskVariablesMap(boolean isDemoMode) {
-        return buildTaskVariablesMap(isDemoMode,
-                CteAutomatedTestProcess.TEST_TYPE_PHASE1_AND_PHASE2,
-                TestSupportClientKonstanten.TEST_PHASE.PHASE_1);
-    }
+    /**
+     * Pendant zu {@code ActivitiTestSupport#buildTaskVariablesMap} — alle
+     * 16 Task-Variablen, die das Original setzt. ACTIVITI_PROCESS_NAME
+     * bleibt erhalten (auch wenn Activiti nicht mehr läuft), damit Handler,
+     * die diesen Wert lesen, kompatibel bleiben.
+     */
+    public Map<String, Object> buildTaskVariablesMap(
+            boolean isDemoMode,
+            Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> customers,
+            TestSupportClientKonstanten.TEST_TYPES testType,
+            TestSupportClientKonstanten.TEST_PHASE testPhase,
+            boolean useOnlyTestClz,
+            boolean uploadSynthetics) throws PropertiesException {
 
-    public Map<String, Object> buildTaskVariablesMap(boolean isDemoMode,
-                                                     String testType,
-                                                     TestSupportClientKonstanten.TEST_PHASE testPhase) {
         Map<String, Object> vars = new HashMap<>();
-        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, testPhase);
-        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE, testType);
-        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, isDemoMode);
-        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS, testCustomerMapMap);
-        vars.put(TesunClientJobListener.UT_TASK_PARAM_USE_ONLY_TEST_CLZ, Boolean.FALSE);
+        vars.put(UT_TASK_PARAM_NAME_DEMO_MODE, isDemoMode);
+        vars.put(UT_TASK_PARAM_NAME_MEIN_KEY, environmentConfig.getActivitProcessKey());
+        vars.put(UT_TASK_PARAM_NAME_ACTIVITI_PROCESS_NAME, environmentConfig.getActivitiProcessName());
+        vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_BTLG_IMPORT, environmentConfig.getMillisBeforeBtlgImport(isDemoMode));
+        vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_CT_IMPORT, environmentConfig.getMillisBeforeCtImport(isDemoMode));
+        vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_EXPORT, environmentConfig.getMillisBeforeExports(isDemoMode));
+        vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_EXPORTS_COLLECT, environmentConfig.getMillisBeforeCollectExports(isDemoMode));
+        vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_SFTP_COLLECT, environmentConfig.getMillisBeforeCollectSftpUploads(isDemoMode));
+        vars.put(UT_TASK_PARAM_NAME_EMAIL_FROM, environmentConfig.getActivitiEmailFrom());
+        vars.put(UT_TASK_PARAM_NAME_SUCCESS_EMAIL_TO, environmentConfig.getActivitiSuccessEmailTo());
+        vars.put(UT_TASK_PARAM_NAME_FAILURE_EMAIL_TO, environmentConfig.getActivitiFailureEmailTo());
+        vars.put(UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS, customers);
+        vars.put(UT_TASK_PARAM_NAME_TEST_TYPE, testType);
+        vars.put(UT_TASK_PARAM_NAME_TEST_PHASE, testPhase);
+        vars.put(UT_TASK_PARAM_USE_ONLY_TEST_CLZ, useOnlyTestClz);
+        vars.put(UT_TASK_PARAM_UPLOAD_SYNTH_TEST_CREFOS, uploadSynthetics);
         return vars;
     }
 
-    /** Schließt Lock + Logger. Vor dem JVM-Exit aufrufen. */
+    /** Schließt Lock + Logger. Vor JVM-Exit aufrufen. */
     public void shutdown() {
         TestEnvironmentManager.reset();
     }
@@ -185,11 +196,50 @@ public final class CteTestAutomatisierung {
         return testCustomerMapMap;
     }
 
-    private void notifyClientJob(Level level, String message) {
-        if (tesunClientJobListener != null) {
-            tesunClientJobListener.notifyClientJob(level, message);
-        } else {
-            TimelineLogger.info(getClass(), "[{}] {}", level, message);
+    // ===================================================================
+    // TesunClientJobListener — analog ActivitiTestAutomatisierung
+    // ===================================================================
+
+    @Override
+    public void notifyClientJob(Level level, Object notifyObject) {
+        if (notifyObject == null) {
+            return;
+        }
+        String text = notifyObject.toString();
+        if (text.startsWith(".")) {
+            return;
+        }
+        TimelineLogger.info(getClass(), text.replaceAll("\t", " "));
+    }
+
+    @Override
+    public Object askClientJob(ASK_FOR askFor, Object userObject) {
+        try {
+            switch (askFor) {
+                case ASK_OBJECT_RETRY:
+                    notifyClientJob(Level.INFO, userObject + "\n\tVersuche NICHT erneut, ABBRUCH!");
+                    return Boolean.FALSE;
+                case ASK_OBJECT_CTE_VERSION:
+                    return environmentConfig.getCteVersion() == null ? 0
+                            : Integer.valueOf(environmentConfig.getCteVersion());
+                case ASK_REF_EXPORTS_PATH:
+                case ASK_TEST_CASES_PATH:
+                    return environmentConfig.getItsqRefExportsRoot().getAbsolutePath();
+                case ASK_WAIT_FOR_TEST_SYSTEM:
+                case ASK_OBJECT_COPY_EXPORTS_TO_INPUTS:
+                case ASK_OBJECT_CREATE_NEW_SOLL:
+                case ASK_OBJECT_ANAYLSE_CHECKS:
+                case ASK_OBJECT_CHECK_DOWNLOADS:
+                case ASK_CHECK_COLLECTS:
+                    return Boolean.TRUE;
+                case ASK_OBJECT_EXCEPTION:
+                    return userObject;
+                default:
+                    throw new PropertiesException("Unbekannte Rückfrage: " + askFor + "!");
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Fehler in askClientJob: " + askFor, ex);
+            return null;
         }
     }
 }

@@ -14,12 +14,9 @@ import org.apache.log4j.Logger;
  *
  * <p>Argumente: siehe {@link CliArgs#usage()}.
  *
- * <p>Aufrufbeispiele:
- * <pre>
- *   Main                       → Demo-Mode, in-memory Config
- *   Main e:ENE                 → Real-Mode gegen ENE-config.properties
- *   Main e:ENE -Demo:true      → ENE-Config geladen, aber Demo-Mode aktiv
- * </pre>
+ * <p>{@code e:<env>} ist Pflicht — die Umgebungs-Properties werden immer
+ * geladen, analog zum Original. Demo-Mode wirkt ausschließlich in den
+ * Handlern (via {@code checkDemoMode}).
  */
 public final class Main {
 
@@ -30,6 +27,7 @@ public final class Main {
         CliArgs cli;
         try {
             cli = CliArgs.parse(args);
+            cli.requireValid();
         } catch (IllegalArgumentException ex) {
             System.err.println(ex.getMessage());
             System.err.println();
@@ -38,9 +36,7 @@ public final class Main {
             return;
         }
 
-        EnvironmentConfig env = (cli.getEnvName() == null)
-                ? EnvironmentConfig.forDemo("http://unused-in-demo")
-                : new EnvironmentConfig(cli.getEnvName());
+        EnvironmentConfig env = new EnvironmentConfig(cli.getEnvName());
 
         CteTestAutomatisierung runner = new CteTestAutomatisierung(env);
         try {

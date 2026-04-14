@@ -181,6 +181,12 @@ public class EnvironmentConfig {
         ec.mainProperties.setProperty(PROPNAME_JOBSTATUS_QUERY_SLEEPTIME, "PT" + pollSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_IMPORT_CYCLE_TIME_OUT, "PT" + timeoutSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_TEST_RSC_DIR, "X-TESTS");
+        // ACTIVITI-Properties: zur Migration noch in TaskVariablen sichtbar,
+        // werden aber von keinem State-Machine-Handler ausgewertet.
+        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_PROCESS_NAME, "DEMO-TestAutomationProcess");
+        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FROM, "test-automatisierung@local");
+        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_SUCCESS_TO, "demo@local");
+        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FAILURE_TO, "demo@local");
         ec.mainProperties.setProperty(PROPNAME_JOB_NAME_IMPORT_CYCLE,
                 "IMPORTCYCLE;importcycle.importCycle;BETEILIGUNGEN_IMPORT,ENTSCHEIDUNGSTRAEGER_BERECHNUNG,BTLG_UPDATE_TRIGGER,FROM_STAGING_INTO_CTE");
         ec.mainProperties.setProperty(PROPNAME_JOB_NAME_BTLG_IMPORT_DELTA,

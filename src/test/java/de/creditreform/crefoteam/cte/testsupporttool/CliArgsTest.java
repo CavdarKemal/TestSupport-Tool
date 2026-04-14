@@ -8,15 +8,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class CliArgsTest {
 
     @Test
-    void noArgs_defaultsToDemoModeWithoutEnv() {
-        CliArgs cli = CliArgs.parse(new String[0]);
-
-        assertThat(cli.getEnvName()).isNull();
-        assertThat(cli.isDemoMode()).isTrue();
-        assertThat(cli.isDemoExplicit()).isFalse();
-    }
-
-    @Test
     void onlyEnv_defaultsToRealMode() {
         CliArgs cli = CliArgs.parse(new String[]{"e:ENE"});
 
@@ -25,11 +16,19 @@ class CliArgsTest {
     }
 
     @Test
-    void envAndDemoTrue_loadsEnvButRunsInDemoMode() {
+    void envAndDemoTrue_runsHandlersInDemoMode() {
         CliArgs cli = CliArgs.parse(new String[]{"e:ENE", "-Demo:true"});
 
         assertThat(cli.getEnvName()).isEqualTo("ENE");
         assertThat(cli.isDemoMode()).isTrue();
+        assertThat(cli.isDemoExplicit()).isTrue();
+    }
+
+    @Test
+    void envAndDemoFalse_runsRealMode() {
+        CliArgs cli = CliArgs.parse(new String[]{"e:ENE", "Demo:false"});
+
+        assertThat(cli.isDemoMode()).isFalse();
         assertThat(cli.isDemoExplicit()).isTrue();
     }
 
@@ -41,16 +40,31 @@ class CliArgsTest {
 
     @Test
     void aliases_demoAndDemoMode() {
-        assertThat(CliArgs.parse(new String[]{"demo:false"}).isDemoMode()).isFalse();
-        assertThat(CliArgs.parse(new String[]{"-DemoMode:false"}).isDemoMode()).isFalse();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "demo:true"}).isDemoMode()).isTrue();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "-DemoMode:true"}).isDemoMode()).isTrue();
     }
 
     @Test
     void boolValueAliases_jaUndNein() {
-        assertThat(CliArgs.parse(new String[]{"Demo:ja"}).isDemoMode()).isTrue();
-        assertThat(CliArgs.parse(new String[]{"Demo:nein"}).isDemoMode()).isFalse();
-        assertThat(CliArgs.parse(new String[]{"Demo:1"}).isDemoMode()).isTrue();
-        assertThat(CliArgs.parse(new String[]{"Demo:0"}).isDemoMode()).isFalse();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "Demo:ja"}).isDemoMode()).isTrue();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "Demo:nein"}).isDemoMode()).isFalse();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "Demo:1"}).isDemoMode()).isTrue();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "Demo:0"}).isDemoMode()).isFalse();
+    }
+
+    @Test
+    void requireValid_failsWhenEnvMissing() {
+        CliArgs cli = CliArgs.parse(new String[]{"Demo:true"});
+        assertThatThrownBy(cli::requireValid)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Pflicht-Argument fehlt: e:<envName>");
+    }
+
+    @Test
+    void requireValid_failsForEmptyArgs() {
+        CliArgs cli = CliArgs.parse(new String[0]);
+        assertThatThrownBy(cli::requireValid)
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -69,7 +83,7 @@ class CliArgsTest {
 
     @Test
     void invalidBoolValue_fails() {
-        assertThatThrownBy(() -> CliArgs.parse(new String[]{"Demo:vielleicht"}))
+        assertThatThrownBy(() -> CliArgs.parse(new String[]{"e:ENE", "Demo:vielleicht"}))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Boolean-Wert");
     }
