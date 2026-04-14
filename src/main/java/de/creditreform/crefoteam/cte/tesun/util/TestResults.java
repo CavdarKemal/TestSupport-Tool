@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 /**
- * Schalen-Port aus {@code testsupport_client.tesun_util}. Die
- * XML-Diff-bezogene innere Klasse {@code DiffenrenceInfo} wurde
- * bewusst nicht portiert — sie zieht die xmlunit-Library nach sich.
- * Kann später ergänzt werden, wenn Check-Tasks portiert werden.
+ * Port aus {@code testsupport_client.tesun_util} ohne {@code DiffenrenceInfo}
+ * — diese innere Klasse zieht {@code org.custommonkey.xmlunit.Difference} nach
+ * sich. Sie kann später ergänzt werden, wenn Check-Tasks portiert werden, die
+ * XML-Vergleiche durchführen.
  */
 public class TestResults {
 
@@ -31,8 +31,7 @@ public class TestResults {
 
     public StringBuilder dumpResults(StringBuilder stringBuilder, String prefix) {
         for (ResultInfo resultInfo : resultInfosList) {
-            stringBuilder.append(prefix).append("\t");
-            stringBuilder.append(resultInfo.getErrorStr());
+            stringBuilder.append(prefix).append("\t").append(resultInfo.getErrorStr());
         }
         return stringBuilder;
     }
@@ -47,8 +46,17 @@ public class TestResults {
             this.errorStr = errorStr;
         }
 
+        public ResultInfo(String xmlName, String errorStr) {
+            this.crefoNummer = extractCrefonummer(xmlName);
+            this.errorStr = errorStr;
+        }
+
         public ResultInfo(String errorStr) {
-            this.crefoNummer = extractCrefonummer(errorStr);
+            try {
+                this.crefoNummer = extractCrefonummer(errorStr);
+            } catch (Exception ex) {
+                this.crefoNummer = -1L;
+            }
             this.errorStr = errorStr;
         }
 
@@ -64,7 +72,6 @@ public class TestResults {
         }
 
         public Long getCrefoNummer() { return crefoNummer; }
-
         public String getErrorStr() { return errorStr; }
 
         public String appendToErrorStr(String strAppend) {

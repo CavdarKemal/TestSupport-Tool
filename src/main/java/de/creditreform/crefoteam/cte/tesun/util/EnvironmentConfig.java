@@ -453,10 +453,18 @@ public class EnvironmentConfig {
     }
 
     public File getTestResourcesDir() {
-        if (testResourcesDir == null) {
-            throw new IllegalStateException("setTestResourcesDir() wurde nicht aufgerufen!");
+        if (testResourcesDir != null) {
+            return testResourcesDir;
         }
-        return testResourcesDir;
+        // Auto-Resolve: <testResourcesRoot>/<lastTestSource>/<lastItsqRevision>
+        // Beispiel: X-TESTS/ITSQ/ZWEI_PHASEN. Entspricht dem Default-Setup,
+        // das die GUI im Original-Projekt vornimmt.
+        File root = testResourcesRoot != null
+                ? testResourcesRoot
+                : new File(System.getProperty("user.dir"), "X-TESTS");
+        String source = lastTestSource != null ? lastTestSource : TestSupportClientKonstanten.DEFAUL_TESTS_SOURCE;
+        String revision = lastItsqRevision != null ? lastItsqRevision : TestSupportClientKonstanten.DEFAULT_ITSQ_REVISION;
+        return new File(new File(root, source), revision);
     }
 
     public void setTestResourcesDir(File testResourcesDir) {
