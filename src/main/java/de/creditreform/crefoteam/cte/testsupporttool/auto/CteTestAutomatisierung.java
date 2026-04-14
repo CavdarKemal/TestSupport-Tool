@@ -67,40 +67,54 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
         initForEnvironment();
     }
 
-    /** Pendant zu {@code ActivitiTestAutomatisierung#initForEnvironment}. */
+    /**
+     * Initialisiert Logger, Env-Lock und Kunden-Konfiguration exakt analog
+     * zum GUI-Ablauf {@code TestSupportGUI}-Konstruktor + {@code TestSupportView}-
+     * Konstruktor + {@code TestSupportView.initForEnvironment} +
+     * {@code CustomerInitializer.initCustomers} (ohne GUI-Interaktion) — 1:1
+     * die gleiche Sequenz wie {@code ActivitiTestAutomatisierung#initForEnvironment}.
+     *
+     * <p>Abweichung vom Original-Pfad: {@code sourceDir.mkdirs()} statt Exception
+     * und {@link #loadCustomerTestInfoMapMapTolerant}, damit der
+     * {@code EnvironmentConfig.forDemo}-Pfad in Tests ohne echtes
+     * {@code X-TESTS/ITSQ}-Verzeichnis funktioniert.
+     */
     private void initForEnvironment() {
         try {
-            notifyClientJob(Level.INFO, String.format(
-                    "\nInitialisiere Test-Resourcen für die Umgebung %s...",
-                    environmentConfig.getCurrentEnvName()));
-
-            EnvironmentLockManager.registerShutdownHook();
-            if (!TestEnvironmentManager.switchEnvironment(environmentConfig)) {
-                throw new IllegalStateException("Umgebungs-Lock für '"
-                        + environmentConfig.getCurrentEnvName() + "' konnte nicht erworben werden.");
-            }
-
-            // Logger-Dateien analog zum Original benennen
-            File logsDir = environmentConfig.getLogOutputsRootForEnv(environmentConfig.getCurrentEnvName());
-            if (!TimelineLogger.configure(logsDir, APP_LOG_FILE, TIMELINE_LOG_FILE)) {
+            // 1-3: identisch zu TestSupportGUI-Konstruktor
+            if (!TimelineLogger.configure(environmentConfig.getLogOutputsRoot(),
+                    APP_LOG_FILE, TIMELINE_LOG_FILE)) {
                 notifyClientJob(Level.ERROR, "Exception beim Konfigurieren der LOG-Dateien!\n");
             }
+            if (!TestEnvironmentManager.switchEnvironment(environmentConfig)) {
+                throw new IllegalStateException("Die Umgebung "
+                        + environmentConfig.getCurrentEnvName()
+                        + " ist gesperrt, da eine andere Instanz in dieser Umgebung läuft.");
+            }
+            EnvironmentLockManager.registerShutdownHook();
 
-            notifyClientJob(Level.INFO, String.format(
-                    "\nInitialisiere für die Umgebung %s...",
-                    environmentConfig.getCurrentEnvName()));
+            // 4: Pendant zu TestSupportView.initForEnvironment
+            notifyClientJob(Level.INFO, String.format("\nInitialisiere für die Umgebung %s...", environmentConfig.getCurrentEnvName()));
+            notifyClientJob(Level.INFO, String.format("\nInitialisiere Test-Resourcen für die Umgebung %s...", environmentConfig.getCurrentEnvName()));
 
-            File rootDir = environmentConfig.getTestResourcesRoot() != null
+            // 5: Pendant zu CustomerInitializer.checkAndSetTestsSource
+            String testSetSource = environmentConfig.getLastTestSource();
+            if (testSetSource == null || testSetSource.isEmpty()) {
+                testSetSource = TestSupportClientKonstanten.DEFAUL_TESTS_SOURCE;
+            }
+            File testResourcesRoot = environmentConfig.getTestResourcesRoot() != null
                     ? environmentConfig.getTestResourcesRoot()
                     : new File(System.getProperty("user.dir"), "X-TESTS");
-            File sourceDir = new File(rootDir, TestSupportClientKonstanten.DEFAUL_TESTS_SOURCE);
+            File sourceDir = new File(testResourcesRoot, testSetSource);
             if (!sourceDir.exists()) {
+                // Spike-Toleranz für forDemo-Tests: statt Abbruch anlegen.
                 sourceDir.mkdirs();
             }
             environmentConfig.setTestResourcesDir(sourceDir);
+            environmentConfig.setLastTestSource(testSetSource);
 
-            this.testCustomerMapMap = loadCustomerTestInfoMapMapTolerant();
-            initTestCasesForCustomers(testCustomerMapMap);
+            // 6: Pendant zu CustomerInitializer.initTestCasesForCustomers
+            initTestCasesForCustomers();
         } catch (Throwable ex) {
             notifyClientJob(Level.ERROR, "Exception beim Laden der Konfiguration!\n" + ex.getMessage());
         }
@@ -119,15 +133,35 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
         }
     }
 
-    /** Pendant zu {@code ActivitiTestAutomatisierung#initTestCasesForCustomers}. */
-    private void initTestCasesForCustomers(Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> mapMap) {
-        notifyClientJob(Level.INFO, "\n\tErmittle Kunden-Konfiguration für die Test-Phasen...");
-        for (TestSupportClientKonstanten.TEST_PHASE phase : mapMap.keySet()) {
-            Map<String, TestCustomer> customers = mapMap.get(phase);
-            notifyClientJob(Level.INFO, "\n" + customers.size() + " Kunden für " + phase + " ausgewählt.");
-            for (TestCustomer testCustomer : customers.values()) {
-                notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle für " + testCustomer.getCustomerName() + " in " + phase);
-            }
+    /**
+     * Pendant zu {@code CustomerInitializer.initTestCasesForCustomers} ohne
+     * GUI-Callbacks. Lädt die Kunden-Konfiguration, loggt pro Phase und
+     * schreibt pro Phase einen {@code Dump-INIT-<PHASE>.txt}.
+     */
+    private void initTestCasesForCustomers() throws Exception {
+        notifyClientJob(Level.INFO, "\n\tLese die Test-Crefos-Konfiguration aus dem ITSQ-Verzeichnis...");
+        this.testCustomerMapMap = loadCustomerTestInfoMapMapTolerant();
+        notifyClientJob(Level.INFO, "\n\tErmittle TesunConfigInfo für die Kunden...");
+/* CLAUDE_MODE
+        TesunRestService tesunRestServiceWLS = getTestSupportHelper().getTesunRestServiceWLS();
+        SystemInfo systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
+*/
+        notifyClientJob(Level.INFO, "\n\tErmittle KundenKonfigList für die Kunden...");
+        for (TestSupportClientKonstanten.TEST_PHASE testPhase : testCustomerMapMap.keySet()) {
+            Map<String, TestCustomer> testCustomerMap = testCustomerMapMap.get(testPhase);
+            notifyClientJob(Level.INFO, "\n" + testCustomerMap.size() + " Kunden sind für den Test in " + testPhase + " ausgewählt.");
+            testCustomerMap.entrySet().forEach(testCustomerEntry -> {
+                try {
+                    TestCustomer testCustomer = testCustomerEntry.getValue();
+                    notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle des Kunden für " + testCustomer.getCustomerName() + " aus " + testPhase);
+/* CLAUDE_MODE
+                    tesunRestServiceWLS.extendTestCustomerProperiesInfos(testCustomer, systemInfo);
+*/
+                } catch (Exception ex) {
+                    notifyClientJob(Level.ERROR, ex.toString());
+                }
+            });
+            CustomerUtils.dumpCustomers(environmentConfig.getLogOutputsRoot(), "INIT-" + testPhase.name(), testCustomerMap);
         }
     }
 
