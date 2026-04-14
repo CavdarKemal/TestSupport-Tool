@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +29,13 @@ class CteTestAutomatisierungTest {
     void redirectUserDirToTmp(@TempDir Path tmp) {
         originalUserDir = System.getProperty("user.dir");
         System.setProperty("user.dir", tmp.toAbsolutePath().toString());
+
+        // X-TESTS/ITSQ/REF-EXPORTS/PHASE-{1,2} ist Pflicht für
+        // EnvironmentConfig.forDemo + CteTestAutomatisierung.initForEnvironment.
+        // Demo-Mode schließt nur REST-Aufrufe aus, nicht die Kunden-Init.
+        File itsqRoot = new File(tmp.toFile(), "X-TESTS/ITSQ/REF-EXPORTS");
+        assertThat(new File(itsqRoot, "PHASE-1").mkdirs()).isTrue();
+        assertThat(new File(itsqRoot, "PHASE-2").mkdirs()).isTrue();
     }
 
     @AfterEach

@@ -74,10 +74,10 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
      * {@code CustomerInitializer.initCustomers} (ohne GUI-Interaktion) — 1:1
      * die gleiche Sequenz wie {@code ActivitiTestAutomatisierung#initForEnvironment}.
      *
-     * <p>Abweichung vom Original-Pfad: {@code sourceDir.mkdirs()} statt Exception
-     * und {@link #loadCustomerTestInfoMapMapTolerant}, damit der
-     * {@code EnvironmentConfig.forDemo}-Pfad in Tests ohne echtes
-     * {@code X-TESTS/ITSQ}-Verzeichnis funktioniert.
+     * <p>Demo-Mode bedeutet <b>ausschließlich</b>: keine REST-Aufrufe und keine
+     * Worker-Logik in den Handlern. Die Kunden-Initialisierung aus dem
+     * {@code X-TESTS/ITSQ}-Verzeichnis ist auch im Demo-Mode Pflicht — das
+     * Verzeichnis muss existieren, sonst scheitert {@code initForEnvironment}.
      */
     private void initForEnvironment() {
         try {
@@ -102,13 +102,10 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
             if (testSetSource == null || testSetSource.isEmpty()) {
                 testSetSource = TestSupportClientKonstanten.DEFAUL_TESTS_SOURCE;
             }
-            File testResourcesRoot = environmentConfig.getTestResourcesRoot() != null
-                    ? environmentConfig.getTestResourcesRoot()
-                    : new File(System.getProperty("user.dir"), "X-TESTS");
-            File sourceDir = new File(testResourcesRoot, testSetSource);
+            File sourceDir = new File(environmentConfig.getTestResourcesRoot(), testSetSource);
             if (!sourceDir.exists()) {
-                // Spike-Toleranz für forDemo-Tests: statt Abbruch anlegen.
-                sourceDir.mkdirs();
+                throw new IllegalStateException("Die selektierte Quelle " + sourceDir
+                        + " existiert nicht! Bitte andere Quelle wählen.");
             }
             environmentConfig.setTestResourcesDir(sourceDir);
             environmentConfig.setLastTestSource(testSetSource);
@@ -120,19 +117,6 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
         }
     }
 
-    private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> loadCustomerTestInfoMapMapTolerant() {
-        try {
-            return environmentConfig.getCustomerTestInfoMapMap();
-        } catch (Exception ex) {
-            notifyClientJob(Level.WARN, "Keine X-TESTS/ITSQ-Daten gefunden — leere Kundenmap.\n  " + ex.getMessage());
-            Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> empty = new TreeMap<>();
-            for (TestSupportClientKonstanten.TEST_PHASE p : TestSupportClientKonstanten.TEST_PHASE.values()) {
-                empty.put(p, new TreeMap<>());
-            }
-            return empty;
-        }
-    }
-
     /**
      * Pendant zu {@code CustomerInitializer.initTestCasesForCustomers} ohne
      * GUI-Callbacks. Lädt die Kunden-Konfiguration, loggt pro Phase und
@@ -140,7 +124,7 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
      */
     private void initTestCasesForCustomers() throws Exception {
         notifyClientJob(Level.INFO, "\n\tLese die Test-Crefos-Konfiguration aus dem ITSQ-Verzeichnis...");
-        this.testCustomerMapMap = loadCustomerTestInfoMapMapTolerant();
+        this.testCustomerMapMap = environmentConfig.getCustomerTestInfoMapMap();
         notifyClientJob(Level.INFO, "\n\tErmittle TesunConfigInfo für die Kunden...");
 /* CLAUDE_MODE
         TesunRestService tesunRestServiceWLS = getTestSupportHelper().getTesunRestServiceWLS();

@@ -181,6 +181,10 @@ public class EnvironmentConfig {
         ec.mainProperties.setProperty(PROPNAME_JOBSTATUS_QUERY_SLEEPTIME, "PT" + pollSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_IMPORT_CYCLE_TIME_OUT, "PT" + timeoutSecs + "S");
         ec.mainProperties.setProperty(PROPNAME_TEST_RSC_DIR, "X-TESTS");
+        // Kunden-Initialisierung aus X-TESTS/ITSQ ist auch im Demo-Mode Pflicht;
+        // ohne AVAILABLE_CUSTOMERS wirft getAvailableCustomersFromProperties. Der
+        // Dummy-Wert existiert nie als Subdir in REF-EXPORTS/<PHASE> → leere Map.
+        ec.mainProperties.setProperty(PROPNAME_AVAILABLE_CUSTOMERS, "_DEMO_PLACEHOLDER_");
         // ACTIVITI-Properties: zur Migration noch in TaskVariablen sichtbar,
         // werden aber von keinem State-Machine-Handler ausgewertet.
         ec.mainProperties.setProperty(PROPNAME_ACTIVITI_PROCESS_NAME, "DEMO-TestAutomationProcess");
@@ -197,6 +201,15 @@ public class EnvironmentConfig {
                 "IMPORTCYCLE;importcycle.btlnAktualisierung;BTLG_UPDATE_TRIGGER");
         ec.mainProperties.setProperty(PROPNAME_JOB_NAME_CT_IMPORT_DELTA,
                 "IMPORTCYCLE;importcycle.ctImportDelta;FROM_STAGING_INTO_CTE");
+        // Demo-Mode schließt nur REST-Aufrufe und Worker-Teile der Handler aus —
+        // die Kunden-Initialisierung aus X-TESTS ist auch im Demo-Mode Pflicht.
+        try {
+            ec.testResourcesRoot = ec.findTestResourcesRoot();
+        } catch (Exception ex) {
+            throw new RuntimeException("forDemo benötigt ein '"
+                    + ec.mainProperties.getProperty(PROPNAME_TEST_RSC_DIR)
+                    + "'-Verzeichnis im Pfadbaum ab '" + System.getProperty("user.dir") + "'", ex);
+        }
         return ec;
     }
 
