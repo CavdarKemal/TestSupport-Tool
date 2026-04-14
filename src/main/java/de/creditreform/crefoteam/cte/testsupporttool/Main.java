@@ -41,7 +41,7 @@ public final class Main {
         CteTestAutomatisierung runner = new CteTestAutomatisierung(env);
         try {
             ProcessOutcome outcome = runner.startProcess(cli.isDemoMode());
-            System.exit(outcome == ProcessOutcome.COMPLETED ? 0 : 1);
+            System.exit(runner.computeExitCode(outcome));
         } finally {
             runner.shutdown();
         }

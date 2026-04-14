@@ -67,6 +67,37 @@ class CteTestAutomatisierungTest {
     }
 
     @Test
+    void startProcess_demoMode_writesTestResultsFileAndZip() throws Exception {
+        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        runner = new CteTestAutomatisierung(env);
+
+        runner.startProcess(true);
+
+        // TestResults.txt wird in testOutputsRoot abgelegt — auch wenn leer
+        java.io.File testResults = new java.io.File(env.getTestOutputsRoot(), "TestResults.txt");
+        assertThat(testResults).as("TestResults.txt muss geschrieben werden").exists();
+
+        // ZIP wird im Elternverzeichnis von testOutputsRoot angelegt
+        assertThat(runner.getLastZipFilePath())
+                .as("ZIP-Pfad muss gesetzt sein").isNotNull();
+        assertThat(new java.io.File(runner.getLastZipFilePath()))
+                .as("ZIP-Datei muss existieren").exists();
+    }
+
+    @Test
+    void computeExitCode_followsOriginalSemantics() {
+        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        runner = new CteTestAutomatisierung(env);
+
+        // outcome != COMPLETED → 1
+        assertThat(runner.computeExitCode(ProcessOutcome.ABORTED)).isEqualTo(1);
+        assertThat(runner.computeExitCode(ProcessOutcome.FAILED)).isEqualTo(1);
+
+        // outcome == COMPLETED und leerer Dump → 0 (kein Aufruf von startProcess: lastResultsBodyLength ist 0)
+        assertThat(runner.computeExitCode(ProcessOutcome.COMPLETED)).isEqualTo(0);
+    }
+
+    @Test
     void buildTaskVariablesMap_containsAllSixteenOriginalKeys() throws Exception {
         EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
         runner = new CteTestAutomatisierung(env);

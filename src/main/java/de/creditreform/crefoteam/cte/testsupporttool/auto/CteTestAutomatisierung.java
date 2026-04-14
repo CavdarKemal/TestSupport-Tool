@@ -14,6 +14,9 @@ import de.creditreform.crefoteam.cte.testsupporttool.env.EnvironmentLockManager;
 import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
+import de.creditreform.crefoteam.cte.testsupporttool.util.CustomerUtils;
+import de.creditreform.crefoteam.cte.testsupporttool.util.FileSystemUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -54,6 +57,10 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
 
     private final EnvironmentConfig environmentConfig;
     private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> testCustomerMapMap;
+    /** Länge des über alle Phasen aggregierten TestResults-Dumps aus dem letzten Lauf. */
+    private int lastResultsBodyLength;
+    /** Pfad der im letzten Lauf erzeugten ZIP-Datei (oder {@code null} bei Fehler). */
+    private String lastZipFilePath;
 
     public CteTestAutomatisierung(EnvironmentConfig environmentConfig) {
         this.environmentConfig = environmentConfig;
@@ -147,9 +154,62 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
             ProcessOutcome outcome = runner.run(definition, taskVariablesMap);
             overall.result(outcome.name());
             TimelineLogger.info(getClass(), "Endzustand: {}", outcome);
+            finalizeResults();
             return outcome;
         }
     }
+
+    /**
+     * Pendant zum zweiten Teil von {@code ActivitiTestAutomatisierung#endACTIVITIProcess}:
+     * aggregiert Kunden-Dumps über alle Phasen, schreibt {@code TestResults.txt} in
+     * {@code testOutputsRoot} und zippt {@code testOutputsRoot} + {@code itsqRefExportsRoot}.
+     * Der E-Mail-Versand ist bewusst nicht enthalten — den erledigen die
+     * UserTaskFailureMail/UserTaskSuccessMail-Handler.
+     */
+    private void finalizeResults() {
+        StringBuilder stringBuilderAll = new StringBuilder();
+        testCustomerMapMap.values().forEach(customersMap ->
+                stringBuilderAll.append(CustomerUtils.dumpAllCustomersResults(customersMap)));
+        lastResultsBodyLength = stringBuilderAll.length();
+
+        try {
+            File outputsRoot = environmentConfig.getTestOutputsRoot();
+            FileUtils.writeStringToFile(new File(outputsRoot, "TestResults.txt"), stringBuilderAll.toString());
+            notifyClientJob(Level.INFO, "\nTest-Results sind im Output-Ordner gespeichert");
+        } catch (Exception ex) {
+            notifyClientJob(Level.ERROR, "Fehler beim Speichern der TestResults-Datei!\n" + ex.getMessage());
+        }
+
+        try {
+            lastZipFilePath = FileSystemUtils.zipOutputDirectory(
+                    environmentConfig.getTestOutputsRoot(),
+                    environmentConfig.getItsqRefExportsRoot(),
+                    environmentConfig.getCurrentEnvName(),
+                    msg -> notifyClientJob(Level.INFO, msg),
+                    msg -> notifyClientJob(Level.WARN, msg),
+                    msg -> notifyClientJob(Level.ERROR, msg));
+        } catch (Exception ex) {
+            notifyClientJob(Level.ERROR, "Fehler beim Zippen der Outputs!\n" + ex.getMessage());
+            lastZipFilePath = null;
+        }
+    }
+
+    /**
+     * Exit-Code analog {@code ActivitiTestAutomatisierung}: {@code -1}, wenn
+     * der aggregierte TestResults-Dump nicht leer ist (Kunden mit Ergebnissen),
+     * sonst {@code 0}. Zusätzlich {@code 1}, wenn die State-Machine nicht
+     * erfolgreich durchgelaufen ist.
+     */
+    public int computeExitCode(ProcessOutcome outcome) {
+        if (outcome != ProcessOutcome.COMPLETED) {
+            return 1;
+        }
+        return lastResultsBodyLength > 0 ? -1 : 0;
+    }
+
+    public int getLastResultsBodyLength() { return lastResultsBodyLength; }
+
+    public String getLastZipFilePath() { return lastZipFilePath; }
 
     /**
      * Pendant zu {@code ActivitiTestSupport#buildTaskVariablesMap} — alle

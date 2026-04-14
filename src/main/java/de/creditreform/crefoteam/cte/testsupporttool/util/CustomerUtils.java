@@ -60,6 +60,23 @@ public final class CustomerUtils {
         return copiedFilesList;
     }
 
+    /**
+     * Aggregiert {@link TestCustomer#dumpResults} über alle Kunden einer Phase.
+     * Port aus {@code TestFallFileUtil.dumAllCustomers} — nur Kunden mit
+     * nicht-leerem Dump landen im Ergebnis.
+     */
+    public static StringBuilder dumpAllCustomersResults(Map<String, TestCustomer> testCustomerMap) {
+        StringBuilder stringBuilderAll = new StringBuilder();
+        testCustomerMap.values().forEach(testCustomer -> {
+            StringBuilder stringBuilder = new StringBuilder();
+            testCustomer.dumpResults(stringBuilder, "\n");
+            if (stringBuilder.length() > 0) {
+                stringBuilderAll.append(stringBuilder);
+            }
+        });
+        return stringBuilderAll;
+    }
+
     public static void dumpCustomers(File logsDir, String prefix, Map<String, TestCustomer> customersMap) throws IOException {
         StringBuilder sb = new StringBuilder(prefix);
         customersMap.values().forEach(testCustomer -> {
