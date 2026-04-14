@@ -5,7 +5,7 @@ import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
 import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
-import org.apache.log4j.Logger;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 
 /**
  * Demo-Pendant zu {@code UserTaskPrepareTestSystem}: führt eine
@@ -18,8 +18,6 @@ import org.apache.log4j.Logger;
  */
 public final class PrepareTestSystemHandler implements Step {
 
-    private static final Logger LOG = Logger.getLogger(PrepareTestSystemHandler.class);
-
     private final EnvironmentConfig environmentConfig;
 
     public PrepareTestSystemHandler(EnvironmentConfig environmentConfig) {
@@ -31,10 +29,12 @@ public final class PrepareTestSystemHandler implements Step {
         Object phase = context.get(TestSupportConstants.VAR_TEST_PHASE);
         Boolean demoMode = context.get(TestSupportConstants.VAR_DEMO_MODE, Boolean.class);
 
-        LOG.info("PrepareTestSystem für Phase=" + phase + ", env=" + environmentConfig.getEnvName());
+        TimelineLogger.info(PrepareTestSystemHandler.class,
+                "PrepareTestSystem für Phase={}, env={}", phase, environmentConfig.getCurrentEnvName());
 
         if (Boolean.TRUE.equals(demoMode)) {
-            LOG.info("  Demo-Mode: Properties-Setup wird simuliert.");
+            TimelineLogger.info(PrepareTestSystemHandler.class,
+                    "  Demo-Mode: Properties-Setup wird simuliert.");
             return StepResult.NEXT;
         }
 
@@ -42,7 +42,7 @@ public final class PrepareTestSystemHandler implements Step {
         // CTE-Datenbank schreiben. Im Spike: nur Marker ablegen, damit Tests
         // die Ausführung nachweisen können.
         context.put("preparedAt", System.currentTimeMillis());
-        LOG.info("  System vorbereitet.");
+        TimelineLogger.info(PrepareTestSystemHandler.class, "  System vorbereitet.");
         return StepResult.NEXT;
     }
 

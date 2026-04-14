@@ -5,9 +5,9 @@ import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
 import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.JobExecutionInfo;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
-import org.apache.log4j.Logger;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -24,8 +24,6 @@ import java.util.concurrent.TimeoutException;
  */
 public final class WaitForCtImportHandler implements Step {
 
-    private static final Logger LOG = Logger.getLogger(WaitForCtImportHandler.class);
-
     private final TesunRestService restService;
     private final EnvironmentConfig environmentConfig;
     private final String processIdentifier;
@@ -41,7 +39,8 @@ public final class WaitForCtImportHandler implements Step {
     @Override
     public StepResult execute(ProcessContext context) throws Exception {
         if (Boolean.TRUE.equals(context.get(TestSupportConstants.VAR_DEMO_MODE, Boolean.class))) {
-            LOG.info("WaitForCtImport [Demo-Mode]: simuliere sofortiges COMPLETED.");
+            TimelineLogger.info(WaitForCtImportHandler.class,
+                    "WaitForCtImport [Demo-Mode]: simuliere sofortiges COMPLETED.");
             return StepResult.NEXT;
         }
 
@@ -54,31 +53,38 @@ public final class WaitForCtImportHandler implements Step {
         long deadline = System.currentTimeMillis() + environmentConfig.getJobTimeoutMillis();
         long pollMillis = environmentConfig.getJobStatusPollingMillis();
 
-        LOG.info("WaitForCtImport: pollt '" + processIdentifier + "' (Start=" + startedAt + ")");
+        TimelineLogger.info(WaitForCtImportHandler.class,
+                "WaitForCtImport: pollt '{}' (Start={})", processIdentifier, startedAt);
 
-        while (System.currentTimeMillis() < deadline) {
-            if (context.isCancelled()) {
-                LOG.warn("  Cancel während Polling — breche ab.");
-                return StepResult.ABORT;
-            }
-
-            JobExecutionInfo info = restService.getJobExecutionInfo(processIdentifier);
-            if (info.getJobStatus() == null) {
-                throw new IllegalStateException("REST lieferte keinen Job-Status.");
-            }
-            Instant lastCompletion = info.getLastCompletionDate();
-            if (lastCompletion != null && !lastCompletion.isBefore(startedAt)) {
-                if (TestSupportConstants.JOB_STATUS_COMPLETED.equals(info.getJobStatus())) {
-                    LOG.info("  Prozess '" + processIdentifier + "' wurde beendet (" + lastCompletion + ")");
-                    return StepResult.NEXT;
+        try (TimelineLogger.Action a = TimelineLogger.action("waitForJob", processIdentifier)) {
+            while (System.currentTimeMillis() < deadline) {
+                if (context.isCancelled()) {
+                    TimelineLogger.warn(WaitForCtImportHandler.class,
+                            "  Cancel während Polling — breche ab.");
+                    a.result("ABORT");
+                    return StepResult.ABORT;
                 }
-                throw new IllegalStateException(
-                        "Prozess '" + processIdentifier + "' endete mit Status " + info.getJobStatus());
-            }
-            Thread.sleep(pollMillis);
-        }
 
-        throw new TimeoutException("Timeout beim Warten auf Prozess '" + processIdentifier + "'");
+                JobExecutionInfo info = restService.getJobExecutionInfo(processIdentifier);
+                if (info.getJobStatus() == null) {
+                    throw new IllegalStateException("REST lieferte keinen Job-Status.");
+                }
+                Instant lastCompletion = info.getLastCompletionDate();
+                if (lastCompletion != null && !lastCompletion.isBefore(startedAt)) {
+                    if (TestSupportConstants.JOB_STATUS_COMPLETED.equals(info.getJobStatus())) {
+                        TimelineLogger.info(WaitForCtImportHandler.class,
+                                "  Prozess '{}' wurde beendet ({})", processIdentifier, lastCompletion);
+                        a.result("COMPLETED");
+                        return StepResult.NEXT;
+                    }
+                    throw new IllegalStateException(
+                            "Prozess '" + processIdentifier + "' endete mit Status " + info.getJobStatus());
+                }
+                Thread.sleep(pollMillis);
+            }
+            a.result("TIMEOUT");
+            throw new TimeoutException("Timeout beim Warten auf Prozess '" + processIdentifier + "'");
+        }
     }
 
     @Override

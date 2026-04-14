@@ -2,45 +2,53 @@ package de.creditreform.crefoteam.cte.testsupporttool;
 
 import de.creditreform.crefoteam.cte.statemachine.ProcessListener;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
-import org.apache.log4j.Logger;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 
 /**
  * Lifecycle-Listener für die Engine — protokolliert Prozess- und
- * Step-Ereignisse über log4j. Pendant zum produktiven
- * {@code TesunClientJobListener}, der zusätzlich GUI-Komponenten benachrichtigt.
+ * Step-Ereignisse über den {@link TimelineLogger}, sodass zusätzlich zur
+ * App-Log-Datei ein Timeline-Eintrag entsteht.
  */
 public final class ConsoleProcessListener implements ProcessListener {
 
-    private static final Logger LOG = Logger.getLogger(ConsoleProcessListener.class);
-
     @Override public void onProcessStarted(String processName) {
-        LOG.info("===== Prozess gestartet: " + processName + " =====");
+        TimelineLogger.info(ConsoleProcessListener.class, "===== Prozess gestartet: {} =====", processName);
+        TimelineLogger.event("process.started", processName);
     }
 
     @Override public void onProcessCompleted(String processName) {
-        LOG.info("===== Prozess erfolgreich: " + processName + " =====");
+        TimelineLogger.info(ConsoleProcessListener.class, "===== Prozess erfolgreich: {} =====", processName);
+        TimelineLogger.event("process.completed", processName);
     }
 
     @Override public void onProcessFailed(String processName, Throwable cause) {
-        LOG.error("===== Prozess FEHLGESCHLAGEN: " + processName + " =====",
-                cause);
+        TimelineLogger.error(ConsoleProcessListener.class,
+                "===== Prozess FEHLGESCHLAGEN: " + processName + " =====", cause);
+        TimelineLogger.event("process.failed", processName);
     }
 
     @Override public void onProcessAborted(String processName, String reason) {
-        LOG.warn("===== Prozess ABGEBROCHEN: " + processName + " — " + reason + " =====");
+        TimelineLogger.warn(ConsoleProcessListener.class,
+                "===== Prozess ABGEBROCHEN: {} — {} =====", processName, reason);
+        TimelineLogger.event("process.aborted", processName + " (" + reason + ")");
     }
 
     @Override public void onStepStarted(String stepName) {
-        LOG.info("--> Step: " + stepName);
+        TimelineLogger.info(ConsoleProcessListener.class, "--> Step: {}", stepName);
     }
 
     @Override public void onStepCompleted(String stepName, StepResult result) {
-        LOG.debug("    Step '" + stepName + "' fertig: " + result);
+        TimelineLogger.debug(ConsoleProcessListener.class, "    Step '{}' fertig: {}", stepName, result);
     }
 
     @Override public void onStepFailed(String stepName, Throwable cause) {
-        LOG.error("    Step '" + stepName + "' fehlgeschlagen: "
-                + (cause != null ? cause.getMessage() : "FAIL-Result"));
+        if (cause != null) {
+            TimelineLogger.error(ConsoleProcessListener.class,
+                    "    Step '" + stepName + "' fehlgeschlagen", cause);
+        } else {
+            TimelineLogger.error(ConsoleProcessListener.class,
+                    "    Step '{}' fehlgeschlagen (FAIL-Result)", stepName);
+        }
     }
 
     @Override public boolean askForRetry(String stepName, Throwable cause) {

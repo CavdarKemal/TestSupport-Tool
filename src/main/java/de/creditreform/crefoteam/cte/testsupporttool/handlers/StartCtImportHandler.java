@@ -4,8 +4,8 @@ import de.creditreform.crefoteam.cte.statemachine.ProcessContext;
 import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
 import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
-import org.apache.log4j.Logger;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -20,8 +20,6 @@ import java.util.Objects;
  * Engine-Retry-Mechanismus per {@code ProcessListener.askForRetry}.
  */
 public final class StartCtImportHandler implements Step {
-
-    private static final Logger LOG = Logger.getLogger(StartCtImportHandler.class);
 
     /** Variable, in die der Startzeitpunkt geschrieben wird. */
     public static final String VAR_CT_IMPORT_STARTED_AT = "CT_IMPORT_STARTED_AT";
@@ -39,16 +37,20 @@ public final class StartCtImportHandler implements Step {
     @Override
     public StepResult execute(ProcessContext context) throws Exception {
         if (Boolean.TRUE.equals(context.get(TestSupportConstants.VAR_DEMO_MODE, Boolean.class))) {
-            LOG.info("StartCtImport [Demo-Mode]: würde Job '" + jobName + "' auf JVM '" + jvmName + "' starten.");
+            TimelineLogger.info(StartCtImportHandler.class,
+                    "StartCtImport [Demo-Mode]: würde Job '{}' auf JVM '{}' starten.", jobName, jvmName);
             context.put(VAR_CT_IMPORT_STARTED_AT, Instant.now());
             return StepResult.NEXT;
         }
 
-        LOG.info("StartCtImport: starte JVM-Job '" + jobName + "' auf '" + jvmName + "'");
-        Instant startedAt = Instant.now();
-        restService.startJob(jvmName, jobName);
-        context.put(VAR_CT_IMPORT_STARTED_AT, startedAt);
-        LOG.info("  Job gestartet um " + startedAt);
+        TimelineLogger.info(StartCtImportHandler.class,
+                "StartCtImport: starte JVM-Job '{}' auf '{}'", jobName, jvmName);
+        try (TimelineLogger.Action a = TimelineLogger.action("startJob", jobName)) {
+            Instant startedAt = Instant.now();
+            restService.startJob(jvmName, jobName);
+            context.put(VAR_CT_IMPORT_STARTED_AT, startedAt);
+            a.result("startedAt=" + startedAt);
+        }
         return StepResult.NEXT;
     }
 
