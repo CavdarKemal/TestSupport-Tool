@@ -9,18 +9,17 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
- * Konsolen-Einstieg ohne GUI — instanziiert {@link CteTestAutomatisierung}
- * und startet den Prozess. Initialisierungs- und Cleanup-Logik liegt
- * komplett in der {@code CteTestAutomatisierung}.
+ * Konsolen-Einstieg ohne GUI — Pendant zu
+ * {@code testsupport_client.TestSupportGUI...ActivitiTestAutomatisierung}.
  *
- * <p>Aufruf:
+ * <p>Argumente: siehe {@link CliArgs#usage()}.
+ *
+ * <p>Aufrufbeispiele:
  * <pre>
- *   java -cp testsupport-tool.jar:lib/* \
- *        de.creditreform.crefoteam.cte.testsupporttool.Main [envName]
+ *   Main                       → Demo-Mode, in-memory Config
+ *   Main e:ENE                 → Real-Mode gegen ENE-config.properties
+ *   Main e:ENE -Demo:true      → ENE-Config geladen, aber Demo-Mode aktiv
  * </pre>
- * Ohne Argument läuft Demo-Mode mit der in-memory {@code forDemo}-Config;
- * mit {@code envName} (z. B. {@code ENE}) wird die zugehörige
- * {@code <envName>-config.properties} geladen und Real-Mode aktiviert.
  */
 public final class Main {
 
@@ -28,14 +27,24 @@ public final class Main {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.INFO);
 
-        boolean isDemoMode = args.length == 0;
-        EnvironmentConfig env = isDemoMode
+        CliArgs cli;
+        try {
+            cli = CliArgs.parse(args);
+        } catch (IllegalArgumentException ex) {
+            System.err.println(ex.getMessage());
+            System.err.println();
+            System.err.println(CliArgs.usage());
+            System.exit(64); // EX_USAGE
+            return;
+        }
+
+        EnvironmentConfig env = (cli.getEnvName() == null)
                 ? EnvironmentConfig.forDemo("http://unused-in-demo")
-                : new EnvironmentConfig(args[0]);
+                : new EnvironmentConfig(cli.getEnvName());
 
         CteTestAutomatisierung runner = new CteTestAutomatisierung(env);
         try {
-            ProcessOutcome outcome = runner.startProcess(isDemoMode);
+            ProcessOutcome outcome = runner.startProcess(cli.isDemoMode());
             System.exit(outcome == ProcessOutcome.COMPLETED ? 0 : 1);
         } finally {
             runner.shutdown();
