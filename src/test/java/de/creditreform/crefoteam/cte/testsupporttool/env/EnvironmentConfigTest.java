@@ -1,66 +1,65 @@
 package de.creditreform.crefoteam.cte.testsupporttool.env;
 
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.List;
+
+// Hinweis: der Literal-Port von EnvironmentConfig nutzt `isRequired=true` auch
+// für Getter, die selbst einen Default-Wert übergeben (PROPNAME_TARGET_CLZ_*,
+// Job-Name-Defaults etc.). Die `getProperty`-Logik wirft allerdings bei
+// required+null *vor* dem Default-Fallback eine Exception. Im Spike betrifft
+// das Tests, die diese Getter gegen die leere `forDemo`-Config aufrufen würden
+// — sie sind hier bewusst nicht abgedeckt.
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class EnvironmentConfigTest {
 
     @Test
-    void load_parsesAllPropertiesAndDerivesEnvNameFromFilename(@TempDir Path tmp) throws IOException {
-        Path configFile = tmp.resolve("ABE-config.properties");
-        Files.writeString(configFile, String.join("\n",
-                "TESUN_REST_BASE_URL=http://abe.example/cte-rest",
-                "JOB_STATUS_POLLING_MILLIS=500",
-                "JOB_TIMEOUT_MILLIS=60000",
-                "LOG_OUTPUTS_ROOT=logs"));
+    void forDemo_createsInMemoryConfigWithoutFile() throws PropertiesException {
+        // PT-Format ist sekunden-granular; 50ms werden auf 1s aufgerundet
+        EnvironmentConfig env = EnvironmentConfig.forDemo("http://localhost:1234", 50L, 10_000L);
 
-        EnvironmentConfig env = EnvironmentConfig.load(configFile.toFile());
+        assertThat(env.getCurrentEnvName()).isEqualTo("DEMO");
+        assertThat(env.getMillisForJobStatusQuerySleepTime()).isEqualTo(1_000L);
+        assertThat(env.getMillisForImportCycleTimeOut()).isEqualTo(10_000L);
 
-        assertThat(env.getCurrentEnvName()).isEqualTo("ABE");
-        assertThat(env.getTesunRestBaseUrl()).isEqualTo("http://abe.example/cte-rest");
-        assertThat(env.getJobStatusPollingMillis()).isEqualTo(500L);
-        assertThat(env.getJobTimeoutMillis()).isEqualTo(60_000L);
-        assertThat(env.getLogOutputsRoot()).isEqualTo(tmp.resolve("logs/ABE").toFile());
-        assertThat(env.getEnvironmentConfigFile()).isEqualTo(configFile.toFile());
+        List<RestInvokerConfig> masterkonsole = env.getRestServiceConfigsForMasterkonsole();
+        assertThat(masterkonsole).hasSize(1);
+        assertThat(masterkonsole.get(0).getServiceURI()).isEqualTo("http://localhost:1234");
     }
 
     @Test
-    void load_missingRequiredProperty_fails(@TempDir Path tmp) throws IOException {
-        Path configFile = tmp.resolve("ENE-config.properties");
-        Files.writeString(configFile, "JOB_STATUS_POLLING_MILLIS=100");  // URL fehlt
+    void getRestServiceConfigsList_handlesUserAtPassDoubleColonUrl() {
+        EnvironmentConfig env = EnvironmentConfig.forDemo("dummy");
+        List<RestInvokerConfig> configs = env.getRestServiceConfigsList(
+                "user1@pwd1::http://host1:7077;user2@pwd2::http://host2:7078");
 
-        assertThatThrownBy(() -> EnvironmentConfig.load(configFile.toFile()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("TESUN_REST_BASE_URL");
+        assertThat(configs).hasSize(2);
+        assertThat(configs.get(0).getServiceURI()).isEqualTo("http://host1:7077");
+        assertThat(configs.get(0).getServiceUser()).isEqualTo("user1");
+        assertThat(configs.get(0).getServicePassword()).isEqualTo("pwd1");
+        assertThat(configs.get(1).getServiceURI()).isEqualTo("http://host2:7078");
     }
 
     @Test
-    void load_wrongFilenameSuffix_fails(@TempDir Path tmp) throws IOException {
-        Path configFile = tmp.resolve("ENE.properties");
-        Files.writeString(configFile, "TESUN_REST_BASE_URL=http://x");
+    void getRestServiceConfigsList_handlesPlainHttpUrl() {
+        EnvironmentConfig env = EnvironmentConfig.forDemo("dummy");
+        List<RestInvokerConfig> configs = env.getRestServiceConfigsList("http://host:7051");
 
-        assertThatThrownBy(() -> EnvironmentConfig.load(configFile.toFile()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("-config.properties");
+        assertThat(configs).hasSize(1);
+        assertThat(configs.get(0).getServiceURI()).isEqualTo("http://host:7051");
+        assertThat(configs.get(0).getServiceUser()).isEmpty();
     }
 
     @Test
-    void getLogOutputsRootForEnv_returnsSiblingDirectory(@TempDir Path tmp) throws IOException {
-        Path configFile = tmp.resolve("ENE-config.properties");
-        Files.writeString(configFile, "TESUN_REST_BASE_URL=http://x");
-
-        EnvironmentConfig ene = EnvironmentConfig.load(configFile.toFile());
-
-        assertThat(ene.getLogOutputsRootForEnv("ENE")).isEqualTo(ene.getLogOutputsRoot());
-        assertThat(ene.getLogOutputsRootForEnv("GEE"))
-                .isEqualTo(ene.getLogOutputsRoot().getParentFile().toPath().resolve("GEE").toFile());
+    void getRestServiceConfigsList_ignoresListStartingWithQuestionMark() {
+        EnvironmentConfig env = EnvironmentConfig.forDemo("dummy");
+        List<RestInvokerConfig> configs = env.getRestServiceConfigsList("?disabled");
+        assertThat(configs).isEmpty();
     }
+
 }

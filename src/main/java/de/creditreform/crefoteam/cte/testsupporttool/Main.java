@@ -2,8 +2,10 @@ package de.creditreform.crefoteam.cte.testsupporttool;
 
 import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
+import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.env.EnvironmentLockManager;
 import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
@@ -14,35 +16,24 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Demo-Einstieg ohne GUI. Demonstriert das vollständige Bootstrap:
+ * Env laden → Lock erwerben → Logger konfigurieren → Prozess → Cleanup.
  *
- * <ol>
- *   <li>Console-Logging als Fallback aktivieren.</li>
- *   <li>{@link EnvironmentConfig} laden (per Name oder via {@link EnvironmentConfig#forDemo}).</li>
- *   <li>{@link TestEnvironmentManager#switchEnvironment} — sperrt die Umgebung
- *       und konfiguriert den {@link TimelineLogger} auf das Env-Logs-Verzeichnis.</li>
- *   <li>Shutdown-Hook registrieren, damit der Lock auch bei Abbruch freigegeben wird.</li>
- *   <li>Prozess starten.</li>
- *   <li>Im finally: Lock + Logger schließen.</li>
- * </ol>
- *
- * Aufruf:
- * <pre>
- *   java -cp target/testsupport-tool-0.1.0-SNAPSHOT.jar:lib/* \
- *        de.creditreform.crefoteam.cte.testsupporttool.Main [envName]
- * </pre>
+ * <p>Aufruf: {@code java ... Main}           → Demo-Mode (ohne REST-Aufrufe)<br>
+ * Aufruf: {@code java ... Main ENE}         → lädt {@code ENE-config.properties}
  */
 public final class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws PropertiesException {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.INFO);
 
         EnvironmentConfig env = (args.length >= 1)
-                ? EnvironmentConfig.loadByName(args[0])
+                ? new EnvironmentConfig(args[0])
                 : EnvironmentConfig.forDemo("http://unused-in-demo");
 
         EnvironmentLockManager.registerShutdownHook();
@@ -56,13 +47,15 @@ public final class Main {
         try (TimelineLogger.Action overall =
                      TimelineLogger.action("TestAutomationProcess", env.getCurrentEnvName())) {
 
-            TesunRestService rest = new TesunRestService(env.getTesunRestBaseUrl());
+            TesunRestService rest = new TesunRestService(resolveRestBaseUrl(env));
             ProcessDefinition definition = TestAutomationProcess.build(env, rest);
 
             Map<String, Object> initialVariables = new HashMap<>();
-            initialVariables.put(TestSupportConstants.VAR_TEST_PHASE, "PHASE_2");
-            initialVariables.put(TestSupportConstants.VAR_TEST_TYPE, TestSupportConstants.TEST_TYPE_PHASE1_AND_PHASE2);
-            initialVariables.put(TestSupportConstants.VAR_DEMO_MODE, args.length == 0 ? Boolean.TRUE : Boolean.FALSE);
+            initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, "PHASE_2");
+            initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE,
+                    TestAutomationProcess.TEST_TYPE_PHASE1_AND_PHASE2);
+            initialVariables.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE,
+                    args.length == 0 ? Boolean.TRUE : Boolean.FALSE);
 
             ProcessOutcome outcome = new ProcessRunner().run(definition, initialVariables);
             overall.result(outcome.name());
@@ -70,6 +63,14 @@ public final class Main {
         } finally {
             TestEnvironmentManager.reset();
         }
+    }
+
+    private static String resolveRestBaseUrl(EnvironmentConfig env) throws PropertiesException {
+        List<RestInvokerConfig> configs = env.getRestServiceConfigsForMasterkonsole();
+        if (configs.isEmpty()) {
+            throw new IllegalStateException("Keine Masterkonsole-URL in der Environment-Config gesetzt.");
+        }
+        return configs.get(0).getServiceURI();
     }
 
     private Main() { }

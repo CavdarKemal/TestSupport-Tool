@@ -3,7 +3,8 @@ package de.creditreform.crefoteam.cte.testsupporttool.handlers;
 import de.creditreform.crefoteam.cte.statemachine.ProcessContext;
 import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
-import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
 
@@ -12,17 +13,10 @@ import java.util.Objects;
 
 /**
  * Demo-Pendant zu {@code UserTaskStartCtImport}: stößt das Starten eines
- * JVM-Jobs an und merkt sich den Startzeitpunkt im Context.
- *
- * <p>Demonstriert das Handler-Muster „REST-Aufruf zum Starten externer
- * Arbeit". Der echte Handler ergänzt Retry-Logik bei
- * Connection-Problemen — der Spike verlässt sich auf den
- * Engine-Retry-Mechanismus per {@code ProcessListener.askForRetry}.
+ * JVM-Jobs an und merkt sich den Startzeitpunkt im Context unter dem
+ * Key {@link TestSupportClientKonstanten#CT_IMPORT_STARTET_AT}.
  */
 public final class StartCtImportHandler implements Step {
-
-    /** Variable, in die der Startzeitpunkt geschrieben wird. */
-    public static final String VAR_CT_IMPORT_STARTED_AT = "CT_IMPORT_STARTED_AT";
 
     private final TesunRestService restService;
     private final String jvmName;
@@ -36,10 +30,10 @@ public final class StartCtImportHandler implements Step {
 
     @Override
     public StepResult execute(ProcessContext context) throws Exception {
-        if (Boolean.TRUE.equals(context.get(TestSupportConstants.VAR_DEMO_MODE, Boolean.class))) {
+        if (Boolean.TRUE.equals(context.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, Boolean.class))) {
             TimelineLogger.info(StartCtImportHandler.class,
                     "StartCtImport [Demo-Mode]: würde Job '{}' auf JVM '{}' starten.", jobName, jvmName);
-            context.put(VAR_CT_IMPORT_STARTED_AT, Instant.now());
+            context.put(TestSupportClientKonstanten.CT_IMPORT_STARTET_AT, Instant.now());
             return StepResult.NEXT;
         }
 
@@ -48,7 +42,7 @@ public final class StartCtImportHandler implements Step {
         try (TimelineLogger.Action a = TimelineLogger.action("startJob", jobName)) {
             Instant startedAt = Instant.now();
             restService.startJob(jvmName, jobName);
-            context.put(VAR_CT_IMPORT_STARTED_AT, startedAt);
+            context.put(TestSupportClientKonstanten.CT_IMPORT_STARTET_AT, startedAt);
             a.result("startedAt=" + startedAt);
         }
         return StepResult.NEXT;

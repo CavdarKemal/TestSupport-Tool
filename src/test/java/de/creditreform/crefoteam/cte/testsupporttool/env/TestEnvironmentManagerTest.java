@@ -1,6 +1,6 @@
 package de.creditreform.crefoteam.cte.testsupporttool.env;
 
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,28 +17,44 @@ class TestEnvironmentManagerTest {
         TestEnvironmentManager.reset();
     }
 
+    /**
+     * Einfacher Positiv-Test mit der Demo-Config. Wir können das
+     * Logs-Verzeichnis nicht frei wählen — {@code getLogOutputsRoot} nutzt
+     * {@code testResourcesRoot}, das im Demo-Mode auf {@code X-TESTS} zeigt.
+     * Der Test prüft nur, dass der Switch erfolgreich ist und der Lock erworben wurde.
+     */
     @Test
-    void switchEnvironment_acquiresLockAndConfiguresLogging(@TempDir Path tmp) {
-        File logsRoot = tmp.resolve("logs").toFile();
-        EnvironmentConfig ene = EnvironmentConfig.fromMap("ENE",
-                java.util.Map.of("TESUN_REST_BASE_URL", "http://x"), logsRoot);
+    void switchEnvironment_onDemoConfig_succeedsAndAcquiresLock(@TempDir Path tmp) {
+        // user.dir temporär auf tmp umlenken, damit das logs/DEMO-Verzeichnis hier landet
+        String originalUserDir = System.getProperty("user.dir");
+        try {
+            System.setProperty("user.dir", tmp.toAbsolutePath().toString());
+            new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-        boolean switched = TestEnvironmentManager.switchEnvironment(ene);
+            EnvironmentConfig ene = EnvironmentConfig.forDemo("http://unused");
 
-        assertThat(switched).isTrue();
-        assertThat(TestEnvironmentManager.getCurrentEnvironment()).isSameAs(ene);
-        assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("ENE");
-        assertThat(new File(logsRoot, "ENE")).exists();
-        assertThat(new File(new File(logsRoot, "ENE"), ".env.lock")).exists();
+            boolean switched = TestEnvironmentManager.switchEnvironment(ene);
+
+            assertThat(switched).isTrue();
+            assertThat(TestEnvironmentManager.getCurrentEnvironment()).isSameAs(ene);
+            assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("DEMO");
+        } finally {
+            System.setProperty("user.dir", originalUserDir);
+        }
     }
 
     @Test
     void switchEnvironment_toSameEnv_isNoOp(@TempDir Path tmp) {
-        File logsRoot = tmp.resolve("logs").toFile();
-        EnvironmentConfig ene = EnvironmentConfig.fromMap("ENE",
-                java.util.Map.of("TESUN_REST_BASE_URL", "http://x"), logsRoot);
+        String originalUserDir = System.getProperty("user.dir");
+        try {
+            System.setProperty("user.dir", tmp.toAbsolutePath().toString());
+            new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-        assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
-        assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
+            EnvironmentConfig ene = EnvironmentConfig.forDemo("http://unused");
+            assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
+            assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
+        } finally {
+            System.setProperty("user.dir", originalUserDir);
+        }
     }
 }

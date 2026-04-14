@@ -4,8 +4,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.process.TestAutomationProcess;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
 import org.junit.jupiter.api.AfterEach;
@@ -31,8 +31,9 @@ class TestAutomationProcessTest {
     void startServer() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
-        env = new EnvironmentConfig("TEST", "http://localhost:" + wireMockServer.port(), 50L, 5_000L);
-        rest = new TesunRestService(env.getTesunRestBaseUrl());
+        String baseUrl = "http://localhost:" + wireMockServer.port();
+        env = EnvironmentConfig.forDemo(baseUrl, 50L, 5_000L);
+        rest = new TesunRestService(baseUrl);
     }
 
     @AfterEach
@@ -43,15 +44,14 @@ class TestAutomationProcessTest {
     @Test
     void demoMode_runsProcessToCompletionWithoutHittingRest() {
         Map<String, Object> vars = new HashMap<>();
-        vars.put(TestSupportConstants.VAR_TEST_PHASE, "PHASE_2");
-        vars.put(TestSupportConstants.VAR_TEST_TYPE, TestSupportConstants.TEST_TYPE_PHASE1_AND_PHASE2);
-        vars.put(TestSupportConstants.VAR_DEMO_MODE, Boolean.TRUE);
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, "PHASE_2");
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE, TestAutomationProcess.TEST_TYPE_PHASE1_AND_PHASE2);
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, Boolean.TRUE);
 
         ProcessDefinition definition = TestAutomationProcess.build(env, rest);
         ProcessOutcome outcome = new ProcessRunner().run(definition, vars);
 
         assertThat(outcome).isEqualTo(ProcessOutcome.COMPLETED);
-        // Demo-Mode darf den REST-Service NICHT aufrufen
         assertThat(wireMockServer.getAllServeEvents()).isEmpty();
     }
 
@@ -59,7 +59,6 @@ class TestAutomationProcessTest {
     void liveMode_pollsRestUntilJobCompleted() {
         wireMockServer.stubFor(post(urlMatching("/jvms/.*/jobs/.*/start"))
                 .willReturn(aResponse().withStatus(200)));
-        // Ein einziger Polling-Aufruf liefert sofort ein COMPLETED in der Zukunft
         wireMockServer.stubFor(get(urlMatching("/jobs/FROM_STAGING_INTO_CTE/last-execution"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -69,9 +68,9 @@ class TestAutomationProcessTest {
                                 + "\"lastCompletionDate\":\"2099-01-01T00:00:00Z\"}")));
 
         Map<String, Object> vars = new HashMap<>();
-        vars.put(TestSupportConstants.VAR_TEST_PHASE, "PHASE_2");
-        vars.put(TestSupportConstants.VAR_TEST_TYPE, TestSupportConstants.TEST_TYPE_PHASE1_AND_PHASE2);
-        vars.put(TestSupportConstants.VAR_DEMO_MODE, Boolean.FALSE);
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, "PHASE_2");
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE, TestAutomationProcess.TEST_TYPE_PHASE1_AND_PHASE2);
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, Boolean.FALSE);
 
         ProcessDefinition definition = TestAutomationProcess.build(env, rest);
         ProcessOutcome outcome = new ProcessRunner().run(definition, vars);
@@ -80,13 +79,10 @@ class TestAutomationProcessTest {
     }
 
     @Test
-    void wrongTestType_takesFalseBranch_andStillCompletes() {
-        // False-Branch macht NotifyHandler — danach läuft der Prozess weiter
-        // bis WaitForCtImport, das ohne CT_IMPORT_STARTED_AT scheitert.
-        // Failure-Branch fängt das ab.
+    void wrongTestType_takesFalseBranch_failsDownstream_endsInFailedOutcome() {
         Map<String, Object> vars = new HashMap<>();
-        vars.put(TestSupportConstants.VAR_TEST_TYPE, "ANYTHING_ELSE");
-        vars.put(TestSupportConstants.VAR_DEMO_MODE, Boolean.FALSE);
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE, "ANYTHING_ELSE");
+        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, Boolean.FALSE);
 
         ProcessDefinition definition = TestAutomationProcess.build(env, rest);
         ProcessOutcome outcome = new ProcessRunner().run(definition, vars);

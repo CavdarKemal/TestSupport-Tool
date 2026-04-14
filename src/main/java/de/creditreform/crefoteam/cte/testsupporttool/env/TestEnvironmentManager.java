@@ -1,6 +1,7 @@
 package de.creditreform.crefoteam.cte.testsupporttool.env;
 
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 
 import java.io.File;
@@ -8,11 +9,8 @@ import java.io.File;
 /**
  * Orchestriert Umgebungswechsel: erwirbt den passenden Env-Lock und
  * verdrahtet den {@link TimelineLogger} auf das Logs-Verzeichnis der
- * gewählten Umgebung.
- *
- * <p>Adaption der gleichnamigen Klasse aus
- * {@code testsupport_client.tesun_util} — die Logger-Konfiguration ist hier
- * direkt eingebaut, statt nur „angedeutet" wie im Original.
+ * gewählten Umgebung. Adaption der gleichnamigen Klasse aus
+ * {@code testsupport_client.tesun_util}.
  */
 public final class TestEnvironmentManager {
 
@@ -23,19 +21,12 @@ public final class TestEnvironmentManager {
 
     private TestEnvironmentManager() { }
 
-    /** Setzt internen Zustand zurück — vor allem für Tests. */
     public static void reset() {
         TimelineLogger.close();
         EnvironmentLockManager.releaseLock();
         currentEnvironment = null;
     }
 
-    /**
-     * Wechselt zur angegebenen Umgebung: Lock erwerben, Logger neu binden.
-     *
-     * @return {@code true} bei Erfolg, {@code false} wenn die Zielumgebung
-     *         bereits durch eine andere Instanz gesperrt ist
-     */
     public static boolean switchEnvironment(EnvironmentConfig target) {
         String envName = target.getCurrentEnvName();
 
@@ -45,7 +36,15 @@ public final class TestEnvironmentManager {
             return true;
         }
 
-        File logsDir = target.getLogOutputsRootForEnv(envName);
+        File logsDir;
+        try {
+            logsDir = target.getLogOutputsRootForEnv(envName);
+        } catch (PropertiesException ex) {
+            TimelineLogger.error(TestEnvironmentManager.class,
+                    "Konnte Logs-Verzeichnis für " + envName + " nicht bestimmen", ex);
+            return false;
+        }
+
         if (EnvironmentLockManager.isLocked(logsDir)) {
             TimelineLogger.warn(TestEnvironmentManager.class,
                     "Umgebung {} ist durch eine andere Instanz gesperrt.", envName);
@@ -59,7 +58,6 @@ public final class TestEnvironmentManager {
             return false;
         }
 
-        // Logger auf das Env-Logs-Verzeichnis umlenken
         TimelineLogger.close();
         if (!TimelineLogger.configure(logsDir, APP_LOG_FILE, ACTIONS_LOG_FILE)) {
             TimelineLogger.error(TestEnvironmentManager.class,

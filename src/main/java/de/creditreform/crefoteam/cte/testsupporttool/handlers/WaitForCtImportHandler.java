@@ -3,8 +3,10 @@ package de.creditreform.crefoteam.cte.testsupporttool.handlers;
 import de.creditreform.crefoteam.cte.statemachine.ProcessContext;
 import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.statemachine.StepResult;
-import de.creditreform.crefoteam.cte.testsupporttool.config.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.testsupporttool.config.TestSupportConstants;
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
+import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.JobExecutionInfo;
 import de.creditreform.crefoteam.cte.testsupporttool.rest.TesunRestService;
@@ -17,12 +19,11 @@ import java.util.concurrent.TimeoutException;
  * Demo-Pendant zu {@code UserTaskWaitForCtImport}: pollt den REST-Service,
  * bis der Job einen {@code COMPLETED}-Status mit
  * {@code lastCompletionDate >= startedAt} liefert oder ein Timeout greift.
- *
- * <p>Demonstriert das Handler-Muster „Polling auf externes System". Cancel
- * wird zwischen den Polls geprüft, sodass der Prozess auch während eines
- * langen Waits sauber abbricht.
+ * Timeout und Polling-Intervall kommen aus {@link EnvironmentConfig}.
  */
 public final class WaitForCtImportHandler implements Step {
+
+    private static final String JOB_STATUS_COMPLETED = "COMPLETED";
 
     private final TesunRestService restService;
     private final EnvironmentConfig environmentConfig;
@@ -38,20 +39,20 @@ public final class WaitForCtImportHandler implements Step {
 
     @Override
     public StepResult execute(ProcessContext context) throws Exception {
-        if (Boolean.TRUE.equals(context.get(TestSupportConstants.VAR_DEMO_MODE, Boolean.class))) {
+        if (Boolean.TRUE.equals(context.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE, Boolean.class))) {
             TimelineLogger.info(WaitForCtImportHandler.class,
                     "WaitForCtImport [Demo-Mode]: simuliere sofortiges COMPLETED.");
             return StepResult.NEXT;
         }
 
-        Instant startedAt = context.get(StartCtImportHandler.VAR_CT_IMPORT_STARTED_AT, Instant.class);
+        Instant startedAt = context.get(TestSupportClientKonstanten.CT_IMPORT_STARTET_AT, Instant.class);
         if (startedAt == null) {
             throw new IllegalStateException(
-                    "Variable '" + StartCtImportHandler.VAR_CT_IMPORT_STARTED_AT + "' fehlt im Context.");
+                    "Variable '" + TestSupportClientKonstanten.CT_IMPORT_STARTET_AT + "' fehlt im Context.");
         }
 
-        long deadline = System.currentTimeMillis() + environmentConfig.getJobTimeoutMillis();
-        long pollMillis = environmentConfig.getJobStatusPollingMillis();
+        long deadline = System.currentTimeMillis() + timeoutMillis();
+        long pollMillis = pollingMillis();
 
         TimelineLogger.info(WaitForCtImportHandler.class,
                 "WaitForCtImport: pollt '{}' (Start={})", processIdentifier, startedAt);
@@ -71,7 +72,7 @@ public final class WaitForCtImportHandler implements Step {
                 }
                 Instant lastCompletion = info.getLastCompletionDate();
                 if (lastCompletion != null && !lastCompletion.isBefore(startedAt)) {
-                    if (TestSupportConstants.JOB_STATUS_COMPLETED.equals(info.getJobStatus())) {
+                    if (JOB_STATUS_COMPLETED.equals(info.getJobStatus())) {
                         TimelineLogger.info(WaitForCtImportHandler.class,
                                 "  Prozess '{}' wurde beendet ({})", processIdentifier, lastCompletion);
                         a.result("COMPLETED");
@@ -84,6 +85,22 @@ public final class WaitForCtImportHandler implements Step {
             }
             a.result("TIMEOUT");
             throw new TimeoutException("Timeout beim Warten auf Prozess '" + processIdentifier + "'");
+        }
+    }
+
+    private long pollingMillis() {
+        try {
+            return environmentConfig.getMillisForJobStatusQuerySleepTime();
+        } catch (PropertiesException ex) {
+            return 2_000L;
+        }
+    }
+
+    private long timeoutMillis() {
+        try {
+            return environmentConfig.getMillisForImportCycleTimeOut();
+        } catch (PropertiesException ex) {
+            return 1_800_000L;
         }
     }
 
