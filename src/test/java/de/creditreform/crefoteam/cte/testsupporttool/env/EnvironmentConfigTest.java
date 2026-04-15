@@ -11,7 +11,7 @@ import java.util.List;
 // für Getter, die selbst einen Default-Wert übergeben (PROPNAME_TARGET_CLZ_*,
 // Job-Name-Defaults etc.). Die `getProperty`-Logik wirft allerdings bei
 // required+null *vor* dem Default-Fallback eine Exception. Getter, die gegen
-// die DEMO-config.properties kein Pendant haben, werden daher hier nicht
+// die ENE-config.properties kein Pendant haben, werden daher hier nicht
 // abgedeckt.
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,21 +19,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EnvironmentConfigTest {
 
     @Test
-    void loadsDemoConfigFromTestClasspath() throws PropertiesException {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+    void loadsEneConfigFromTestClasspath() throws PropertiesException {
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
 
-        assertThat(env.getCurrentEnvName()).isEqualTo("DEMO");
+        assertThat(env.getCurrentEnvName()).isEqualTo("ENE");
         assertThat(env.getMillisForJobStatusQuerySleepTime()).isEqualTo(1_000L);
-        assertThat(env.getMillisForImportCycleTimeOut()).isEqualTo(10_000L);
+        assertThat(env.getMillisForImportCycleTimeOut()).isEqualTo(15_000L);
 
         List<RestInvokerConfig> masterkonsole = env.getRestServiceConfigsForMasterkonsole();
         assertThat(masterkonsole).hasSize(1);
-        assertThat(masterkonsole.get(0).getServiceURI()).isEqualTo("http://localhost:1234");
+        assertThat(masterkonsole.get(0).getServiceURI()).isEqualTo("http://cavdar.de:7001");
     }
 
     @Test
     void getRestServiceConfigsList_handlesUserAtPassDoubleColonUrl() {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
         List<RestInvokerConfig> configs = env.getRestServiceConfigsList(
                 "user1@pwd1::http://host1:7077;user2@pwd2::http://host2:7078");
 
@@ -46,7 +46,7 @@ class EnvironmentConfigTest {
 
     @Test
     void getRestServiceConfigsList_handlesPlainHttpUrl() {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
         List<RestInvokerConfig> configs = env.getRestServiceConfigsList("http://host:7051");
 
         assertThat(configs).hasSize(1);
@@ -56,7 +56,7 @@ class EnvironmentConfigTest {
 
     @Test
     void getRestServiceConfigsList_ignoresListStartingWithQuestionMark() {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
         List<RestInvokerConfig> configs = env.getRestServiceConfigsList("?disabled");
         assertThat(configs).isEmpty();
     }

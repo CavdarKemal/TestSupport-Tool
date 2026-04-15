@@ -16,7 +16,7 @@ class CteAutomatedTestProcessTest {
 
     @Test
     void mainProcess_buildsWithSevenTopLevelSteps() throws PropertiesException {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
         ProcessDefinition def = CteAutomatedTestProcess.build(env, null);
 
         // Prepare → Gateway → SUB1 → SUB2 → SuccessMail → Restore  (6) + Failure-Branch (2)
@@ -27,7 +27,7 @@ class CteAutomatedTestProcessTest {
 
     @Test
     void subProcess_buildsWithNineSteps() throws PropertiesException {
-        EnvironmentConfig env = new EnvironmentConfig("DEMO");
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
         ProcessDefinition sub = CteAutomatedTestProcessSUB.build(env, null);
 
         assertThat(sub.steps()).hasSize(9);

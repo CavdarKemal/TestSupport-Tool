@@ -25,19 +25,19 @@ class TestEnvironmentManagerTest {
      */
     @Test
     void switchEnvironment_onDemoConfig_succeedsAndAcquiresLock(@TempDir Path tmp) {
-        // user.dir temporär auf tmp umlenken, damit das logs/DEMO-Verzeichnis hier landet
+        // user.dir temporär auf tmp umlenken, damit das logs/ENE-Verzeichnis hier landet
         String originalUserDir = System.getProperty("user.dir");
         try {
             System.setProperty("user.dir", tmp.toAbsolutePath().toString());
             new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-            EnvironmentConfig ene = new EnvironmentConfig("DEMO");
+            EnvironmentConfig ene = new EnvironmentConfig("ENE");
 
             boolean switched = TestEnvironmentManager.switchEnvironment(ene);
 
             assertThat(switched).isTrue();
             assertThat(TestEnvironmentManager.getCurrentEnvironment()).isSameAs(ene);
-            assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("DEMO");
+            assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("ENE");
         } finally {
             System.setProperty("user.dir", originalUserDir);
         }
@@ -50,7 +50,7 @@ class TestEnvironmentManagerTest {
             System.setProperty("user.dir", tmp.toAbsolutePath().toString());
             new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-            EnvironmentConfig ene = new EnvironmentConfig("DEMO");
+            EnvironmentConfig ene = new EnvironmentConfig("ENE");
             assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
             assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
         } finally {
