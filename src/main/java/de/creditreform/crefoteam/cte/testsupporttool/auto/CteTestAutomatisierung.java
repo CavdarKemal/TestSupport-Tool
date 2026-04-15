@@ -3,6 +3,7 @@ package de.creditreform.crefoteam.cte.testsupporttool.auto;
 import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
 import de.creditreform.crefoteam.cte.statemachine.ProcessEngine;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
+import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
@@ -10,7 +11,6 @@ import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.ConsoleProcessListener;
 import de.creditreform.crefoteam.cte.testsupporttool.ProcessRunner;
-import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
 import de.creditreform.crefoteam.cte.testsupporttool.util.CustomerUtils;
@@ -192,7 +192,7 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
 
     /** Schließt Lock + Logger. Vor JVM-Exit aufrufen. */
     public void shutdown() {
-        TestEnvironmentManager.reset();
+        TimelineLogger.close();
     }
 
     public EnvironmentConfig getEnvironmentConfig() { return environmentConfig; }

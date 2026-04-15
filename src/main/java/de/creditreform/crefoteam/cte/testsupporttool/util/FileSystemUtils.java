@@ -137,8 +137,7 @@ public final class FileSystemUtils {
                     .format(Calendar.getInstance().getTime()).replaceAll(":", "_");
             File zipFile = new File(outputsRoot.getParent(), "Automated-Test-" + envName + "-" + strDateTime + ".zip");
             if (infoLogger != null) {
-                infoLogger.accept("Das Verzeichnis '" + outputsRoot.getAbsolutePath()
-                        + File.separator + envName + "' wird gezippt...");
+                infoLogger.accept("Das Verzeichnis '" + outputsRoot.getAbsolutePath() + "' wird gezippt...");
             }
             try (FileOutputStream fos = new FileOutputStream(zipFile);
                  ZipOutputStream zos = new ZipOutputStream(fos)) {
