@@ -31,7 +31,7 @@ class TestEnvironmentManagerTest {
             System.setProperty("user.dir", tmp.toAbsolutePath().toString());
             new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-            EnvironmentConfig ene = EnvironmentConfig.forDemo("http://unused");
+            EnvironmentConfig ene = new EnvironmentConfig("DEMO");
 
             boolean switched = TestEnvironmentManager.switchEnvironment(ene);
 
@@ -50,7 +50,7 @@ class TestEnvironmentManagerTest {
             System.setProperty("user.dir", tmp.toAbsolutePath().toString());
             new File(tmp.toFile(), "X-TESTS").mkdirs();
 
-            EnvironmentConfig ene = EnvironmentConfig.forDemo("http://unused");
+            EnvironmentConfig ene = new EnvironmentConfig("DEMO");
             assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
             assertThat(TestEnvironmentManager.switchEnvironment(ene)).isTrue();
         } finally {

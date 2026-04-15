@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
  * Literal-Port aus {@code testsupport_client.tesun_util} ohne die
  * GIT-Repo-bezogenen Methoden (werden im Spike nicht benötigt).
  *
- * <p>Zusätzlich: {@link #forDemo(String)} / {@link #forDemo(String, long, long)}
- * als schlanke Factories, die das Laden aus einer Properties-Datei umgehen
- * und ein in-memory-Config für Tests und das Console-Demo liefern.
+ * <p>Eine gültige {@code <ENV>-config.properties} wird immer vorausgesetzt —
+ * Tests laden eine dedizierte {@code DEMO-config.properties} aus dem
+ * Test-Classpath.
  */
 public class EnvironmentConfig {
     public static final String DELIMITER = "[,;]";
@@ -148,69 +148,6 @@ public class EnvironmentConfig {
 
     public EnvironmentConfig(String envName) {
         loadEnvironmentConfig(envName);
-    }
-
-    /** Privater Konstruktor für die Demo-Factories — kein File-Load. */
-    private EnvironmentConfig(String envName, boolean skipLoad) {
-        this.currentEnvName = envName;
-    }
-
-    /**
-     * Demo/Test-Factory: liefert eine in-memory-Config ohne Properties-Datei.
-     * Setzt die MASTERKONSOLE_URLS so, dass {@link #getRestServiceConfigsForMasterkonsole()}
-     * eine einzige URL zurückgibt.
-     */
-    public static EnvironmentConfig forDemo(String masterkonsoleUrl) {
-        return forDemo(masterkonsoleUrl, 100L, 5_000L);
-    }
-
-    public static EnvironmentConfig forDemo(String masterkonsoleUrl,
-                                            long jobStatusPollingMillis,
-                                            long jobTimeoutMillis) {
-        EnvironmentConfig ec = new EnvironmentConfig("DEMO", true);
-        ec.mainProperties.setProperty(PROPNAME_MASTERKONSOLE_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_JVM_INSOBACKEND_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_BATCH_GUI_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_JVM_INSO_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_JVM_IMPCYCLE_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_JVM_BIC_URLS, masterkonsoleUrl);
-        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_URLS, masterkonsoleUrl);
-        // PT-Format unterstützt nur ganze Sekunden → auf 1s runden
-        long pollSecs = Math.max(1, (jobStatusPollingMillis + 999) / 1000);
-        long timeoutSecs = Math.max(1, (jobTimeoutMillis + 999) / 1000);
-        ec.mainProperties.setProperty(PROPNAME_JOBSTATUS_QUERY_SLEEPTIME, "PT" + pollSecs + "S");
-        ec.mainProperties.setProperty(PROPNAME_IMPORT_CYCLE_TIME_OUT, "PT" + timeoutSecs + "S");
-        ec.mainProperties.setProperty(PROPNAME_TEST_RSC_DIR, "X-TESTS");
-        // Kunden-Initialisierung aus X-TESTS/ITSQ ist auch im Demo-Mode Pflicht;
-        // ohne AVAILABLE_CUSTOMERS wirft getAvailableCustomersFromProperties. Der
-        // Dummy-Wert existiert nie als Subdir in REF-EXPORTS/<PHASE> → leere Map.
-        ec.mainProperties.setProperty(PROPNAME_AVAILABLE_CUSTOMERS, "_DEMO_PLACEHOLDER_");
-        // ACTIVITI-Properties: zur Migration noch in TaskVariablen sichtbar,
-        // werden aber von keinem State-Machine-Handler ausgewertet.
-        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_PROCESS_NAME, "DEMO-TestAutomationProcess");
-        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FROM, "test-automatisierung@local");
-        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_SUCCESS_TO, "demo@local");
-        ec.mainProperties.setProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FAILURE_TO, "demo@local");
-        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_IMPORT_CYCLE,
-                "IMPORTCYCLE;importcycle.importCycle;BETEILIGUNGEN_IMPORT,ENTSCHEIDUNGSTRAEGER_BERECHNUNG,BTLG_UPDATE_TRIGGER,FROM_STAGING_INTO_CTE");
-        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_BTLG_IMPORT_DELTA,
-                "IMPORTCYCLE;importcycle.beteiligungenImportDelta;BETEILIGUNGEN_IMPORT");
-        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_ENTG_BERECHNUNG,
-                "IMPORTCYCLE;importcycle.entgBerechnung;ENTSCHEIDUNGSTRAEGER_BERECHNUNG");
-        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_BTLG_UPDATE_TRIGGER,
-                "IMPORTCYCLE;importcycle.btlnAktualisierung;BTLG_UPDATE_TRIGGER");
-        ec.mainProperties.setProperty(PROPNAME_JOB_NAME_CT_IMPORT_DELTA,
-                "IMPORTCYCLE;importcycle.ctImportDelta;FROM_STAGING_INTO_CTE");
-        // Demo-Mode schließt nur REST-Aufrufe und Worker-Teile der Handler aus —
-        // die Kunden-Initialisierung aus X-TESTS ist auch im Demo-Mode Pflicht.
-        try {
-            ec.testResourcesRoot = ec.findTestResourcesRoot();
-        } catch (Exception ex) {
-            throw new RuntimeException("forDemo benötigt ein '"
-                    + ec.mainProperties.getProperty(PROPNAME_TEST_RSC_DIR)
-                    + "'-Verzeichnis im Pfadbaum ab '" + System.getProperty("user.dir") + "'", ex);
-        }
-        return ec;
     }
 
     public void loadEnvironmentConfig(String envName) {

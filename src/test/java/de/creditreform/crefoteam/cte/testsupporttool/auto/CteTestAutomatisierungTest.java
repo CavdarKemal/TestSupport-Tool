@@ -35,7 +35,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void initForEnvironment_acquiresLockAndConfiguresLogger() {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
 
         assertThat(EnvironmentLockManager.getCurrentLockedEnvironment())
@@ -50,7 +50,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void startProcess_demoMode_completesEndToEnd() throws PropertiesException {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
 
         ProcessOutcome outcome = runner.startProcess(true);
@@ -60,7 +60,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void startProcess_demoMode_writesTestResultsFileAndZip() throws Exception {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
 
         runner.startProcess(true);
@@ -78,7 +78,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void computeExitCode_followsOriginalSemantics() {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
 
         // outcome != COMPLETED → 1
@@ -91,7 +91,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void buildTaskVariablesMap_containsAllSixteenOriginalKeys() throws Exception {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
 
         var vars = runner.buildTaskVariablesMap(
@@ -116,7 +116,7 @@ class CteTestAutomatisierungTest {
 
     @Test
     void shutdown_releasesLockAndClearsLogger() {
-        EnvironmentConfig env = EnvironmentConfig.forDemo("http://unused-in-demo");
+        EnvironmentConfig env = new EnvironmentConfig("DEMO");
         runner = new CteTestAutomatisierung(env);
         assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("DEMO");
 
