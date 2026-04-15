@@ -135,7 +135,7 @@ public final class FileSystemUtils {
         try {
             String strDateTime = TesunDateUtils.DATE_FORMAT_YYYY_MM_DD_HH_MM_SS
                     .format(Calendar.getInstance().getTime()).replaceAll(":", "_");
-            File zipFile = new File(outputsRoot.getParent(), "Automated-Test-" + envName + "-" + strDateTime);
+            File zipFile = new File(outputsRoot.getParent(), "Automated-Test-" + envName + "-" + strDateTime + ".zip");
             if (infoLogger != null) {
                 infoLogger.accept("Das Verzeichnis '" + outputsRoot.getAbsolutePath()
                         + File.separator + envName + "' wird gezippt...");
