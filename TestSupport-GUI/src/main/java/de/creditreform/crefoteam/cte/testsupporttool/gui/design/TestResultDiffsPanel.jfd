@@ -1,0 +1,136 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "17.0.9" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.variableGetter": true
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+				"$columnSpecs": "0, 194:1.0, 27, 0"
+				"$rowSpecs": "0"
+				"$hGap": 5
+				"$vGap": 5
+				"$alignLeft": true
+				"$alignTop": true
+			} ) {
+				name: "panelControls"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "labelDiffFilePath"
+					"text": "Diff-Datei: "
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"insets": new java.awt.Insets( 2, 2, 2, 2 )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "textFieldDiffFilePath"
+					"editable": false
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridx": 1
+					"insets": new java.awt.Insets( 2, 2, 2, 2 )
+					"gridwidth": 3
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "North"
+			} )
+			add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+				name: "splitPanelDifferences"
+				"dividerLocation": 190
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0"
+					"$rowSpecs": "0, 0:1.0"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "panelScrDifFile"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelScfFilePath"
+						"text": "text"
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPaneSrcFile"
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+						add( new FormComponent( "javax.swing.JEditorPane" ) {
+							name: "textAreaFileSrc"
+							"editable": false
+							"font": &Font0 new java.awt.Font( "Verdana", 0, 12 )
+							auxiliary() {
+								"JavaCodeGenerator.variableGetter": true
+							}
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "left"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0"
+					"$rowSpecs": "0, 0:1.0"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+				} ) {
+					name: "panelDstFile"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelDstFilePath"
+						"text": "text"
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPaneDstFile"
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+						add( new FormComponent( "javax.swing.JEditorPane" ) {
+							name: "textAreaFileDst"
+							"editable": false
+							"font": #Font0
+							auxiliary() {
+								"JavaCodeGenerator.variableGetter": true
+							}
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "right"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 430, 345 )
+		} )
+	}
+}
