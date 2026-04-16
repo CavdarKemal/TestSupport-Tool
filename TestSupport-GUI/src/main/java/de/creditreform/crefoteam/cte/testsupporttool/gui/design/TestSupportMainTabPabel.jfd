@@ -1,0 +1,97 @@
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.variableGetter": true
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+				"$columnSpecs": "0, 0:1.0"
+				"$rowSpecs": "0:1.0, 0"
+				"$alignTop": true
+				"$alignLeft": true
+			} ) {
+				name: "panelLogs"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "scrollPaneTaskListenerInfo"
+					add( new FormComponent( "javax.swing.JTextArea" ) {
+						name: "textAreaTaskListenerInfo"
+						"tabSize": 4
+						"lineWrap": true
+						"editable": false
+						"background": sfield java.awt.Color white
+						"font": new java.awt.Font( "Verdana", 0, 12 )
+						"minimumSize": new java.awt.Dimension( 455, 16 )
+					} )
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridwidth": 2
+				} )
+				add( new FormComponent( "javax.swing.JCheckBox" ) {
+					name: "checkBoxScrollToEnd"
+					"text": "Auto-Scroll"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridy": 1
+					"insets": new java.awt.Insets( 2, 2, 2, 2 )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonClearLOGPanel"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/table_replace.png" )
+					"actionCommand": "clearLOGs"
+					"toolTipText": "LOG's aus dem Panel löschen"
+					"text": "LOG's löschen"
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridy": 1
+					"gridx": 1
+					"insets": new java.awt.Insets( 2, 2, 2, 2 )
+					"hAlign": 4
+				} )
+			}, new FormLayoutConstraints( null ) {
+				"title": "LOG's"
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPanelProcessImage"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "labelProcessImage"
+				} )
+			}, new FormLayoutConstraints( null ) {
+				"title": "Prozess"
+			} )
+			add( new FormComponent( "de.creditreform.crefoteam.cte.tesun.gui.view.TestResultsView" ) {
+				name: "viewTestResults"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+			}, new FormLayoutConstraints( null ) {
+				"title": "Test-Results"
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPaneACTITIExporer"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+					name: "panelACTIVITIAxplorer"
+					"border": new javax.swing.border.EtchedBorder( 1, null, null )
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				} )
+			}, new FormLayoutConstraints( null ) {
+				"title": "ACTITI-Exporer"
+				"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/xhtml.png" )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 300 )
+		} )
+	}
+}
