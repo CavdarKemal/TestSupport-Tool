@@ -50,6 +50,12 @@ public final class EnvironmentLockManager {
     /**
      * Versucht, die Umgebung zu sperren.
      *
+     * <p>SO_REUSEADDR + 3-fach Retry mit 50ms Pause: unter JDK 21 / Windows
+     * gibt der OS einen frisch geschlossenen Loopback-Port nicht immer sofort
+     * wieder frei. In Test-Suites, wo schnell hintereinander Lock-erwerb +
+     * -freigabe stattfindet, wuerde die erste {@code bind()} sonst sporadisch
+     * scheitern, obwohl der Lock semantisch frei ist.
+     *
      * @return {@code true} bei Erfolg, {@code false} wenn bereits gesperrt
      */
     public static synchronized boolean acquireLock(File envDir, String envName) {
@@ -59,14 +65,13 @@ public final class EnvironmentLockManager {
             return false;
         }
         int port = getPortForEnvironment(envName);
+        ServerSocket socket = bindLoopbackPortWithRetry(port);
+        if (socket == null) {
+            TimelineLogger.warn(EnvironmentLockManager.class,
+                    "Umgebung {} ist bereits gesperrt (Port {} belegt)", envName, port);
+            return false;
+        }
         try {
-            // SO_REUSEADDR vor bind() setzen — sonst kann auf Windows der Port nach
-            // einem close() noch im TIME_WAIT/CLOSE_WAIT haengen, was zu sporadischen
-            // BindException-Fehlern fuehrt (sichtbar bei schnell aufeinanderfolgenden
-            // Test-Klassen, die alle den ENE-Lock erwerben/freigeben).
-            ServerSocket socket = new ServerSocket();
-            socket.setReuseAddress(true);
-            socket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 1);
             lockSocket = socket;
             currentLockedEnv = envName;
             File lockFile = new File(envDir, LOCK_FILE_NAME);
@@ -81,10 +86,57 @@ public final class EnvironmentLockManager {
                     "Lock für Umgebung {} erworben (Port {})", envName, port);
             return true;
         } catch (IOException e) {
-            TimelineLogger.warn(EnvironmentLockManager.class,
-                    "Umgebung {} ist bereits gesperrt (Port {} belegt)", envName, port);
+            // Lock-Datei konnte nicht geschrieben werden → Socket sauber zuruecknehmen.
+            try { socket.close(); } catch (IOException ignored) { }
+            lockSocket = null;
+            currentLockedEnv = null;
+            TimelineLogger.error(EnvironmentLockManager.class,
+                    "Lock-Datei konnte nicht geschrieben werden: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Versucht bis zu 3x (mit jeweils 50ms Pause) einen ServerSocket auf
+     * dem IPv4-Loopback-Port zu binden. Liefert den gebundenen Socket oder
+     * {@code null}, wenn alle Versuche scheitern.
+     *
+     * <p>IPv4 explizit (127.0.0.1) statt {@code InetAddress.getLoopbackAddress()}:
+     * unter JDK 21 / Windows liefert die generische Loopback-Variante je nach
+     * IPv6-Konfiguration manchmal {@code ::1}, was beim {@code bind} im
+     * dual-stack-Setup zu sporadischen IOExceptions fuehrt.
+     */
+    private static ServerSocket bindLoopbackPortWithRetry(int port) {
+        InetAddress loopback;
+        try {
+            loopback = InetAddress.getByName("127.0.0.1");
+        } catch (IOException e) {
+            // sollte nie passieren — 127.0.0.1 ist literal, kein DNS-Lookup
+            loopback = InetAddress.getLoopbackAddress();
+        }
+        IOException lastException = null;
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                ServerSocket socket = new ServerSocket();
+                socket.setReuseAddress(true);
+                socket.bind(new InetSocketAddress(loopback, port), 1);
+                return socket;
+            } catch (IOException e) {
+                lastException = e;
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            }
+        }
+        if (lastException != null) {
+            TimelineLogger.warn(EnvironmentLockManager.class,
+                    "bind(127.0.0.1:{}) nach 3 Versuchen gescheitert: {}",
+                    port, lastException.getMessage());
+        }
+        return null;
     }
 
     public static synchronized void releaseLock() {
@@ -113,17 +165,25 @@ public final class EnvironmentLockManager {
         currentLockedEnv = null;
     }
 
-    /** {@code true} wenn die Umgebung anhand des Verzeichnis-Namens gesperrt ist. */
+    /**
+     * {@code true} wenn die Umgebung anhand des Verzeichnis-Namens gesperrt ist.
+     *
+     * <p>Nutzt denselben {@link #bindLoopbackPortWithRetry} wie {@code acquireLock}:
+     * gelingt das probe-bind, ist der Port frei → nicht gesperrt.
+     */
     public static boolean isLocked(File envDir) {
         String envName = envDir.getName().toUpperCase();
         int port = getPortForEnvironment(envName);
-        try (ServerSocket testSocket = new ServerSocket()) {
-            testSocket.setReuseAddress(true);
-            testSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 1);
-            return false;
-        } catch (IOException e) {
+        ServerSocket probe = bindLoopbackPortWithRetry(port);
+        if (probe == null) {
             return true;
         }
+        try {
+            probe.close();
+        } catch (IOException ignored) {
+            // best-effort
+        }
+        return false;
     }
 
     public static String getCurrentLockedEnvironment() {
