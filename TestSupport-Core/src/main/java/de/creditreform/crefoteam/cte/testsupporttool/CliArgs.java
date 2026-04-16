@@ -1,7 +1,13 @@
 package de.creditreform.crefoteam.cte.testsupporttool;
 
 /**
- * Parser für die {@link Main}-Kommandozeilenargumente. Unterstützte Form:
+ * Parser für die Kommandozeilenargumente. Wird sowohl vom Headless-Entry-
+ * Point {@link Main} als auch vom (folgenden) GUI-Entry-Point benutzt —
+ * im Original-Projekt {@code testsupport_client} gab es zwei identische
+ * Klassen ({@code testsupporttool.CliArgs} + {@code gui.utils.CliArgs}),
+ * die wir hier bewusst zu EINER zusammenfuehren.
+ *
+ * <p>Unterstützte Form:
  *
  * <pre>
  *   e:&lt;envName&gt;       (alias: env, environment)
