@@ -8,3 +8,5 @@ target/
 build/
 out/
 X-TESTS*
+.claude/
+todos.txt
