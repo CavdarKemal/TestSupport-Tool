@@ -204,6 +204,12 @@ class CteTestAutomatisierungTest {
         assertThat(runner.askClientJob(
                 TesunClientJobListener.ASK_FOR.ASK_OBJECT_COPY_EXPORTS_TO_INPUTS, null)).isEqualTo(Boolean.TRUE);
         assertThat(runner.askClientJob(
+                TesunClientJobListener.ASK_FOR.ASK_OBJECT_CREATE_NEW_SOLL, null)).isEqualTo(Boolean.TRUE);
+        assertThat(runner.askClientJob(
+                TesunClientJobListener.ASK_FOR.ASK_OBJECT_ANAYLSE_CHECKS, null)).isEqualTo(Boolean.TRUE);
+        assertThat(runner.askClientJob(
+                TesunClientJobListener.ASK_FOR.ASK_OBJECT_CHECK_DOWNLOADS, null)).isEqualTo(Boolean.TRUE);
+        assertThat(runner.askClientJob(
                 TesunClientJobListener.ASK_FOR.ASK_CHECK_COLLECTS, null)).isEqualTo(Boolean.TRUE);
     }
 
