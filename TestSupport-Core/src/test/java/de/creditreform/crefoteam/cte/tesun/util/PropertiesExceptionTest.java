@@ -1,4 +1,4 @@
-package de.creditreform.crefoteam.cte.testsupporttool.gui.domain;
+package de.creditreform.crefoteam.cte.tesun.util;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,6 @@ class PropertiesExceptionTest {
 
     @Test
     void isCheckedException() {
-        // Trennung von java.lang.RuntimeException — Checked-Exception-Vertrag.
         assertThat(Exception.class.isAssignableFrom(PropertiesException.class)).isTrue();
         assertThat(RuntimeException.class.isAssignableFrom(PropertiesException.class)).isFalse();
     }
