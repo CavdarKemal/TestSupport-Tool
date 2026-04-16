@@ -1,14 +1,18 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
- * Port aus {@code testsupport_client.tesun_util} ohne {@code DiffenrenceInfo}
- * — diese innere Klasse zieht {@code org.custommonkey.xmlunit.Difference} nach
- * sich. Sie kann später ergänzt werden, wenn Check-Tasks portiert werden, die
- * XML-Vergleiche durchführen.
+ * Port aus {@code testsupport_client.tesun_util}. {@link DiffenrenceInfo} ist
+ * slim portiert — die {@code diffsMap} enthält im Original {@code
+ * org.custommonkey.xmlunit.Difference}-Einträge, die mit den XML-Diff-Check-
+ * Tasks später nachgezogen werden. Bis dahin nur die Metadaten (Testfall,
+ * Quell-/Ziel-XML, Diff-Datei).
  */
 public class TestResults {
 
@@ -36,8 +40,31 @@ public class TestResults {
         return stringBuilder;
     }
 
+    public static class DiffenrenceInfo {
+        /** Im Original {@code Map<String, List<Difference>>} — Placeholder bis xmlunit-Port. */
+        private final Map<String, List<Object>> diffsMap = new HashMap<>();
+        private final File xmlFileSrc;
+        private final File xmlFileDst;
+        private final String testFallName;
+        private final File diffFile;
+
+        public DiffenrenceInfo(String testFallName, File xmlFileSrc, File xmlFileDst, File diffFile) {
+            this.testFallName = testFallName;
+            this.xmlFileSrc = xmlFileSrc;
+            this.xmlFileDst = xmlFileDst;
+            this.diffFile = diffFile;
+        }
+
+        public String getTestFallName() { return testFallName; }
+        public File getXmlFileSrc() { return xmlFileSrc; }
+        public File getXmlFileDst() { return xmlFileDst; }
+        public File getDiffFile() { return diffFile; }
+        public Map<String, List<Object>> getDiffsMap() { return diffsMap; }
+    }
+
     public static class ResultInfo {
 
+        private final List<DiffenrenceInfo> diffenrenceInfosList = new ArrayList<>();
         private String errorStr;
         private Long crefoNummer;
 
@@ -77,6 +104,14 @@ public class TestResults {
         public String appendToErrorStr(String strAppend) {
             errorStr += strAppend;
             return errorStr;
+        }
+
+        public List<DiffenrenceInfo> getDiffenrenceInfosList() {
+            return diffenrenceInfosList;
+        }
+
+        public void addDifferences(DiffenrenceInfo diffenrenceInfo) {
+            diffenrenceInfosList.add(diffenrenceInfo);
         }
     }
 }
