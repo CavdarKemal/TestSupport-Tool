@@ -15,8 +15,20 @@ import javax.swing.*;
  */
 public final class TestSupportGUI extends GUIFrame {
 
+    private final TestSupportView testSupportView;
+
     public TestSupportGUI(EnvironmentConfig environmentConfig) {
         super(environmentConfig);
+        this.testSupportView = new TestSupportView(this);
+        setContentPane(testSupportView);
+        setTitle("CTE-Testautomatisierung — Tool");
+        setSize(1400, 900);
+        setLocationRelativeTo(null);
+    }
+
+    /** Zugriff für Jemmy-basierte GUI-Tests. */
+    public TestSupportView getTestSupportView() {
+        return testSupportView;
     }
 
     public static void main(String[] args) {
@@ -25,11 +37,6 @@ public final class TestSupportGUI extends GUIFrame {
             try {
                 EnvironmentConfig environmentConfig = new EnvironmentConfig();
                 frame = new TestSupportGUI(environmentConfig);
-                TestSupportView view = new TestSupportView(frame);
-                frame.setContentPane(view);
-                frame.setTitle("CTE-Testautomatisierung — Tool");
-                frame.setSize(1400, 900);
-                frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             } catch (Exception ex) {

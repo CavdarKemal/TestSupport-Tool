@@ -50,8 +50,15 @@ public final class CteAutomatedTestProcess {
                 .step(new UserTaskPrepareTestSystem(env, listener))
                 .step(new ConditionalStep(
                         "TestTypeGateway",
-                        ctx -> TEST_TYPE_PHASE1_AND_PHASE2.equals(
-                                ctx.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE)),
+                        ctx -> {
+                            // TEST_TYPE kommt aus der Variablen-Map als TEST_TYPES-Enum
+                            // (CteTestAutomatisierung + TestSupportView setzen ein Enum,
+                            // nicht einen String). Der frühere String-equals-Vergleich
+                            // mit "PHASE1_AND_PHASE2" lieferte daher immer false und
+                            // routete zwangsweise in den Failure-Branch.
+                            Object v = ctx.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_TYPE);
+                            return v != null && TEST_TYPE_PHASE1_AND_PHASE2.equals(v.toString());
+                        },
                         new UserTaskGeneratePseudoCrefos(env, listener),
                         new UserTaskFailureMail(env, listener)
                 ))
