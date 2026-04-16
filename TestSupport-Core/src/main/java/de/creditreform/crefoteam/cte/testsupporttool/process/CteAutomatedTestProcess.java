@@ -33,10 +33,20 @@ public final class CteAutomatedTestProcess {
 
     private CteAutomatedTestProcess() { }
 
-    public static ProcessDefinition build(EnvironmentConfig env, TesunClientJobListener listener) throws PropertiesException {
+    /**
+     * Baut den Hauptprozess. Liefert sowohl die {@link ProcessDefinition} als
+     * auch die beiden {@link SubProcessStep}-Instanzen — diese werden vom
+     * {@code DiagramImageListener} per {@code .bind(...)} an die BPMN-IDs
+     * {@code CallActivityRepeatableTestAutomationProcess2SUB1}/{@code ...SUB2}
+     * gebunden, damit in beiden Call-Activities die richtige Hervorhebung
+     * erscheint (dieselbe Sub-Definition wird zweimal verwendet).
+     */
+    public static Assembly build(EnvironmentConfig env, TesunClientJobListener listener) throws PropertiesException {
         ProcessDefinition sub = CteAutomatedTestProcessSUB.build(env, listener);
+        SubProcessStep phase1 = new SubProcessStep(sub);
+        SubProcessStep phase2 = new SubProcessStep(sub);
 
-        return ProcessDefinition.builder("CteAutomatedTestProcess")
+        ProcessDefinition definition = ProcessDefinition.builder("CteAutomatedTestProcess")
                 .step(new UserTaskPrepareTestSystem(env, listener))
                 .step(new ConditionalStep(
                         "TestTypeGateway",
@@ -45,12 +55,31 @@ public final class CteAutomatedTestProcess {
                         new UserTaskGeneratePseudoCrefos(env, listener),
                         new UserTaskFailureMail(env, listener)
                 ))
-                .step(new SubProcessStep(sub))                                // Phase 1
-                .step(new SubProcessStep(sub))                                // Phase 2
+                .step(phase1)
+                .step(phase2)
                 .step(new UserTaskSuccessMail(env, listener))
                 .step(new UserTaskRestoreTestSystem(env, listener))
                 .onFailure(new UserTaskFailureMail(env, listener))
                 .onFailure(new UserTaskRestoreTestSystem(env, listener))
                 .build();
+
+        return new Assembly(definition, phase1, phase2);
+    }
+
+    /** Tuple: Definition + Sub-Step-Referenzen für Diagramm-Bindings. */
+    public static final class Assembly {
+        private final ProcessDefinition definition;
+        private final SubProcessStep phase1;
+        private final SubProcessStep phase2;
+
+        Assembly(ProcessDefinition definition, SubProcessStep phase1, SubProcessStep phase2) {
+            this.definition = definition;
+            this.phase1 = phase1;
+            this.phase2 = phase2;
+        }
+
+        public ProcessDefinition definition() { return definition; }
+        public SubProcessStep phase1() { return phase1; }
+        public SubProcessStep phase2() { return phase2; }
     }
 }

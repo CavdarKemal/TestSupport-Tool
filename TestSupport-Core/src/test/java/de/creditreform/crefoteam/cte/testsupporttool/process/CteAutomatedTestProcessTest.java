@@ -17,12 +17,14 @@ class CteAutomatedTestProcessTest {
     @Test
     void mainProcess_buildsWithSevenTopLevelSteps() throws PropertiesException {
         EnvironmentConfig env = new EnvironmentConfig("ENE");
-        ProcessDefinition def = CteAutomatedTestProcess.build(env, null);
+        CteAutomatedTestProcess.Assembly assembly = CteAutomatedTestProcess.build(env, null);
+        ProcessDefinition def = assembly.definition();
 
         // Prepare → Gateway → SUB1 → SUB2 → SuccessMail → Restore  (6) + Failure-Branch (2)
         assertThat(def.steps()).hasSize(6);
         assertThat(def.failureSteps()).hasSize(2);
         assertThat(def.name()).isEqualTo("CteAutomatedTestProcess");
+        assertThat(assembly.phase1()).isNotSameAs(assembly.phase2());
     }
 
     @Test

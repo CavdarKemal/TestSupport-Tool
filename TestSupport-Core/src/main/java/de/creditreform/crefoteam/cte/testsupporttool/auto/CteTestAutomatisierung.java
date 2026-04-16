@@ -1,8 +1,9 @@
 package de.creditreform.crefoteam.cte.testsupporttool.auto;
 
-import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
 import de.creditreform.crefoteam.cte.statemachine.ProcessEngine;
+import de.creditreform.crefoteam.cte.statemachine.ProcessListener;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
+import de.creditreform.crefoteam.cte.statemachine.diagram.DiagramImageListener;
 import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
@@ -19,7 +20,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -103,7 +106,7 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
 
      public ProcessOutcome startProcess(boolean isDemoMode) throws PropertiesException {
         try (TimelineLogger.Action overall = TimelineLogger.action("CteAutomatedTestProcess", environmentConfig.getCurrentEnvName())) {
-            ProcessDefinition definition = CteAutomatedTestProcess.build(environmentConfig, this);
+            CteAutomatedTestProcess.Assembly assembly = CteAutomatedTestProcess.build(environmentConfig, this);
             Map<String, Object> taskVariablesMap = buildTaskVariablesMap(
                     isDemoMode,
                     testCustomerMapMap,
@@ -111,12 +114,43 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
                     TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
                     true,
                     false);
-            ProcessRunner runner = new ProcessRunner(new ProcessEngine(), new ConsoleProcessListener());
-            ProcessOutcome outcome = runner.run(definition, taskVariablesMap);
+            ProcessListener listener = buildEngineListener(assembly);
+            ProcessRunner runner = new ProcessRunner(new ProcessEngine(), listener);
+            ProcessOutcome outcome = runner.run(assembly.definition(), taskVariablesMap);
             overall.result(outcome.name());
             TimelineLogger.info(getClass(), "Endzustand: {}", outcome);
             finalizeResults();
             return outcome;
+        }
+    }
+
+    /**
+     * Kombiniert Console-Logging mit dem {@link DiagramImageListener} der
+     * StateMachine-Library — pro Step-Start wird ein PNG des aktuellen
+     * Diagramms gerendert und über {@link #notifyClientJob(Level, Object)} als
+     * {@code InputStream} weitergereicht (analog Activiti's
+     * {@code RepositoryService.getProcessDiagram(...)}).
+     *
+     * <p>Wenn das Template-Setup fehlschlägt (Library fehlt Resource am
+     * Classpath), wird nur der Console-Listener verwendet — der Prozess soll
+     * deswegen nicht scheitern.
+     */
+    private ProcessListener buildEngineListener(CteAutomatedTestProcess.Assembly assembly) {
+        ConsoleProcessListener consoleListener = new ConsoleProcessListener();
+        try {
+            DiagramImageListener images = DiagramImageListener.builder()
+                    .template("CteAutomatedTestProcess",
+                            "CteAutomatedTestProcess.jpg", "CteAutomatedTestProcess.bpmn")
+                    .template("CteAutomatedTestProcessSUB",
+                            "CteAutomatedTestProcessSUB.jpg", "CteAutomatedTestProcessSUB.bpmn")
+                    .bind(assembly.phase1(), "CallActivityRepeatableTestAutomationProcess2SUB1")
+                    .bind(assembly.phase2(), "CallActivityRepeatableTestAutomationProcess2SUB2")
+                    .onImage(png -> notifyClientJob(Level.INFO, new ByteArrayInputStream(png)))
+                    .forProcess(assembly.definition());
+            return ProcessListener.compose(consoleListener, images);
+        } catch (IOException ex) {
+            notifyClientJob(Level.WARN, "Prozess-Diagramm deaktiviert (Template nicht ladbar): " + ex.getMessage());
+            return consoleListener;
         }
     }
 
