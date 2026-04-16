@@ -9,6 +9,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIFrame;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIStaticUtils;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.TestSupportHelper;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import de.creditreform.crefoteam.cte.testsupporttool.util.ExceptionUtils;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
@@ -117,6 +118,14 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
     }
 
     protected void startActivitiProcess() {
+        // Resume-Dialog: wenn resume.properties existiert, fragen, ob
+        // fortgesetzt oder komplett neu gestartet werden soll.
+        int[] resumeIndexPath = checkAndHandleResumeState();
+        if (resumeIndexPath != null && resumeIndexPath.length == 0) {
+            // Sentinel fuer CANCEL — nichts tun.
+            return;
+        }
+
         Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeTestCustomersMapMap = getViewCustomersSelection().getActiveTestCustomersMapMap();
         activeTestCustomersMapMap.keySet().forEach(testPhase -> activeTestCustomersMapMap.get(testPhase).values().forEach(TestCustomer::emptyTestResultsMapForCommands));
 
@@ -125,6 +134,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
 
         final boolean isDemoMode = getViewTestSupportMainProcess().isDemoMode();
         final Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeCustomers = getViewCustomersSelection().getActiveTestCustomersMapMap();
+        final int[] finalResumePath = resumeIndexPath;
 
         new Thread(() -> {
             SwingUtilities.invokeLater(() -> {
@@ -133,7 +143,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
             });
             try {
                 Map<String, Object> taskVariablesMap = buildTaskVariablesMap(isDemoMode, activeCustomers);
-                ProcessOutcome outcome = processController.runProcess(currentEnvironment, taskVariablesMap);
+                ProcessOutcome outcome = processController.runProcess(currentEnvironment, taskVariablesMap, finalResumePath);
                 notifyClientJob(Level.INFO, "\nProzess beendet: " + outcome);
                 notifyProcessComplete();
             } catch (Exception ex) {
@@ -144,6 +154,46 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
                 });
             }
         }, "statemachine-process-runner").start();
+    }
+
+    /**
+     * @return {@code null} fuer Neustart (kein oder geloeschter State),
+     *         leeres Array als Sentinel fuer "User hat Cancel gewaehlt",
+     *         gefuelltes Array = Resume-Index-Pfad.
+     */
+    private int[] checkAndHandleResumeState() {
+        File resumeFile;
+        try {
+            resumeFile = new File(currentEnvironment.getTestOutputsRoot(), ResumeState.FILE_NAME);
+        } catch (Exception ex) {
+            return null;
+        }
+        ResumeState state;
+        try {
+            state = ResumeState.load(resumeFile);
+        } catch (Exception ex) {
+            TimelineLogger.warn(getClass(), "Resume-State beschaedigt — wird ignoriert: {}", ex.getMessage());
+            ResumeState.delete(resumeFile);
+            return null;
+        }
+        if (state == null) return null;
+        String message = "Ein unterbrochener Prozess wurde gefunden:\n\n"
+                + "  Phase: " + (state.testPhase() != null ? state.testPhase() : "-") + "\n"
+                + "  Step:  " + (state.lastStepName() != null ? state.lastStepName() : "-") + "\n"
+                + "  Zeit:  " + state.savedAt() + "\n\n"
+                + "Ja        = beim letzten Step fortsetzen\n"
+                + "Nein      = alten Stand loeschen und komplett neu starten\n"
+                + "Abbrechen = keinen Prozess starten";
+        int choice = JOptionPane.showConfirmDialog(this, message, APP_TITLE, JOptionPane.YES_NO_CANCEL_OPTION);
+        if (choice == JOptionPane.CANCEL_OPTION || choice == JOptionPane.CLOSED_OPTION) {
+            return new int[0]; // Sentinel: Cancel
+        }
+        if (choice == JOptionPane.YES_OPTION) {
+            return state.indexPath();
+        }
+        // NO_OPTION → alten State verwerfen, frisch starten
+        ResumeState.delete(resumeFile);
+        return null;
     }
 
     private void showAndRethrow(String message, Exception ex) {

@@ -17,6 +17,9 @@ import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.tesun.util.TesunDateUtils;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeMarker;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumePathUtil;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import org.apache.log4j.Level;
 
 import java.util.ArrayList;
@@ -54,6 +57,13 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
 
     @Override
     public StepResult execute(ProcessContext context) throws Exception {
+        // Resume-Skip: wenn ein Resume-Index-Pfad hinterlegt ist und der
+        // aktuelle Step lexikographisch vor dem Resume-Punkt liegt, wird
+        // die Handler-Logik uebersprungen. Ab dem Resume-Step laeuft alles
+        // normal (REACHED-Flag gesetzt).
+        if (shouldSkipForResume(context)) {
+            return StepResult.NEXT;
+        }
         Map<String, Object> updated = runTask(context.variables());
         if (updated != null && updated != context.variables()) {
             context.variables().putAll(updated);
@@ -62,6 +72,25 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
             return StepResult.ABORT;
         }
         return StepResult.NEXT;
+    }
+
+    private boolean shouldSkipForResume(ProcessContext context) {
+        if (Boolean.TRUE.equals(context.get(ResumeMarker.RESUME_REACHED))) {
+            return false;
+        }
+        int[] resumePath = (int[]) context.get(ResumeMarker.RESUME_INDEX_PATH);
+        if (resumePath == null || resumePath.length == 0) {
+            return false;
+        }
+        int[] currentPath = ResumePathUtil.computeIndexPath(context);
+        int cmp = ResumeState.compareIndexPaths(currentPath, resumePath);
+        if (cmp < 0) {
+            return true; // noch nicht am Resume-Step
+        }
+        // Am Resume-Step oder danach: Flag setzen, normal ausfuehren.
+        context.variables().put(ResumeMarker.RESUME_REACHED, Boolean.TRUE);
+        notifyUserTask(Level.INFO, "\n→ Resume erreicht bei " + this.getClass().getSimpleName());
+        return false;
     }
 
     // ======================================================================

@@ -9,8 +9,12 @@ import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.ConsoleProcessListener;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeMarker;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeStateWriter;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,11 +25,15 @@ import org.apache.log4j.Level;
  * aber ohne Activiti-Server — der Prozess läuft direkt in der
  * {@code testsupport-statemachine}-Library.
  *
- * <p>Kombiniert {@link ConsoleProcessListener} mit
- * {@link DiagramImageListener}, sodass pro Step-Start ein PNG gerendert und
- * via {@link TesunClientJobListener#notifyClientJob(Level, Object)} als
- * {@code InputStream} an die GUI weitergereicht wird (1:1-Verhalten zum
- * Activiti-Weg).
+ * <p>Kombiniert {@link ConsoleProcessListener} + {@link DiagramImageListener}
+ * + {@link ResumeStateWriter} in einer Listener-Kette:
+ * <ul>
+ *   <li>Pro Step-Start geht ein PNG via {@code notifyClientJob} an die GUI.</li>
+ *   <li>Pro Step-Start wird der aktuelle Index-Pfad in
+ *       {@code <testOutputsRoot>/resume.properties} persistiert — bei
+ *       Abbruch bleibt die Datei stehen und kann beim naechsten Start
+ *       fuer "Fortsetzen?" genutzt werden.</li>
+ * </ul>
  *
  * <p>Keine {@code prepareStart}-Startbedingungen wie im Original (das Tool
  * prüft nicht gegen einen echten Server).
@@ -39,14 +47,30 @@ public final class ProcessController {
         this.listener = listener;
     }
 
+    /** Siehe {@link #runProcess(EnvironmentConfig, Map, int[])} — Kurzform ohne Resume. */
+    public ProcessOutcome runProcess(EnvironmentConfig env, Map<String, Object> taskVariablesMap) throws Exception {
+        return runProcess(env, taskVariablesMap, null);
+    }
+
     /**
      * Führt den CteAutomatedTestProcess synchron im aufrufenden Thread aus.
      * Bei Abbruch via {@link #stop()} kehrt die Engine mit
      * {@link ProcessOutcome#ABORTED} zurück.
+     *
+     * <p>Wenn {@code resumeIndexPath != null && length > 0}, setzt er den
+     * Marker in die Task-Variables-Map, sodass die Handler-Basisklasse
+     * alle Steps vor diesem Pfad ueberspringt. Ab dem Resume-Step laeuft
+     * alles regulaer.
      */
-    public ProcessOutcome runProcess(EnvironmentConfig env, Map<String, Object> taskVariablesMap) throws Exception {
+    public ProcessOutcome runProcess(EnvironmentConfig env,
+                                     Map<String, Object> taskVariablesMap,
+                                     int[] resumeIndexPath) throws Exception {
+        if (resumeIndexPath != null && resumeIndexPath.length > 0) {
+            taskVariablesMap.put(ResumeMarker.RESUME_INDEX_PATH, resumeIndexPath);
+        }
+        File resumeFile = resolveResumeFile(env);
         CteAutomatedTestProcess.Assembly assembly = CteAutomatedTestProcess.build(env, listener);
-        ProcessListener engineListener = buildEngineListener(assembly);
+        ProcessListener engineListener = buildEngineListener(assembly, resumeFile);
         ProcessContext ctx = ProcessContext.create(taskVariablesMap, engineListener);
         currentCtx.set(ctx);
         try {
@@ -64,8 +88,17 @@ public final class ProcessController {
         }
     }
 
-    private ProcessListener buildEngineListener(CteAutomatedTestProcess.Assembly assembly) {
+    private static File resolveResumeFile(EnvironmentConfig env) {
+        try {
+            return new File(env.getTestOutputsRoot(), ResumeState.FILE_NAME);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private ProcessListener buildEngineListener(CteAutomatedTestProcess.Assembly assembly, File resumeFile) {
         ConsoleProcessListener consoleListener = new ConsoleProcessListener();
+        ProcessListener resumeWriter = resumeFile != null ? new ResumeStateWriter(resumeFile) : null;
         try {
             DiagramImageListener images = DiagramImageListener.builder()
                     .template("CteAutomatedTestProcess",
@@ -76,10 +109,14 @@ public final class ProcessController {
                     .bind(assembly.phase2(), "CallActivityRepeatableTestAutomationProcess2SUB2")
                     .onImage(png -> listener.notifyClientJob(Level.INFO, new ByteArrayInputStream(png)))
                     .forProcess(assembly.definition());
-            return ProcessListener.compose(consoleListener, images);
+            return resumeWriter != null
+                    ? ProcessListener.compose(consoleListener, images, resumeWriter)
+                    : ProcessListener.compose(consoleListener, images);
         } catch (Exception ex) {
             listener.notifyClientJob(Level.WARN, "Prozess-Diagramm deaktiviert (Template nicht ladbar): " + ex.getMessage());
-            return consoleListener;
+            return resumeWriter != null
+                    ? ProcessListener.compose(consoleListener, resumeWriter)
+                    : consoleListener;
         }
     }
 }

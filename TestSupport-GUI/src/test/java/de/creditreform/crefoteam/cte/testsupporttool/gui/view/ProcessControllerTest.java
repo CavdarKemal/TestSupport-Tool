@@ -2,13 +2,16 @@ package de.creditreform.crefoteam.cte.testsupporttool.gui.view;
 
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.testsupporttool.auto.CteTestAutomatisierung;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import org.apache.log4j.Level;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +32,20 @@ class ProcessControllerTest {
 
     private CteTestAutomatisierung runner;
 
+    @BeforeEach
+    void clearResumeBefore() throws Exception {
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
+        ResumeState.delete(new File(env.getTestOutputsRoot(), ResumeState.FILE_NAME));
+    }
+
     @AfterEach
-    void cleanup() {
+    void cleanup() throws Exception {
         if (runner != null) {
             runner.shutdown();
             runner = null;
         }
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
+        ResumeState.delete(new File(env.getTestOutputsRoot(), ResumeState.FILE_NAME));
     }
 
     @Test

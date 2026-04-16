@@ -4,6 +4,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.gui.BaseGUITest;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.TestSupportGUI;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.env.EnvironmentLockManager;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import org.junit.jupiter.api.AfterAll;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,9 +55,13 @@ class TestSupportViewGuiTest extends BaseGUITest {
     }
 
     @BeforeEach
-    void openGui() {
+    void openGui() throws Exception {
         try { EnvironmentLockManager.releaseLock(); } catch (Exception ignored) { }
         EnvironmentConfig env = new EnvironmentConfig("ENE");
+        // Saubere Ausgangssituation: Resume-State eines vorherigen Tests
+        // (z.B. ProcessControllerTest.stop_*) loeschen, sonst blockiert der
+        // Fortsetzen-Dialog den Testlauf.
+        ResumeState.delete(new File(env.getTestOutputsRoot(), ResumeState.FILE_NAME));
         TestSupportGUI gui = createOnEdt(() -> {
             TestSupportGUI g = new TestSupportGUI(env);
             g.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
