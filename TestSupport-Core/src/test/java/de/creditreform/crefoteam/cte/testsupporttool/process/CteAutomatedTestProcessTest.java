@@ -28,13 +28,13 @@ class CteAutomatedTestProcessTest {
     }
 
     @Test
-    void subProcess_buildsWithThirteenSteps() throws PropertiesException {
+    void subProcess_buildsWithTwentyStepsMatchingBpmn() throws PropertiesException {
         EnvironmentConfig env = new EnvironmentConfig("ENE");
         ProcessDefinition sub = CteAutomatedTestProcessSUB.build(env, null);
 
-        // 9 Start-Handler + WaitForBeteiligtenImport + WaitForEntgBerechnung
-        // + WaitForBtlgAktualisierung + WaitForCtImport
-        assertThat(sub.steps()).hasSize(13);
+        // 20 UserTasks exakt wie im Original-BPMN (CteAutomatedTestProcessSUB.bpmn):
+        // 9 Start-Handler + 4 WaitFor + 3 WaitBefor(e) + 4 Check.
+        assertThat(sub.steps()).hasSize(20);
         assertThat(sub.name()).isEqualTo("CteAutomatedTestProcessSUB");
     }
 }

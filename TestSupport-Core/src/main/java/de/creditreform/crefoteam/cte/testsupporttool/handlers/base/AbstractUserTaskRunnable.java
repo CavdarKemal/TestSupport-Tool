@@ -275,6 +275,32 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
         return cal;
     }
 
+    /**
+     * Wait-Entscheidung aus dem ehemaligen Activiti-Controller: wird der Task
+     * per GUI manuell gestartet ({@code UT_TASK_PARAM_NAME_MANUEL_USER_TASK=true}),
+     * wird nicht gewartet — stattdessen wird der angegebene Completion-Cal aus
+     * der Variablen-Map an alle aktiven Kunden als {@code lastJobStartetAt}
+     * gesetzt (für nachfolgende Export-Protokoll-Checks).
+     * Sonst schläft der Handler {@code waitForTime} ms.
+     */
+    @SuppressWarnings("unchecked")
+    protected void checkForWait(Map<String, Object> taskVariablesMap, String waitForTime) {
+        Object obj = taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_MANUEL_USER_TASK);
+        if (obj != null && ((Boolean) obj).booleanValue()) {
+            Calendar jobGestartetCal = extractCalendarFromMap(taskVariablesMap, TestSupportClientKonstanten.LAST_COMPLETITION_TIME);
+            Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> selectedCustomersMapMap =
+                    (Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>>)
+                            taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
+            TestSupportClientKonstanten.TEST_PHASE testPhase =
+                    (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
+            Map<String, TestCustomer> selectedCustomersMapPhaseX = selectedCustomersMapMap.get(testPhase);
+            selectedCustomersMapPhaseX.entrySet().forEach(e -> e.getValue().setLastJobStartetAt(jobGestartetCal));
+        } else {
+            long timeBeforeExport = (Long) taskVariablesMap.get(waitForTime);
+            waitMillisForUserTask(timeBeforeExport);
+        }
+    }
+
     protected void waitMillisForUserTask(long timeMillis) {
         notifyUserTask(Level.INFO, "\n\tWarte " + timeMillis / 1000 + "s (ab " + new Date() + ") ...");
         long start = System.currentTimeMillis();
