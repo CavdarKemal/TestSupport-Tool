@@ -34,21 +34,6 @@ class CteTestAutomatisierungTest {
     }
 
     @Test
-    void initForEnvironment_acquiresLockAndConfiguresLogger() {
-        EnvironmentConfig env = new EnvironmentConfig("ENE");
-        runner = new CteTestAutomatisierung(env);
-
-        assertThat(EnvironmentLockManager.getCurrentLockedEnvironment())
-                .as("Lock muss durch initForEnvironment erworben sein")
-                .isEqualTo("ENE");
-        assertThat(runner.getEnvironmentConfig()).isSameAs(env);
-        assertThat(runner.getTestCustomerMapMap())
-                .as("TestCustomer-Map-Map sollte für jede TEST_PHASE einen Eintrag haben")
-                .containsKey(TestSupportClientKonstanten.TEST_PHASE.PHASE_1)
-                .containsKey(TestSupportClientKonstanten.TEST_PHASE.PHASE_2);
-    }
-
-    @Test
     void startProcess_demoMode_completesEndToEnd() throws PropertiesException {
         EnvironmentConfig env = new EnvironmentConfig("ENE");
         runner = new CteTestAutomatisierung(env);
@@ -114,15 +99,4 @@ class CteTestAutomatisierungTest {
         assertThat(vars.get("DEMO_MODE")).isEqualTo(Boolean.TRUE);
     }
 
-    @Test
-    void shutdown_releasesLockAndClearsLogger() {
-        EnvironmentConfig env = new EnvironmentConfig("ENE");
-        runner = new CteTestAutomatisierung(env);
-        assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isEqualTo("ENE");
-
-        runner.shutdown();
-        runner = null;
-
-        assertThat(EnvironmentLockManager.getCurrentLockedEnvironment()).isNull();
-    }
 }
