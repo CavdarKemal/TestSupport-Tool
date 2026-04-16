@@ -13,6 +13,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartExpor
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartRestore;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartSftpUploads;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartUploads;
+import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForCtImport;
 
 /**
  * State-Machine-Factory für den Sub-Prozess. Spiegelt den Original-BPMN
@@ -20,9 +21,13 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartUploa
  *
  * <pre>
  *   Start → StartUploads → StartBeteiligtenImport → StartEntgBerechnung
- *         → StartBtlgAktualisierung → StartCtImport → StartExports
- *         → StartCollect → StartRestore → StartSftpUploads → End
+ *         → StartBtlgAktualisierung → StartCtImport → WaitForCtImport
+ *         → StartExports → StartCollect → StartRestore → StartSftpUploads → End
  * </pre>
+ *
+ * <p>Wait-Pendants zu den uebrigen Start-Handlern werden schrittweise
+ * portiert (siehe Original {@code activiti-tests/UserTaskStart*.bpmn} —
+ * dort folgt jedem Start ein Wait).
  */
 public final class CteAutomatedTestProcessSUB {
 
@@ -35,6 +40,7 @@ public final class CteAutomatedTestProcessSUB {
                 .step(new UserTaskStartEntgBerechnung(env, listener))
                 .step(new UserTaskStartBtlgAktualisierung(env, listener))
                 .step(new UserTaskStartCtImport(env, listener))
+                .step(new UserTaskWaitForCtImport(env, listener))
                 .step(new UserTaskStartExports(env, listener))
                 .step(new UserTaskStartCollect(env, listener))
                 .step(new UserTaskStartRestore(env, listener))
