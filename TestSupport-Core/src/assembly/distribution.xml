@@ -15,8 +15,10 @@
 
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}</directory>
+            <!-- Configs + log4j leben im Parent-Root, nicht im Core-Modul. -->
+            <directory>${project.basedir}/..</directory>
             <includes>
+                <include>ABE-config.properties</include>
                 <include>ENE-config.properties</include>
                 <include>GEE-config.properties</include>
                 <include>log4j.properties</include>

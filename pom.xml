@@ -7,163 +7,126 @@
     <groupId>de.creditreform.crefoteam.cte</groupId>
     <artifactId>testsupport-tool</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>TestSupport Tool (Spike)</name>
+    <name>TestSupport Tool (Spike) — Parent</name>
     <description>
-        Spike: Activiti-freier TestSupport-Client auf Basis der
-        TestSupport-StateMachine-Library. Demonstriert die Anbindung an die
-        Engine mit drei repräsentativen Handlern (Action, JVM-Job-Start,
-        Polling-Wait). Echte Handler und GUI folgen später.
+        Multi-Modul-Parent fuer den Activiti-freien TestSupport-Client.
+        Module:
+        - testsupport-core: Headless-Engine + Handler.
+        - (folgt) testsupport-gui: Swing-GUI, 1:1-Port aus testsupport_client/TestSupportGUI.
     </description>
+
+    <modules>
+        <module>TestSupport-Core</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <statemachine.version>1.0.0-SNAPSHOT</statemachine.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
+        <commons-io.version>2.15.1</commons-io.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
         <junit.version>5.10.2</junit.version>
+        <assertj.version>3.25.3</assertj.version>
         <wiremock.version>3.0.1</wiremock.version>
+
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
 
-        <!-- ITSQ-Testfälle — Pendant zu testsupport_client/TestSupportGUI/pom.xml.
-             Werden per maven-dependency-plugin aus dem Maven-Repo geholt, nach
-             ${itsq_testfaelle.unpacked-dir} entpackt und vom assembly-plugin
-             in das Distribution-ZIP unter /X-TESTS/ITSQ eingebettet. -->
+        <!-- ITSQ-Testfaelle — Pendant zu testsupport_client/TestSupportGUI/pom.xml.
+             Per maven-dependency-plugin aus dem Repo geholt, nach
+             ${itsq_testfaelle.unpacked-dir} entpackt. Liegt im Parent-Root,
+             damit beide Module (Core + spaeter GUI) das gleiche Test-Set sehen. -->
         <itsq_testfaelle.groupId>itsq_testfaelle</itsq_testfaelle.groupId>
         <itsq_testfaelle.artifactId>itsq</itsq_testfaelle.artifactId>
         <itsq_testfaelle.version>2.0.0-SNAPSHOT</itsq_testfaelle.version>
         <itsq_testfaelle.classifier>distribution</itsq_testfaelle.classifier>
         <itsq_testfaelle.type>zip</itsq_testfaelle.type>
-        <itsq_testfaelle.unpacked-dir>${project.basedir}/X-TESTS/ITSQ</itsq_testfaelle.unpacked-dir>
+        <itsq_testfaelle.unpacked-dir>${project.basedir}/../X-TESTS/ITSQ</itsq_testfaelle.unpacked-dir>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-statemachine</artifactId>
-            <version>${statemachine.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.36</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.15.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-statemachine</artifactId>
+                <version>${statemachine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.25.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8-standalone</artifactId>
-            <version>${wiremock.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8-standalone</artifactId>
+                <version>${wiremock.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-            </plugin>
-
-            <!-- ITSQ-Testfälle herunterladen + entpacken; Runtime-Dependencies
-                 nach target/lib kopieren. Analog testsupport_client. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>unpack-testfaelle</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${itsq_testfaelle.groupId}</groupId>
-                                    <artifactId>${itsq_testfaelle.artifactId}</artifactId>
-                                    <version>${itsq_testfaelle.version}</version>
-                                    <classifier>${itsq_testfaelle.classifier}</classifier>
-                                    <type>${itsq_testfaelle.type}</type>
-                                    <outputDirectory>${itsq_testfaelle.unpacked-dir}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Distribution-ZIP mit lib/, Configs, log4j und X-TESTS/ITSQ. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-assembly-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>create-distribution</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/assembly/distribution.xml</descriptor>
-                    </descriptors>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
