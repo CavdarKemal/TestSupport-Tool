@@ -10,8 +10,7 @@
     <packaging>pom</packaging>
 
     <name>TestSupport Tool (Spike) — Parent</name>
-    <description>
-        Multi-Modul-Parent fuer den Activiti-freien TestSupport-Client.
+    <description>Multi-Modul-Parent fuer den Activiti-freien TestSupport-Client.
         Module:
         - testsupport-core: Headless-Engine + Handler.
         - (folgt) testsupport-gui: Swing-GUI, 1:1-Port aus testsupport_client/TestSupportGUI.
