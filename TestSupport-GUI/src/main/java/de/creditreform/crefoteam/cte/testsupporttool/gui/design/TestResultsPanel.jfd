@@ -1,0 +1,37 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "17.0.9" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+			"$columnSpecs": "0:1.0, 0, 88:1.0"
+			"$rowSpecs": "0:1.0"
+			"$hGap": 5
+			"$vGap": 5
+			"$alignLeft": true
+			"$alignTop": true
+		} ) {
+			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.variableGetter": true
+			}
+			add( new FormContainer( "de.creditreform.crefoteam.cte.tesun.gui.view.ClosableTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "tabbedPaneTestResults"
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormComponent( "de.creditreform.crefoteam.cte.tesun.gui.view.TestResultsTabView" ) {
+					name: "testResultsTabView"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( null ) )
+			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+				"gridwidth": 3
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 710, 480 )
+		} )
+	}
+}

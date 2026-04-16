@@ -1,0 +1,190 @@
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"font": &Font0 new java.awt.Font( "Noto Sans", 0, 11 )
+			auxiliary() {
+				"JavaCodeGenerator.variableGetter": true
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+				"$columnSpecs": "0, 0:1.0, 0:1.0, 0"
+				"$rowSpecs": "0, 0"
+				"$hGap": 5
+				"$vGap": 5
+				"$alignLeft": true
+				"$alignTop": true
+			} ) {
+				name: "panelControls"
+				"border": new javax.swing.border.BevelBorder( 1, null, null, null, null )
+				"font": #Font0
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonRefreshTestResults"
+					"text": "Aktualisieren"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/refresh.png" )
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"insets": new java.awt.Insets( 2, 2, 2, 0 )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonLoadTestResults"
+					"text": "Test Results Laden..."
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/folder_up.png" )
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"insets": new java.awt.Insets( 2, 2, 2, 0 )
+					"gridx": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonSaveTestResults"
+					"text": "Test Results Speichern"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/save.png" )
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"insets": new java.awt.Insets( 2, 2, 2, 0 )
+					"gridx": 2
+					"gridwidth": 2
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label1"
+					"text": "Diff-Tool:"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridy": 1
+					"insets": new java.awt.Insets( 1, 2, 2, 2 )
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "comboBoxDiffTools"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridx": 1
+					"gridy": 1
+					"insets": new java.awt.Insets( 1, 2, 2, 2 )
+					"gridwidth": 2
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonStartDifTool"
+					"text": "Start Diff-Tool"
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridy": 1
+					"insets": new java.awt.Insets( 1, 2, 2, 2 )
+					"gridx": 3
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "First"
+			} )
+			add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+				name: "splitPanelTreeView"
+				"dividerLocation": 150
+				"font": #Font0
+				"dividerSize": 5
+				auxiliary() {
+					"JavaCodeGenerator.variableGetter": true
+				}
+				add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+					name: "splitPaneCustomerTrees"
+					"orientation": 0
+					"dividerLocation": 160
+					"font": #Font0
+					"lastDividerLocation": 160
+					"dividerSize": 5
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+						name: "panelCustomerP1"
+						"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						"preferredSize": &Dimension0 new java.awt.Dimension( 200, 482 )
+						"font": #Font0
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPaneTreeCustomers1"
+							"font": #Font0
+							auxiliary() {
+								"JavaCodeGenerator.variableGetter": true
+							}
+							add( new FormComponent( "javax.swing.JTree" ) {
+								name: "treeCustomersPhase1"
+								"cellRenderer": sfield com.jformdesigner.model.FormObject NULL_VALUE
+								"foreground": sfield java.awt.Color blue
+								"font": #Font0
+								auxiliary() {
+									"JavaCodeGenerator.variableGetter": true
+								}
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "card2"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "left"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+						name: "panelCustomerP2"
+						"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						"preferredSize": #Dimension0
+						"font": #Font0
+						auxiliary() {
+							"JavaCodeGenerator.variableGetter": true
+						}
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPaneTreeCustomers2"
+							"font": #Font0
+							auxiliary() {
+								"JavaCodeGenerator.variableGetter": true
+							}
+							add( new FormComponent( "javax.swing.JTree" ) {
+								name: "treeCustomersPhase2"
+								"cellRenderer": sfield com.jformdesigner.model.FormObject NULL_VALUE
+								"foreground": sfield java.awt.Color blue
+								"font": #Font0
+								auxiliary() {
+									"JavaCodeGenerator.variableGetter": true
+								}
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "card2"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "right"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "left"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+					name: "panelTestResults"
+					"font": #Font0
+					auxiliary() {
+						"JavaCodeGenerator.variableGetter": true
+					}
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "right"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 765, 575 )
+		} )
+	}
+}
