@@ -5,6 +5,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -59,7 +60,13 @@ public final class EnvironmentLockManager {
         }
         int port = getPortForEnvironment(envName);
         try {
-            ServerSocket socket = new ServerSocket(port, 1, InetAddress.getLoopbackAddress());
+            // SO_REUSEADDR vor bind() setzen — sonst kann auf Windows der Port nach
+            // einem close() noch im TIME_WAIT/CLOSE_WAIT haengen, was zu sporadischen
+            // BindException-Fehlern fuehrt (sichtbar bei schnell aufeinanderfolgenden
+            // Test-Klassen, die alle den ENE-Lock erwerben/freigeben).
+            ServerSocket socket = new ServerSocket();
+            socket.setReuseAddress(true);
+            socket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 1);
             lockSocket = socket;
             currentLockedEnv = envName;
             File lockFile = new File(envDir, LOCK_FILE_NAME);
@@ -110,8 +117,9 @@ public final class EnvironmentLockManager {
     public static boolean isLocked(File envDir) {
         String envName = envDir.getName().toUpperCase();
         int port = getPortForEnvironment(envName);
-        try (ServerSocket testSocket = new ServerSocket(port, 1, InetAddress.getLoopbackAddress())) {
-            testSocket.close();
+        try (ServerSocket testSocket = new ServerSocket()) {
+            testSocket.setReuseAddress(true);
+            testSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 1);
             return false;
         } catch (IOException e) {
             return true;
