@@ -14,6 +14,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartResto
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartSftpUploads;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskStartUploads;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForBeteiligtenImport;
+import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForBtlgAktualisierung;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForCtImport;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForEntgBerechnung;
 
@@ -25,7 +26,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForEnt
  *   Start → StartUploads
  *         → StartBeteiligtenImport → WaitForBeteiligtenImport
  *         → StartEntgBerechnung    → WaitForEntgBerechnung
- *         → StartBtlgAktualisierung
+ *         → StartBtlgAktualisierung→ WaitForBtlgAktualisierung
  *         → StartCtImport          → WaitForCtImport
  *         → StartExports → StartCollect → StartRestore → StartSftpUploads → End
  * </pre>
@@ -46,6 +47,7 @@ public final class CteAutomatedTestProcessSUB {
                 .step(new UserTaskStartEntgBerechnung(env, listener))
                 .step(new UserTaskWaitForEntgBerechnung(env, listener))
                 .step(new UserTaskStartBtlgAktualisierung(env, listener))
+                .step(new UserTaskWaitForBtlgAktualisierung(env, listener))
                 .step(new UserTaskStartCtImport(env, listener))
                 .step(new UserTaskWaitForCtImport(env, listener))
                 .step(new UserTaskStartExports(env, listener))

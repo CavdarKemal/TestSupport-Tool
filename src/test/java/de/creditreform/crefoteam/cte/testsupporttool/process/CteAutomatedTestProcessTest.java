@@ -26,13 +26,13 @@ class CteAutomatedTestProcessTest {
     }
 
     @Test
-    void subProcess_buildsWithTwelveSteps() throws PropertiesException {
+    void subProcess_buildsWithThirteenSteps() throws PropertiesException {
         EnvironmentConfig env = new EnvironmentConfig("ENE");
         ProcessDefinition sub = CteAutomatedTestProcessSUB.build(env, null);
 
         // 9 Start-Handler + WaitForBeteiligtenImport + WaitForEntgBerechnung
-        // + WaitForCtImport
-        assertThat(sub.steps()).hasSize(12);
+        // + WaitForBtlgAktualisierung + WaitForCtImport
+        assertThat(sub.steps()).hasSize(13);
         assertThat(sub.name()).isEqualTo("CteAutomatedTestProcessSUB");
     }
 }
