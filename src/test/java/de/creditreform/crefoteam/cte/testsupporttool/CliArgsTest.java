@@ -87,4 +87,26 @@ class CliArgsTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Boolean-Wert");
     }
+
+    @Test
+    void equalsSeparator_isAcceptedAlongsideColon() {
+        CliArgs cli = CliArgs.parse(new String[]{"e=ENE", "Demo=true"});
+
+        assertThat(cli.getEnvName()).isEqualTo("ENE");
+        assertThat(cli.isDemoMode()).isTrue();
+    }
+
+    @Test
+    void mixedSeparators_perArgument() {
+        CliArgs cli = CliArgs.parse(new String[]{"-e=GEE", "-Demo:true"});
+
+        assertThat(cli.getEnvName()).isEqualTo("GEE");
+        assertThat(cli.isDemoMode()).isTrue();
+    }
+
+    @Test
+    void shortAlias_dForDemo() {
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "d:true"}).isDemoMode()).isTrue();
+        assertThat(CliArgs.parse(new String[]{"e:ENE", "-d=false"}).isDemoMode()).isFalse();
+    }
 }
