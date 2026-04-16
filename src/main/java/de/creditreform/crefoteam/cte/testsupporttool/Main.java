@@ -4,9 +4,7 @@ import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.testsupporttool.auto.CteTestAutomatisierung;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 
 /**
  * Konsolen-Einstieg ohne GUI — Pendant zu
@@ -21,17 +19,13 @@ import org.apache.log4j.Logger;
 public final class Main {
 
     public static void main(String[] args) throws PropertiesException {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-
         CliArgs cli;
         try {
             cli = CliArgs.parse(args);
             cli.requireValid();
         } catch (IllegalArgumentException ex) {
-            System.err.println(ex.getMessage());
-            System.err.println();
-            System.err.println(CliArgs.usage());
+            TimelineLogger.error(Main.class, ex.getMessage());
+            TimelineLogger.info(Main.class, CliArgs.usage());
             System.exit(64); // EX_USAGE
             return;
         }
