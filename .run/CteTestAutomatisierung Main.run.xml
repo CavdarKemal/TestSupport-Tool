@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CteTestAutomatisierung Main" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.creditreform.crefoteam.cte.testsupporttool.Main" />
+    <module name="testsupport-core" />
+    <option name="PROGRAM_PARAMETERS" value="e:ENE" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestSupport-GUI/" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.creditreform.crefoteam.cte.testsupporttool.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
