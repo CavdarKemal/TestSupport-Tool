@@ -20,6 +20,10 @@
         <module>TestSupport-Core</module>
         <module>TestSupport-XmlSearcher</module>
         <module>TestSupport-LogSearcher</module>
+        <module>TestSupport-GUI-Base</module>
+        <module>TestSupport-JvmDialog</module>
+        <module>TestSupport-XmlSearcher-GUI</module>
+        <module>TestSupport-LogSearcher-GUI</module>
         <module>TestSupport-GUI</module>
     </modules>
 
@@ -75,6 +79,26 @@
             <dependency>
                 <groupId>de.creditreform.crefoteam.cte</groupId>
                 <artifactId>testsupport-logsearcher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-gui-base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-jvm-dialog</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-xmlsearcher-gui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-logsearcher-gui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

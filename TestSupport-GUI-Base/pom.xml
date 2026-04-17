@@ -11,15 +11,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>testsupport-gui</artifactId>
+    <artifactId>testsupport-gui-base</artifactId>
     <packaging>jar</packaging>
 
-    <name>TestSupport Tool — GUI</name>
+    <name>TestSupport Tool — GUI Base</name>
     <description>
-        Swing-GUI fuer den Activiti-freien TestSupport-Client. 1:1-Port aus
-        testsupport_client/TestSupportGUI mit MVC-Trennung; JFormDesigner
-        bleibt das primaere Form-Design-Werkzeug (.jfd-Dateien werden
-        mitgepflegt).
+        Gemeinsame GUI-Infrastruktur (gui.base, gui.utils):
+        Swing-Basisklassen, TableModel-Abstraktion, GUIFrame, GUIStaticUtils.
+        Wird von allen GUI-Sub-Modulen als Basis verwendet.
     </description>
 
     <dependencies>
@@ -28,21 +27,14 @@
             <artifactId>testsupport-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-gui-base</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-jvm-dialog</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-xmlsearcher-gui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-logsearcher-gui</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>

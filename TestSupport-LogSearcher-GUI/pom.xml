@@ -11,38 +11,25 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>testsupport-gui</artifactId>
+    <artifactId>testsupport-logsearcher-gui</artifactId>
     <packaging>jar</packaging>
 
-    <name>TestSupport Tool — GUI</name>
+    <name>TestSupport Tool — LogSearcher GUI</name>
     <description>
-        Swing-GUI fuer den Activiti-freien TestSupport-Client. 1:1-Port aus
-        testsupport_client/TestSupportGUI mit MVC-Trennung; JFormDesigner
-        bleibt das primaere Form-Design-Werkzeug (.jfd-Dateien werden
-        mitgepflegt).
+        Port von testsupport_client/TestSupportGUI gui.logsearch.
+        Swing-GUI fuer die Suche in Log-Dateien.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-core</artifactId>
+            <artifactId>testsupport-gui-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-gui-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-jvm-dialog</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-xmlsearcher-gui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-logsearcher-gui</artifactId>
+            <artifactId>testsupport-logsearcher</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

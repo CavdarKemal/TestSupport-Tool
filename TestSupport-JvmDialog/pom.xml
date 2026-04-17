@@ -11,38 +11,25 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>testsupport-gui</artifactId>
+    <artifactId>testsupport-jvm-dialog</artifactId>
     <packaging>jar</packaging>
 
-    <name>TestSupport Tool — GUI</name>
+    <name>TestSupport Tool — JVM Dialog</name>
     <description>
-        Swing-GUI fuer den Activiti-freien TestSupport-Client. 1:1-Port aus
-        testsupport_client/TestSupportGUI mit MVC-Trennung; JFormDesigner
-        bleibt das primaere Form-Design-Werkzeug (.jfd-Dateien werden
-        mitgepflegt).
+        Port von testsupport_client/TestSupportGUI gui.jvm.
+        Swing-Dialog fuer JVM-Verwaltung und Job-Steuerung.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-core</artifactId>
+            <artifactId>testsupport-gui-base</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-gui-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-jvm-dialog</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-xmlsearcher-gui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-logsearcher-gui</artifactId>
+            <artifactId>testsupport-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -53,11 +40,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans</groupId>
-            <artifactId>jemmy</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
