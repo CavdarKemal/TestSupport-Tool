@@ -215,8 +215,6 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         if (selectedComponent instanceof TestResultsView) {
             Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeTestCustomersMapMap = getAndCheckActiveCustomers();
             viewTestResults.refreshTestResultsForMap(activeTestCustomersMapMap, false);
-        } else if (selectedComponent == getTabbedPaneMonitor().getScrollPaneACTITIExporer()) {
-            getTabbedPaneMonitor().doShowProcessExplorer();
         }
     }
 

@@ -38,27 +38,6 @@ public class TestSupportMainTabView extends TestSupportMainTabPabel {
         });
     }
 
-    public void doShowProcessExplorer() {
-        /* CLAUDE_MODE
-         * Original oeffnet http://<activiti-host>:<port>/process-explorer/ im Browser.
-         * Der TestSupportHelper-Stub liefert derzeit nur ein Object, kein echtes
-         * ActivitiRestService; der Call wird bewusst deaktiviert, bis das Tool
-         * ein REST-Frontend zur StateMachine hat.
-         *
-         * try {
-         *     var config = testSupportHelperSupplier.get().getActivitiRestService().getActivitiRestInvokerConfig();
-         *     var uri = new java.net.URI("http://" + config.getServiceHost() + ":" + config.getServicePort() + "/process-explorer/");
-         *     Desktop.getDesktop().browse(uri);
-         * } catch (Exception ex) {
-         *     JOptionPane.showMessageDialog(this, "Browser konnte nicht geöffnet werden:\n" + ex.getMessage(),
-         *             "Fehler", JOptionPane.ERROR_MESSAGE);
-         * }
-         */
-        JOptionPane.showMessageDialog(this,
-                "Process-Explorer ist im Tool-Modus deaktiviert (kein Activiti-Server).",
-                "Nicht verfügbar", JOptionPane.INFORMATION_MESSAGE);
-    }
-
     public void appendToConsole(String message) {
         if (message == null) return;
         final String forFile = message.startsWith("\n") ? message.substring(1) : message;

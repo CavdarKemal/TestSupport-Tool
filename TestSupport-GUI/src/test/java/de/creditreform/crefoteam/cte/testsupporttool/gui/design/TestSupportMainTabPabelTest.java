@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 class TestSupportMainTabPabelTest {
 
     @Test
-    void fourTabsExistInOrder() {
+    void threeTabsExistInOrder() {
         assumeFalse(GraphicsEnvironment.isHeadless(), "Headless-JVM");
         TestSupportMainTabPabel pane = new TestSupportMainTabPabel();
-        assertThat(pane.getTabCount()).isEqualTo(4);
+        // ACTITI-Exporer-Tab entfernt (kein Activiti-Server im Tool-Modus)
+        assertThat(pane.getTabCount()).isEqualTo(3);
         assertThat(pane.getTitleAt(0)).isEqualTo("LOG's");
         assertThat(pane.getTitleAt(1)).isEqualTo("Prozess");
         assertThat(pane.getTitleAt(2)).isEqualTo("Test-Results");
-        assertThat(pane.getTitleAt(3)).isEqualTo("ACTITI-Exporer"); // Typo aus Original-BPMN/Design
     }
 
     @Test
@@ -32,8 +32,6 @@ class TestSupportMainTabPabelTest {
         assertThat(pane.getCheckBoxScrollToEnd()).isNotNull();
         assertThat(pane.getButtonClearLOGPanel()).isNotNull();
         assertThat(pane.getViewTestResults()).isNotNull();
-        assertThat(pane.getScrollPaneACTITIExporer()).isNotNull();
-        assertThat(pane.getPanelACTIVITIAxplorer()).isNotNull();
     }
 
     @Test

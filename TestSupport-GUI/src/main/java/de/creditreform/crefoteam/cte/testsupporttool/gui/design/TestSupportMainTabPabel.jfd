@@ -73,22 +73,6 @@ new FormModel {
 			}, new FormLayoutConstraints( null ) {
 				"title": "Test-Results"
 			} )
-			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-				name: "scrollPaneACTITIExporer"
-				auxiliary() {
-					"JavaCodeGenerator.variableGetter": true
-				}
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
-					name: "panelACTIVITIAxplorer"
-					"border": new javax.swing.border.EtchedBorder( 1, null, null )
-					auxiliary() {
-						"JavaCodeGenerator.variableGetter": true
-					}
-				} )
-			}, new FormLayoutConstraints( null ) {
-				"title": "ACTITI-Exporer"
-				"icon": new com.jformdesigner.model.SwingIcon( 0, "/icons/xhtml.png" )
-			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
 			"size": new java.awt.Dimension( 400, 300 )

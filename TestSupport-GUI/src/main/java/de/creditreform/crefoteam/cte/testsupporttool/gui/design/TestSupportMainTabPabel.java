@@ -6,7 +6,6 @@ package de.creditreform.crefoteam.cte.testsupporttool.gui.design;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.view.*;
 
 /**
@@ -41,14 +40,6 @@ public class TestSupportMainTabPabel extends JTabbedPane {
         return viewTestResults;
     }
 
-    public JScrollPane getScrollPaneACTITIExporer() {
-        return scrollPaneACTITIExporer;
-    }
-
-    public JPanel getPanelACTIVITIAxplorer() {
-        return panelACTIVITIAxplorer;
-    }
-
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         panelLogs = new JPanel();
@@ -59,8 +50,6 @@ public class TestSupportMainTabPabel extends JTabbedPane {
         scrollPanelProcessImage = new JScrollPane();
         labelProcessImage = new JLabel();
         viewTestResults = new TestResultsView();
-        scrollPaneACTITIExporer = new JScrollPane();
-        panelACTIVITIAxplorer = new JPanel();
 
         //======== this ========
 
@@ -111,18 +100,6 @@ public class TestSupportMainTabPabel extends JTabbedPane {
         }
         addTab("Prozess", scrollPanelProcessImage);
         addTab("Test-Results", viewTestResults);
-
-        //======== scrollPaneACTITIExporer ========
-        {
-
-            //======== panelACTIVITIAxplorer ========
-            {
-                panelACTIVITIAxplorer.setBorder(new EtchedBorder());
-                panelACTIVITIAxplorer.setLayout(new CardLayout());
-            }
-            scrollPaneACTITIExporer.setViewportView(panelACTIVITIAxplorer);
-        }
-        addTab("ACTITI-Exporer", new ImageIcon(getClass().getResource("/icons/xhtml.png")), scrollPaneACTITIExporer);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
@@ -135,7 +112,5 @@ public class TestSupportMainTabPabel extends JTabbedPane {
     private JScrollPane scrollPanelProcessImage;
     private JLabel labelProcessImage;
     private TestResultsView viewTestResults;
-    private JScrollPane scrollPaneACTITIExporer;
-    private JPanel panelACTIVITIAxplorer;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
