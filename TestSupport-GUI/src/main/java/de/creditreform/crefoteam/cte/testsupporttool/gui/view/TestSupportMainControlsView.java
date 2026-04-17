@@ -38,7 +38,7 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
 
     private void initListeners() {
         getComboBoxEnvironment().addActionListener(e -> onEnvironmentChanged.run());
-        getComboBoxActivitiHost().addActionListener(e -> onHostChanged.run());
+        getComboBoxStateEngineHost().addActionListener(e -> onHostChanged.run());
         getComboBoxImpCycleHost().addActionListener(e -> onHostChanged.run());
         getComboBoxRestServicesHost().addActionListener(e -> onHostChanged.run());
         getButtonRefreshEnvironment().addActionListener(e -> onRefreshEnvironment.run());
@@ -56,9 +56,7 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
     }
 
     public void initHostsFields(EnvironmentConfig currentEnvironment) throws PropertiesException {
-        getComboBoxActivitiHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
-        currentEnvironment.getRestServiceConfigsForActiviti().forEach(c ->
-                getComboBoxActivitiHost().addItem(new RestInvokerConfigCbItem(c.getServiceURI(), c)));
+        getComboBoxStateEngineHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
 
         getComboBoxRestServicesHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
         currentEnvironment.getRestServiceConfigsForMasterkonsole().forEach(c ->
@@ -81,8 +79,8 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
                 getComboBoxInsoBackEndHost().addItem(new RestInvokerConfigCbItem(c.getServiceURI(), c)));
     }
 
-    public RestInvokerConfig getSelectedActivitiConfig() {
-        RestInvokerConfigCbItem item = (RestInvokerConfigCbItem) getComboBoxActivitiHost().getSelectedItem();
+    public RestInvokerConfig getSelectedStateEngineConfig() {
+        RestInvokerConfigCbItem item = (RestInvokerConfigCbItem) getComboBoxStateEngineHost().getSelectedItem();
         return item != null ? item.getRestInvokerConfig() : null;
     }
 
@@ -108,7 +106,7 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
 
     public List<JComponent> getComponentsToOnOff() {
         List<JComponent> list = new ArrayList<>();
-        list.add(getComboBoxActivitiHost());
+        list.add(getComboBoxStateEngineHost());
         list.add(getComboBoxRestServicesHost());
         list.add(getComboBoxBatchGUIHost());
         list.add(getComboBoxImpCycleHost());

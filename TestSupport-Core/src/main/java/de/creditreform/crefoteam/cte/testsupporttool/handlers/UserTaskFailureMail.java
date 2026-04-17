@@ -35,8 +35,8 @@ public class UserTaskFailureMail extends AbstractUserTaskRunnable {
             String content = "Fehler beim Ausführen des Test-Automatisierungs-Prozesses!";
             TimelineLogger.warn(getClass(),
                     "[Mail-Stub: subject='{}', from='{}', to='{}', content='{}']",
-                    subject, environmentConfig.getActivitiEmailFrom(),
-                    environmentConfig.getActivitiFailureEmailTo(), content);
+                    subject, environmentConfig.getStateEngineEmailFrom(),
+                    environmentConfig.getStateEngineFailureEmailTo(), content);
         } catch (Exception ex) {
             notifyUserTask(Level.WARN, "\nWARNING: Mail-Stub fehlgeschlagen: " + ex.getMessage());
         }

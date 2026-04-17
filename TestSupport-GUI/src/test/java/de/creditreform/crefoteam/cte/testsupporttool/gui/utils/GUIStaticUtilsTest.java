@@ -120,7 +120,7 @@ class GUIStaticUtilsTest {
         assertThatThrownBy(() -> GUIStaticUtils.checkIfBpmnFileExists(null, "ENE", "x.bpmn", false))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
-        assertThatThrownBy(() -> GUIStaticUtils.uploadActivitiProcessesFromClassPath(null, "ENE"))
+        assertThatThrownBy(() -> GUIStaticUtils.uploadStateEngineProcessesFromClassPath(null, "ENE"))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
         assertThat(GUIStaticUtils.getVersionFromPOM("pom.xml")).isNull();

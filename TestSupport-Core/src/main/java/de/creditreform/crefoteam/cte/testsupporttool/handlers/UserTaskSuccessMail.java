@@ -29,8 +29,8 @@ public class UserTaskSuccessMail extends AbstractUserTaskRunnable {
             String content = "CTE Test-Automatisierung für " + environmentConfig.getCurrentEnvName() + " erfolgreich ausgeführt.";
             TimelineLogger.info(getClass(),
                     "[Mail-Stub: subject='{}', from='{}', to='{}', content='{}']",
-                    subject, environmentConfig.getActivitiEmailFrom(),
-                    environmentConfig.getActivitiSuccessEmailTo(), content);
+                    subject, environmentConfig.getStateEngineEmailFrom(),
+                    environmentConfig.getStateEngineSuccessEmailTo(), content);
         } catch (Exception ex) {
             notifyUserTask(Level.WARN, "\nWARNING: Mail-Stub fehlgeschlagen: " + ex.getMessage());
         }

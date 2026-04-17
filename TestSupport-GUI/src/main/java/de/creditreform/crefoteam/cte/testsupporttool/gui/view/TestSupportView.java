@@ -86,7 +86,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         initTestPhasesComboBox();
 
         getViewTestSupportMainControls().init(this, this::doChangeComboBoxesHost, this::initForEnvironment, this::doManageJVMs, environmentSwitchHandler::doChangeEnvironment);
-        getViewTestSupportMainProcess().init(this::startActivitiProcess, this::stopActivitiProcess, this::startSelectedTestJob, this::doChangeTestResources, this::doChangeITSQRevision, this::doChangeTestType,
+        getViewTestSupportMainProcess().init(this::startStateEngineProcess, this::stopStateEngineProcess, this::startSelectedTestJob, this::doChangeTestResources, this::doChangeITSQRevision, this::doChangeTestType,
                 () -> currentEnvironment.setLastUseOnlyTestClz(getViewTestSupportMainProcess().isUseOnlyTestCLZs()),
                 currentEnvironment);
 
@@ -110,7 +110,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         getTabbedPaneMonitor().addChangeListener(this::doTabChangeEvent);
     }
 
-    private void stopActivitiProcess() {
+    private void stopStateEngineProcess() {
         processController.stop();
         getViewTestSupportMainProcess().setStopButtonEnabled(false);
     }
@@ -119,7 +119,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         startUserTaskRunnable(getViewTestSupportMainProcess().getSelectedTestJob());
     }
 
-    protected void startActivitiProcess() {
+    protected void startStateEngineProcess() {
         // Resume-Dialog: wenn resume.properties existiert, fragen, ob
         // fortgesetzt oder komplett neu gestartet werden soll.
         int[] resumeIndexPath = checkAndHandleResumeState();
@@ -298,7 +298,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
     }
 
     private TestSupportHelper getTestSupportHelper() throws Exception {
-        RestInvokerConfig activitiConfig = getViewTestSupportMainControls().getSelectedActivitiConfig();
+        RestInvokerConfig activitiConfig = getViewTestSupportMainControls().getSelectedStateEngineConfig();
         RestInvokerConfig restServicesConfig = getViewTestSupportMainControls().getSelectedRestServicesConfig();
         RestInvokerConfig impCycleConfig = getViewTestSupportMainControls().getSelectedImpCycleConfig();
         if (activitiConfig == null || restServicesConfig == null || impCycleConfig == null) {
@@ -377,14 +377,14 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         Map<String, Object> vars = new HashMap<>();
         vars.put(UT_TASK_PARAM_NAME_DEMO_MODE, isDemoMode);
         vars.put(UT_TASK_PARAM_NAME_MEIN_KEY, currentEnvironment.getActivitProcessKey());
-        vars.put(UT_TASK_PARAM_NAME_ACTIVITI_PROCESS_NAME, currentEnvironment.getActivitiProcessName());
+        vars.put(UT_TASK_PARAM_NAME_STATE_ENGINE_PROCESS_NAME, currentEnvironment.getStateEngineProcessName());
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_BTLG_IMPORT, currentEnvironment.getMillisBeforeBtlgImport(isDemoMode));
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_CT_IMPORT, currentEnvironment.getMillisBeforeCtImport(isDemoMode));
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_EXPORT, currentEnvironment.getMillisBeforeExports(isDemoMode));
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_EXPORTS_COLLECT, currentEnvironment.getMillisBeforeCollectExports(isDemoMode));
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_SFTP_COLLECT, currentEnvironment.getMillisBeforeCollectSftpUploads(isDemoMode));
-        vars.put(UT_TASK_PARAM_NAME_EMAIL_FROM, currentEnvironment.getActivitiEmailFrom());
-        vars.put(UT_TASK_PARAM_NAME_SUCCESS_EMAIL_TO, currentEnvironment.getActivitiSuccessEmailTo());
+        vars.put(UT_TASK_PARAM_NAME_EMAIL_FROM, currentEnvironment.getStateEngineEmailFrom());
+        vars.put(UT_TASK_PARAM_NAME_SUCCESS_EMAIL_TO, currentEnvironment.getStateEngineSuccessEmailTo());
         vars.put(UT_TASK_PARAM_NAME_FAILURE_EMAIL_TO, currentEnvironment.getActivitiFailureEmailTo());
         vars.put(UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS, activeCustomers);
         vars.put(UT_TASK_PARAM_NAME_TEST_TYPE, getViewTestSupportMainProcess().getSelectedTestType());

@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * <p><b>CLAUDE_MODE:</b> Die Original-Klasse haengt sehr stark an Klassen,
  * die im Activiti-freien Spike nicht existieren — vor allem
- * {@code CteActivitiService/Process/Task} (Activiti-REST-Wrapper),
+ * {@code CteStateEngineService/Process/Task} (Activiti-REST-Wrapper),
  * {@code Apache4RestInvokerFactory/RestInvoker/RestInvokerResponse}
  * (apache-http-basierter REST-Invoker) und die XML-Bindings
  * {@code TesunPendingJob[s]}. Der Port lasst die Methoden-Signaturen
@@ -35,7 +35,7 @@ import java.util.Map;
 public class TestSupportHelper {
 
     /* CLAUDE_MODE — original-Felder:
-    private final CteActivitiService cteActivitiService;
+    private final CteStateEngineService cteActivitiService;
     private final TesunRestService tesunRestServiceWLS;
     private final TesunRestService tesunRestServiceJvmImportC;
     */
@@ -50,7 +50,7 @@ public class TestSupportHelper {
         this.environmentConfig = environmentConfig;
         this.tesunClientJobListener = tesunClientJobListener;
         /* CLAUDE_MODE
-        cteActivitiService = new CteActivitiServiceRestImpl(activitiRestInvokerConfig);
+        cteActivitiService = new CteStateEngineServiceRestImpl(activitiRestInvokerConfig);
         tesunRestServiceWLS = new TesunRestService(masterConsoleRestInvokerConfig, tesunClientJobListener);
         tesunRestServiceJvmImportC = new TesunRestService(impCyleRestInvokerConfig, tesunClientJobListener);
         */
@@ -79,7 +79,7 @@ public class TestSupportHelper {
         throw new UnsupportedOperationException("CLAUDE_MODE: Activiti/Apache4-RestInvoker im Spike nicht portiert.");
     }
 
-    public Object killOrContinueRunningActivitiProcess(String prozessKey, String prozessDefName, boolean confirmDlg) {
+    public Object killOrContinueRunningStateEngineProcess(String prozessKey, String prozessDefName, boolean confirmDlg) {
         /* CLAUDE_MODE — Original-Rueckgabetyp CteActivitiTask:
         Map<String, Object> processVarsMap = new HashMap<>();
         processVarsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MEIN_KEY, prozessKey);
@@ -91,7 +91,7 @@ public class TestSupportHelper {
         }
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MEIN_KEY, prozessKey);
-        paramsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVITI_PROCESS_NAME, prozessDefName);
+        paramsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_STATE_ENGINE_PROCESS_NAME, prozessDefName);
         // Tasks per MEIN_KEY suchen (nicht per processInstanceId), damit auch Tasks in
         // Sub-Prozessen (Call Activities) gefunden werden — diese haben eine eigene processInstanceId.
         Map<String, Object> taskQueryMap = new HashMap<>();
@@ -107,13 +107,13 @@ public class TestSupportHelper {
                 else if (answer == JOptionPane.CANCEL_OPTION) {
                     throw new RequestAbortedException("Aborted!");
                 }
-                killRunningActivitiProcess(paramsMap);
+                killRunningStateEngineProcess(paramsMap);
                 return null;
             }
         } else {
             tesunClientJobListener.notifyClientJob(Level.INFO,
                 String.format("\nLaufender Prozess ohne User-Task gefunden (ID=%d) — wird automatisch beendet.", runningProcesses.get(0).getId()));
-            killRunningActivitiProcess(paramsMap);
+            killRunningStateEngineProcess(paramsMap);
         }
         return null;
         */

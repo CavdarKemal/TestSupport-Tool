@@ -100,7 +100,7 @@ class TestSupportHelperTest {
         assertThatThrownBy(() -> helper.checkJvms((Map) empty))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
-        assertThatThrownBy(() -> helper.killOrContinueRunningActivitiProcess("k", "p", false))
+        assertThatThrownBy(() -> helper.killOrContinueRunningStateEngineProcess("k", "p", false))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
     }

@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  *       {@code TesunUtilites.buildExceptionMessage(ex, 20)} — hier durch
  *       ein direktes {@code ex.toString()} ersetzt.</li>
  *   <li>{@link #checkIfBpmnFileExists} und
- *       {@link #uploadActivitiProcessesFromClassPath} sind Activiti-spezifisch
+ *       {@link #uploadStateEngineProcessesFromClassPath} sind Activiti-spezifisch
  *       und im Spike als UnsupportedOperation-Stubs ausgefuehrt.</li>
  *   <li>{@link #getVersionFromPOM} braucht {@code maven-model} (im Spike
  *       absichtlich nicht als Dependency); liefert null. Ersatz:
@@ -364,7 +364,7 @@ public class GUIStaticUtils {
         /* CLAUDE_MODE
         File bpmnFile = new File(bpmnFileName);
         String envBpmnFileName = String.format("%s-%s", envName, bpmnFile.getName());
-        CteActivitiDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(envBpmnFileName);
+        CteStateEngineDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(envBpmnFileName);
         if (cteActivitiDeployment != null) {
             if (askIfExists) {
                 String questionMsg = "Das Deployment " + envBpmnFileName + " existiert bereits! Soll es ersetzt werden?";
@@ -383,7 +383,7 @@ public class GUIStaticUtils {
     /**
      * <p><b>CLAUDE_MODE:</b> Stub — braucht CteActivitiService + TestFallFileUtil.
      */
-    public static List<File> uploadActivitiProcessesFromClassPath(Object activitiRestService, String envName) {
+    public static List<File> uploadStateEngineProcessesFromClassPath(Object activitiRestService, String envName) {
         /* CLAUDE_MODE
         List<File> uploadedBpmnFilesList = new ArrayList<>();
         List<File> downloadedBpmnFilesList = new ArrayList<>();
@@ -392,7 +392,7 @@ public class GUIStaticUtils {
         for (File bpmnFile : downloadedBpmnFilesList) {
             File dstFile = new File(outputDir, String.format("%s-%s", envName, bpmnFile.getName()));
             File newBpmnFile = GUIStaticUtils.prepareBpmnFileForEnvironment(bpmnFile, dstFile, envName);
-            CteActivitiDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(newBpmnFile.getName());
+            CteStateEngineDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(newBpmnFile.getName());
             if (cteActivitiDeployment != null) {
                 activitiRestService.deleteDeploymentForName(newBpmnFile.getName());
             }

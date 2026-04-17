@@ -19,7 +19,7 @@ class TestSupportMainControlsPanelTest {
         assertThat(panel.getComboBoxEnvironment()).isNotNull();
         assertThat(panel.getButtonRefreshEnvironment()).isNotNull();
         assertThat(panel.getButtonManageJVMs()).isNotNull();
-        assertThat(panel.getComboBoxActivitiHost()).isNotNull();
+        assertThat(panel.getComboBoxStateEngineHost()).isNotNull();
         assertThat(panel.getComboBoxRestServicesHost()).isNotNull();
         assertThat(panel.getComboBoxBatchGUIHost()).isNotNull();
         assertThat(panel.getComboBoxImpCycleHost()).isNotNull();
@@ -32,7 +32,7 @@ class TestSupportMainControlsPanelTest {
         assumeFalse(GraphicsEnvironment.isHeadless(), "Headless-JVM");
         TestSupportMainControlsPanel panel = new TestSupportMainControlsPanel();
         assertThat(panel.getLabelEnvironment().getText()).isEqualTo("Umgebung:");
-        assertThat(panel.getLabelActivitiHost().getText()).isEqualTo("Activiti-Host:");
+        assertThat(panel.getLabelStateEngineHost().getText()).isEqualTo("Activiti-Host:");
         assertThat(panel.getLabelRestServicesHost().getText()).isEqualTo("RestServices-Host:");
         assertThat(panel.getLabelBatchGUIHost().getText()).isEqualTo("Batch-GUI-Host:");
         assertThat(panel.getLabelImpCycleHost().getText()).isEqualTo("ImportCycle-Host:");

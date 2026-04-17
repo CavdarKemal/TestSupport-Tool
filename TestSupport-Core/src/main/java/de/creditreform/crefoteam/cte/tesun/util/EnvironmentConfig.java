@@ -42,7 +42,6 @@ public class EnvironmentConfig {
     public static final String PROPNAME_ADMIN_FUNCS_ENABLED = "ADMIN_FUNCS_ENABLED";
     public static final String PROPNAME_MUST_EXTEND_ENTGS_FROM_REST = "MUST_EXTEND_ENTGS_FROM_REST";
 
-    public static final String PROPNAME_ACTIVITI_URLS = "ACTIVITI_URLS";
     public static final String PROPNAME_MASTERKONSOLE_URLS = "MASTERKONSOLE_URLS";
     public static final String PROPNAME_BATCH_GUI_URLS = "BATCH_GUI_URLS";
     public static final String PROPNAME_JVM_IMPCYCLE_URLS = "JVM_IMPCYCLE_URLS";
@@ -56,9 +55,9 @@ public class EnvironmentConfig {
     public static final String PROPNAME_JOB_NAME_BTLG_UPDATE_TRIGGER = "JOB-NAME-BTLG-AKTUALISIERUNG";
     public static final String PROPNAME_JOB_NAME_CT_IMPORT_DELTA = "JOB-NAME-CT-IMPORT-DELTA";
 
-    public static final String PROPNAME_ACTIVITI_TESTER_EMAIL_FROM = "ACTIVITI-TESTER-EMAIL-FROM";
-    public static final String PROPNAME_ACTIVITI_TESTER_EMAIL_SUCCESS_TO = "ACTIVITI-TESTER-EMAIL-SUCCESS-TO";
-    public static final String PROPNAME_ACTIVITI_TESTER_EMAIL_FAILURE_TO = "ACTIVITI-TESTER-EMAIL-FAILURE-TO";
+    public static final String PROPNAME_STATE_ENGINE_EMAIL_FROM = "STATE-ENGINE-EMAIL-FROM";
+    public static final String PROPNAME_STATE_ENGINE_EMAIL_SUCCESS_TO = "STATE-ENGINE-EMAIL-SUCCESS-TO";
+    public static final String PROPNAME_STATE_ENGINE_EMAIL_FAILURE_TO = "STATE-ENGINE-EMAIL-FAILURE-TO";
     public static final String PROPNAME_EMAIL_SMTP_HOST = "EMAIL-SMTP-HOST";
     public static final String PROPNAME_EMAIL_SMTP_PORT = "EMAIL-SMTP-PORT";
     public static final String PROPNAME_TIME_BEFORE_CT_IMPORT = "TIME_BEFORE_CT_IMPORT";
@@ -70,8 +69,7 @@ public class EnvironmentConfig {
 
     public static final String PROPNAME_SFTP_UPLOAD_ACTIVE = "SFTP_UPLOAD_ACTIVE";
     public static final String PROPNAME_CHECK_EXPORT_PROTOKOLL_ACTIVE = "CHECK-EXPORT-PROTOKOLL-ACTIVE";
-    public static final String PROPNAME_ACTIVITI_PROCESS_NAME = "ACTIVITI-PROCESS-NAME";
-    public static final String PROPNAME_ACTIVITI_PROCESS_TO_UPLOAD = "ACTIVITI-PROCESS-TO-UPLOAD";
+    public static final String PROPNAME_STATE_ENGINE_PROCESS_NAME = "STATE-ENGINE-PROCESS-NAME";
     public static final String PROPNAME_TARGET_CLZ_FOR_DE_PSEUDO_CREFOS = "TARGET_CLZ_FOR_DE_PSEUDO_CREFOS";
     public static final String PROPNAME_TARGET_CLZ_FOR_AT_PSEUDO_CREFOS = "TARGET_CLZ_FOR_AT_PSEUDO_CREFOS";
     public static final String PROPNAME_TARGET_CLZ_FOR_LU_PSEUDO_CREFOS = "TARGET_CLZ_FOR_LU_PSEUDO_CREFOS";
@@ -322,24 +320,20 @@ public class EnvironmentConfig {
         return getBooleanPropertyValue(PROPNAME_CHECK_EXPORT_PROTOKOLL_ACTIVE, false, Boolean.FALSE);
     }
 
-    public boolean isActivitiProcessToBeUploaded() throws PropertiesException {
-        return getBooleanPropertyValue(PROPNAME_ACTIVITI_PROCESS_TO_UPLOAD, false, Boolean.FALSE);
+    public String getStateEngineProcessName() throws PropertiesException {
+        return getProperty(PROPNAME_STATE_ENGINE_PROCESS_NAME, true, "ENE-TestAutomationProcess");
     }
 
-    public String getActivitiProcessName() throws PropertiesException {
-        return getProperty(PROPNAME_ACTIVITI_PROCESS_NAME, true, "ENE-TestAutomationProcess");
+    public String getStateEngineEmailFrom() throws PropertiesException {
+        return getProperty(PROPNAME_STATE_ENGINE_EMAIL_FROM, true, "test-automatisierung@creditreform.de");
     }
 
-    public String getActivitiEmailFrom() throws PropertiesException {
-        return getProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FROM, true, "test-automatisierung@creditreform.de");
+    public String getStateEngineSuccessEmailTo() throws PropertiesException {
+        return getProperty(PROPNAME_STATE_ENGINE_EMAIL_SUCCESS_TO, true, "k.cavdar@verband.creditreform.de");
     }
 
-    public String getActivitiSuccessEmailTo() throws PropertiesException {
-        return getProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_SUCCESS_TO, true, "k.cavdar@verband.creditreform.de");
-    }
-
-    public String getActivitiFailureEmailTo() throws PropertiesException {
-        return getProperty(PROPNAME_ACTIVITI_TESTER_EMAIL_FAILURE_TO, true, "k.cavdar@verband.creditreform.de");
+    public String getStateEngineFailureEmailTo() throws PropertiesException {
+        return getProperty(PROPNAME_STATE_ENGINE_EMAIL_FAILURE_TO, true, "k.cavdar@verband.creditreform.de");
     }
 
     public String getSmtpHost() throws PropertiesException {
@@ -615,11 +609,6 @@ public class EnvironmentConfig {
 
     public List<RestInvokerConfig> getRestServiceConfigsForBatchGUI() throws PropertiesException {
         return getRestServiceConfigsList(getProperty(PROPNAME_BATCH_GUI_URLS, true, "http://rhsctem015.ecofis.de:7071"));
-    }
-
-    public List<RestInvokerConfig> getRestServiceConfigsForActiviti() throws PropertiesException {
-        return getRestServiceConfigsList(getProperty(PROPNAME_ACTIVITI_URLS, true,
-                "CAVDARK-ENE@cavdark::http://NB10007268:9999;CAVDARK-ENE@cavdark::http://rhsctew003.ecofis.de:9999"));
     }
 
     public String getDhlToVvcSftpPath() throws PropertiesException {
