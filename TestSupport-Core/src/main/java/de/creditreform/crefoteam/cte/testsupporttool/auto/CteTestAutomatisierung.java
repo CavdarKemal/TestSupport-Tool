@@ -160,8 +160,8 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
                             "CteAutomatedTestProcess.jpg", "CteAutomatedTestProcess.bpmn")
                     .template("CteAutomatedTestProcessSUB",
                             "CteAutomatedTestProcessSUB.jpg", "CteAutomatedTestProcessSUB.bpmn")
-                    .bind(assembly.phase1Delegate(), "CallActivityRepeatableTestAutomationProcess2SUB1")
-                    .bind(assembly.phase2Delegate(), "CallActivityRepeatableTestAutomationProcess2SUB2")
+                    .bind(assembly.phase1(), "CallActivityRepeatableTestAutomationProcess2SUB1")
+                    .bind(assembly.phase2(), "CallActivityRepeatableTestAutomationProcess2SUB2")
                     .onImage(png -> notifyClientJob(Level.INFO, new ByteArrayInputStream(png)))
                     .forProcess(assembly.definition());
             return ProcessListener.compose(consoleListener, images);

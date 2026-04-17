@@ -103,7 +103,6 @@ public final class ProcessController {
         // Variable korrekt gesetzt ist, bevor der erste Handler sie fuer
         // buildNotifyStringForClassName() liest oder der ResumeStateWriter
         // sie fuer den Snapshot persistiert.
-        // PhaseTracker verwendet den Wrapper (identity-Vergleich im activePath)
         PhaseTrackingListener phaseTracker = new PhaseTrackingListener(assembly.phase1(), assembly.phase2());
         ProcessListener resumeWriter = resumeFile != null ? new ResumeStateWriter(resumeFile) : null;
         try {
@@ -112,9 +111,8 @@ public final class ProcessController {
                             "CteAutomatedTestProcess.jpg", "CteAutomatedTestProcess.bpmn")
                     .template("CteAutomatedTestProcessSUB",
                             "CteAutomatedTestProcessSUB.jpg", "CteAutomatedTestProcessSUB.bpmn")
-                    // DiagramImageListener.bind benötigt den echten SubProcessStep (Delegate)
-                    .bind(assembly.phase1Delegate(), "CallActivityRepeatableTestAutomationProcess2SUB1")
-                    .bind(assembly.phase2Delegate(), "CallActivityRepeatableTestAutomationProcess2SUB2")
+                    .bind(assembly.phase1(), "CallActivityRepeatableTestAutomationProcess2SUB1")
+                    .bind(assembly.phase2(), "CallActivityRepeatableTestAutomationProcess2SUB2")
                     .onImage(png -> listener.notifyClientJob(Level.INFO, new ByteArrayInputStream(png)))
                     .forProcess(assembly.definition());
             return resumeWriter != null

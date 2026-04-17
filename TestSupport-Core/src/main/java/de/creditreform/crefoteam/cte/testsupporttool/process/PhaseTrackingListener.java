@@ -5,8 +5,6 @@ import de.creditreform.crefoteam.cte.statemachine.ProcessListener;
 import de.creditreform.crefoteam.cte.statemachine.Step;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
-import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeAwareSubProcessStep;
-
 import java.util.List;
 
 /**
@@ -28,10 +26,10 @@ import java.util.List;
  */
 public final class PhaseTrackingListener implements ProcessListener {
 
-    private final ResumeAwareSubProcessStep phase1;
-    private final ResumeAwareSubProcessStep phase2;
+    private final Step phase1;
+    private final Step phase2;
 
-    public PhaseTrackingListener(ResumeAwareSubProcessStep phase1, ResumeAwareSubProcessStep phase2) {
+    public PhaseTrackingListener(Step phase1, Step phase2) {
         this.phase1 = phase1;
         this.phase2 = phase2;
     }
