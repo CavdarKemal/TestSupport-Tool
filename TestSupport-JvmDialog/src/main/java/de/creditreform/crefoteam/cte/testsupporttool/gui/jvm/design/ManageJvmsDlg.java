@@ -97,118 +97,118 @@ public class ManageJvmsDlg extends JDialog {
 
         //======== this ========
         setName("this");
-        Container contentPane = getContentPane();
+        var contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== panelNorth ========
         {
-            panelNorth.setName("panelNorth");
-            panelNorth.setLayout(new GridBagLayout());
-            ((GridBagLayout) panelNorth.getLayout()).columnWidths = new int[]{70, 98, 0, 0, 98, 0, 0};
-            ((GridBagLayout) panelNorth.getLayout()).rowHeights = new int[]{0, 0};
-            ((GridBagLayout) panelNorth.getLayout()).columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0E-4};
-            ((GridBagLayout) panelNorth.getLayout()).rowWeights = new double[]{0.0, 1.0E-4};
+           panelNorth.setName("panelNorth");
+           panelNorth.setLayout(new GridBagLayout());
+           ((GridBagLayout)panelNorth.getLayout()).columnWidths = new int[] {70, 98, 0, 0, 98, 0, 0};
+           ((GridBagLayout)panelNorth.getLayout()).rowHeights = new int[] {0, 0};
+           ((GridBagLayout)panelNorth.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0E-4};
+           ((GridBagLayout)panelNorth.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
 
-            //---- labelEnvironment ----
-            labelEnvironment.setText("Umgebung:");
-            labelEnvironment.setName("labelEnvironment");
-            panelNorth.add(labelEnvironment, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(4, 2, 2, 7), 0, 0));
+           //---- labelEnvironment ----
+           labelEnvironment.setText("Umgebung:");
+           labelEnvironment.setName("labelEnvironment");
+           panelNorth.add(labelEnvironment, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(4, 2, 2, 7), 0, 0));
 
-            //---- comboBoxEnvironment ----
-            comboBoxEnvironment.setName("comboBoxEnvironment");
-            panelNorth.add(comboBoxEnvironment, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(4, 2, 2, 7), 0, 0));
+           //---- comboBoxEnvironment ----
+           comboBoxEnvironment.setName("comboBoxEnvironment");
+           panelNorth.add(comboBoxEnvironment, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(4, 2, 2, 7), 0, 0));
 
-            //---- hSpacer1 ----
-            hSpacer1.setName("hSpacer1");
-            panelNorth.add(hSpacer1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 5), 0, 0));
+           //---- hSpacer1 ----
+           hSpacer1.setName("hSpacer1");
+           panelNorth.add(hSpacer1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(0, 0, 0, 5), 0, 0));
 
-            //---- checkAutoBoxRefresh ----
-            checkAutoBoxRefresh.setText("Auto Refresh [m]");
-            checkAutoBoxRefresh.setName("checkAutoBoxRefresh");
-            panelNorth.add(checkAutoBoxRefresh, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 2, 2, 7), 0, 0));
+           //---- checkAutoBoxRefresh ----
+           checkAutoBoxRefresh.setText("Auto Refresh [m]");
+           checkAutoBoxRefresh.setName("checkAutoBoxRefresh");
+           panelNorth.add(checkAutoBoxRefresh, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 7), 0, 0));
 
-            //---- spinnerAutoRefreshRate ----
-            spinnerAutoRefreshRate.setName("spinnerAutoRefreshRate");
-            panelNorth.add(spinnerAutoRefreshRate, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 2, 2, 7), 0, 0));
+           //---- spinnerAutoRefreshRate ----
+           spinnerAutoRefreshRate.setName("spinnerAutoRefreshRate");
+           panelNorth.add(spinnerAutoRefreshRate, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 7), 0, 0));
 
-            //---- buttonRefreshJVMs ----
-            buttonRefreshJVMs.setIcon(new ImageIcon(getClass().getResource("/icons/refresh.png")));
-            buttonRefreshJVMs.setActionCommand("OK");
-            buttonRefreshJVMs.setName("buttonRefreshJVMs");
-            panelNorth.add(buttonRefreshJVMs, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 2, 2, 2), 0, 0));
+           //---- buttonRefreshJVMs ----
+           buttonRefreshJVMs.setIcon(new ImageIcon(getClass().getResource("/icons/refresh.png")));
+           buttonRefreshJVMs.setActionCommand("OK");
+           buttonRefreshJVMs.setName("buttonRefreshJVMs");
+           panelNorth.add(buttonRefreshJVMs, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 2), 0, 0));
         }
         contentPane.add(panelNorth, BorderLayout.PAGE_START);
 
         //======== splitPaneTreeView ========
         {
-            splitPaneTreeView.setDividerLocation(320);
-            splitPaneTreeView.setName("splitPaneTreeView");
+           splitPaneTreeView.setDividerLocation(320);
+           splitPaneTreeView.setName("splitPaneTreeView");
 
-            //======== panelTree ========
-            {
-                panelTree.setName("panelTree");
-                panelTree.setLayout(new BorderLayout());
+           //======== panelTree ========
+           {
+              panelTree.setName("panelTree");
+              panelTree.setLayout(new BorderLayout());
 
-                //======== scrollPaneTree ========
-                {
-                    scrollPaneTree.setName("scrollPaneTree");
+              //======== scrollPaneTree ========
+              {
+                 scrollPaneTree.setName("scrollPaneTree");
 
-                    //---- treeJVMs ----
-                    treeJVMs.setName("treeJVMs");
-                    scrollPaneTree.setViewportView(treeJVMs);
-                }
-                panelTree.add(scrollPaneTree, BorderLayout.CENTER);
-            }
-            splitPaneTreeView.setLeftComponent(panelTree);
+                 //---- treeJVMs ----
+                 treeJVMs.setName("treeJVMs");
+                 scrollPaneTree.setViewportView(treeJVMs);
+              }
+              panelTree.add(scrollPaneTree, BorderLayout.CENTER);
+           }
+           splitPaneTreeView.setLeftComponent(panelTree);
 
-            //======== panelView ========
-            {
-                panelView.setBorder(new BevelBorder(BevelBorder.LOWERED));
-                panelView.setName("panelView");
-                panelView.setLayout(new CardLayout());
-            }
-            splitPaneTreeView.setRightComponent(panelView);
+           //======== panelView ========
+           {
+              panelView.setBorder(new BevelBorder(BevelBorder.LOWERED));
+              panelView.setName("panelView");
+              panelView.setLayout(new CardLayout());
+           }
+           splitPaneTreeView.setRightComponent(panelView);
         }
         contentPane.add(splitPaneTreeView, BorderLayout.CENTER);
 
         //======== panelSouth ========
         {
-            panelSouth.setName("panelSouth");
-            panelSouth.setLayout(new GridBagLayout());
-            ((GridBagLayout) panelSouth.getLayout()).columnWidths = new int[]{0, 0, 0};
-            ((GridBagLayout) panelSouth.getLayout()).rowHeights = new int[]{0, 0};
-            ((GridBagLayout) panelSouth.getLayout()).columnWeights = new double[]{0.0, 1.0, 1.0E-4};
-            ((GridBagLayout) panelSouth.getLayout()).rowWeights = new double[]{0.0, 1.0E-4};
+           panelSouth.setName("panelSouth");
+           panelSouth.setLayout(new GridBagLayout());
+           ((GridBagLayout)panelSouth.getLayout()).columnWidths = new int[] {0, 0, 0};
+           ((GridBagLayout)panelSouth.getLayout()).rowHeights = new int[] {0, 0};
+           ((GridBagLayout)panelSouth.getLayout()).columnWeights = new double[] {0.0, 1.0, 1.0E-4};
+           ((GridBagLayout)panelSouth.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
 
-            //---- buttonStartJob ----
-            buttonStartJob.setText("Start");
-            buttonStartJob.setIcon(new ImageIcon(getClass().getResource("/icons/gear_run.png")));
-            buttonStartJob.setActionCommand("OK");
-            buttonStartJob.setName("buttonStartJob");
-            panelSouth.add(buttonStartJob, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 2, 2, 7), 0, 0));
+           //---- buttonStartJob ----
+           buttonStartJob.setText("Start");
+           buttonStartJob.setIcon(new ImageIcon(getClass().getResource("/icons/gear_run.png")));
+           buttonStartJob.setActionCommand("OK");
+           buttonStartJob.setName("buttonStartJob");
+           panelSouth.add(buttonStartJob, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 7), 0, 0));
 
-            //---- buttonClose ----
-            buttonClose.setText("Schliessen");
-            buttonClose.setIcon(new ImageIcon(getClass().getResource("/icons/exit.png")));
-            buttonClose.setActionCommand("OK");
-            buttonClose.setName("buttonClose");
-            panelSouth.add(buttonClose, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                    new Insets(2, 2, 6, 2), 0, 0));
+           //---- buttonClose ----
+           buttonClose.setText("Schliessen");
+           buttonClose.setIcon(new ImageIcon(getClass().getResource("/icons/exit.png")));
+           buttonClose.setActionCommand("OK");
+           buttonClose.setName("buttonClose");
+           panelSouth.add(buttonClose, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+              new Insets(2, 2, 6, 2), 0, 0));
         }
         contentPane.add(panelSouth, BorderLayout.PAGE_END);
         pack();

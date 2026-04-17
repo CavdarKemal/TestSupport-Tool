@@ -44,19 +44,19 @@ public class JvmInstallationsPanel extends JPanel {
 
         //======== panelNorth ========
         {
-            panelNorth.setName("panelNorth");
-            panelNorth.setLayout(new GridBagLayout());
-            ((GridBagLayout) panelNorth.getLayout()).columnWidths = new int[]{70, 0, 0};
-            ((GridBagLayout) panelNorth.getLayout()).rowHeights = new int[]{0, 0};
-            ((GridBagLayout) panelNorth.getLayout()).columnWeights = new double[]{1.0, 0.0, 1.0E-4};
-            ((GridBagLayout) panelNorth.getLayout()).rowWeights = new double[]{0.0, 1.0E-4};
+           panelNorth.setName("panelNorth");
+           panelNorth.setLayout(new GridBagLayout());
+           ((GridBagLayout)panelNorth.getLayout()).columnWidths = new int[] {70, 0, 0};
+           ((GridBagLayout)panelNorth.getLayout()).rowHeights = new int[] {0, 0};
+           ((GridBagLayout)panelNorth.getLayout()).columnWeights = new double[] {1.0, 0.0, 1.0E-4};
+           ((GridBagLayout)panelNorth.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
 
-            //---- labelInfo ----
-            labelInfo.setText("JVM -  Installationen");
-            labelInfo.setName("labelInfo");
-            panelNorth.add(labelInfo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 2, 2, 7), 0, 0));
+           //---- labelInfo ----
+           labelInfo.setText("JVM -  Installationen");
+           labelInfo.setName("labelInfo");
+           panelNorth.add(labelInfo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 7), 0, 0));
         }
         add(panelNorth, BorderLayout.NORTH);
 
