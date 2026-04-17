@@ -108,7 +108,6 @@ class TestSupportHelperTest {
     @Test
     void getterStubs_returnNull() {
         TestSupportHelper helper = newHelper();
-        assertThat(helper.getActivitiRestService()).isNull();
         assertThat(helper.getTesunRestServiceWLS()).isNull();
     }
 }

@@ -227,11 +227,6 @@ public class TestSupportHelper {
         return lastProcessImage;
     }
 
-    public Object getActivitiRestService() {
-        /* CLAUDE_MODE: Original-Returntyp CteActivitiService nicht portiert. */
-        return null;
-    }
-
     public Object getTesunRestServiceWLS() {
         /* CLAUDE_MODE: Original liefert die im Konstruktor gebaute TesunRestService —
            im Stub nicht instantiert. */
