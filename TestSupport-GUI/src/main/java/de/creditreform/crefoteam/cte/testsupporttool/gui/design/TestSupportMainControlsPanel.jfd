@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 			"$columnSpecs": "0, 0:1.0, 0"
-			"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0"
+			"$rowSpecs": "0, 0, 0, 0, 0, 0, 0"
 			"$hGap": 5
 			"$vGap": 5
 			"$alignLeft": true
@@ -63,34 +63,13 @@ new FormModel {
 				"gridwidth": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "labelStateEngineHost"
-				"text": "State-Engine-Host:"
-				auxiliary() {
-					"JavaCodeGenerator.variableGetter": true
-				}
-			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 2
-				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-			} )
-			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBoxStateEngineHost"
-				auxiliary() {
-					"JavaCodeGenerator.variableGetter": true
-				}
-			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 2
-				"gridx": 1
-				"gridwidth": 2
-			} )
-			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "labelRestServicesHost"
 				"text": "RestServices-Host:"
 				auxiliary() {
 					"JavaCodeGenerator.variableGetter": true
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 3
+				"gridy": 2
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -100,7 +79,7 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 3
+				"gridy": 2
 				"gridx": 1
 				"gridwidth": 2
 			} )
@@ -111,7 +90,7 @@ new FormModel {
 					"JavaCodeGenerator.variableGetter": true
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 4
+				"gridy": 3
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -121,7 +100,7 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 4
+				"gridy": 3
 				"gridx": 1
 				"gridwidth": 2
 			} )
@@ -132,7 +111,7 @@ new FormModel {
 					"JavaCodeGenerator.variableGetter": true
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 5
+				"gridy": 4
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -142,7 +121,7 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 5
+				"gridy": 4
 				"gridx": 1
 				"gridwidth": 2
 			} )
@@ -153,7 +132,7 @@ new FormModel {
 					"JavaCodeGenerator.variableGetter": true
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 6
+				"gridy": 5
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -163,7 +142,7 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 6
+				"gridy": 5
 				"gridx": 1
 				"gridwidth": 2
 			} )
@@ -174,7 +153,7 @@ new FormModel {
 					"JavaCodeGenerator.variableGetter": true
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-				"gridy": 7
+				"gridy": 6
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -184,7 +163,7 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
-				"gridy": 7
+				"gridy": 6
 				"gridx": 1
 				"gridwidth": 2
 			} )

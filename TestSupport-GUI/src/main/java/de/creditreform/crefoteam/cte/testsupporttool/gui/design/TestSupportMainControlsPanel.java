@@ -71,22 +71,12 @@ public class TestSupportMainControlsPanel extends JPanel {
         return comboBoxInsoBackEndHost;
     }
 
-    public JLabel getLabelStateEngineHost() {
-       return labelStateEngineHost;
-    }
-
-    public JComboBox getComboBoxStateEngineHost() {
-       return comboBoxStateEngineHost;
-    }
-
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         labelEnvironment = new JLabel();
         comboBoxEnvironment = new JComboBox();
         buttonRefreshEnvironment = new JButton();
         buttonManageJVMs = new JButton();
-        labelStateEngineHost = new JLabel();
-        comboBoxStateEngineHost = new JComboBox();
         labelRestServicesHost = new JLabel();
         comboBoxRestServicesHost = new JComboBox();
         labelBatchGUIHost = new JLabel();
@@ -101,9 +91,9 @@ public class TestSupportMainControlsPanel extends JPanel {
         //======== this ========
         setLayout(new GridBagLayout());
         ((GridBagLayout)getLayout()).columnWidths = new int[] {0, 0, 0, 0};
-        ((GridBagLayout)getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        ((GridBagLayout)getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
         ((GridBagLayout)getLayout()).columnWeights = new double[] {0.0, 1.0, 0.0, 1.0E-4};
-        ((GridBagLayout)getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+        ((GridBagLayout)getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
         //---- labelEnvironment ----
         labelEnvironment.setText("Umgebung:");
@@ -134,57 +124,48 @@ public class TestSupportMainControlsPanel extends JPanel {
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(1, 1, 6, 1), 0, 0));
 
-        //---- labelStateEngineHost ----
-        labelStateEngineHost.setText("State-Engine-Host:");
-        add(labelStateEngineHost, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-           GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-           new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxStateEngineHost, new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0,
-           GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-           new Insets(0, 1, 5, 1), 0, 0));
-
         //---- labelRestServicesHost ----
         labelRestServicesHost.setText("RestServices-Host:");
-        add(labelRestServicesHost, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+        add(labelRestServicesHost, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxRestServicesHost, new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0,
+        add(comboBoxRestServicesHost, new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 1), 0, 0));
 
         //---- labelBatchGUIHost ----
         labelBatchGUIHost.setText("Batch-GUI-Host:");
-        add(labelBatchGUIHost, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+        add(labelBatchGUIHost, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxBatchGUIHost, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0,
+        add(comboBoxBatchGUIHost, new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 1), 0, 0));
 
         //---- labelImpCycleHost ----
         labelImpCycleHost.setText("ImportCycle-Host:");
-        add(labelImpCycleHost, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+        add(labelImpCycleHost, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxImpCycleHost, new GridBagConstraints(1, 5, 2, 1, 0.0, 0.0,
+        add(comboBoxImpCycleHost, new GridBagConstraints(1, 4, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 1), 0, 0));
 
         //---- labelInsoHost ----
         labelInsoHost.setText("INSO-Host:");
-        add(labelInsoHost, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+        add(labelInsoHost, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxInsoHost, new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0,
+        add(comboBoxInsoHost, new GridBagConstraints(1, 5, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 1), 0, 0));
 
         //---- labelInsoBackEndHost ----
         labelInsoBackEndHost.setText("INSO-Backend-Host:");
-        add(labelInsoBackEndHost, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0,
+        add(labelInsoBackEndHost, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 0, 6), 0, 0));
-        add(comboBoxInsoBackEndHost, new GridBagConstraints(1, 7, 2, 1, 0.0, 0.0,
+        add(comboBoxInsoBackEndHost, new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 0, 1), 0, 0));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
@@ -195,8 +176,6 @@ public class TestSupportMainControlsPanel extends JPanel {
     private JComboBox comboBoxEnvironment;
     private JButton buttonRefreshEnvironment;
     private JButton buttonManageJVMs;
-    private JLabel labelStateEngineHost;
-    private JComboBox comboBoxStateEngineHost;
     private JLabel labelRestServicesHost;
     private JComboBox comboBoxRestServicesHost;
     private JLabel labelBatchGUIHost;
