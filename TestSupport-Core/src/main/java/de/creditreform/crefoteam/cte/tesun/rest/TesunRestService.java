@@ -3,26 +3,31 @@ package de.creditreform.crefoteam.cte.tesun.rest;
 import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentProperties;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentPropertiesTupel;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.RelevanzDecisionMonitoring;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.KundenKonfig;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.KundenKonfigList;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigExportInfo;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigInfo;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigUploadInfo;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunExportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunImportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunJobexecutionInfo;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJob;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJobs;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunSystemInfo;
 import de.creditreform.crefoteam.cte.tesun.rest.inso.TesunInsoAktuellerStand;
 import de.creditreform.crefoteam.cte.tesun.rest.inso.XmlKunde;
 import de.creditreform.crefoteam.cte.tesun.util.TestCrefo;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
+// JAXB-Klassen aus schnittstellen.cte_testsupport + schnittstellen.cte_fachwert_rest
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigExportInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigUploadInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.environmentproperties.CteEnvironmentPropertiesTupel;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.pendingjobs.TesunPendingJob;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.pendingjobs.TesunPendingJobs;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.systeminfo.TesunSystemInfo;
+import de.creditreform.crefoteam.cte.restservices.xmlbinding.fachwertaktualisierung.KundenKonfig;
+import de.creditreform.crefoteam.cte.restservices.xmlbinding.fachwertaktualisierung.KundenKonfigList;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -114,7 +119,7 @@ public class TesunRestService {
     public void setEnvironmentProperties(CteEnvironmentProperties properties) throws IOException, InterruptedException {
         StringBuilder body = new StringBuilder("{\"properties\":[");
         for (int i = 0; i < properties.getProperties().size(); i++) {
-            CteEnvironmentPropertiesTupel t = properties.getProperties().get(i);
+            de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentPropertiesTupel t = properties.getProperties().get(i);
             if (i > 0) body.append(",");
             body.append("{\"key\":\"").append(t.getKey())
                     .append("\",\"value\":\"").append(t.getValue() == null ? "" : t.getValue())
@@ -320,27 +325,32 @@ public class TesunRestService {
     // ========================================================================
 
     public TesunPendingJobs getTesunPendingJobs() throws IOException, InterruptedException {
-        String body = get("/cte_tesun_service/tesun/jobs/pending");
-        List<TesunPendingJob> jobs = new ArrayList<>();
-        for (String block : extractXmlBlocks(body, "job")) {
-            String id  = extractXmlTag(block, "prozess-identifier");
-            String cnt = extractXmlTag(block, "anzahl-todo-bloecke");
-            String key = extractXmlTag(block, "infokey-start");
-            if (id != null) {
-                jobs.add(new TesunPendingJob(id, cnt == null ? 0 : Integer.parseInt(cnt.trim()), key));
-            }
+        try {
+            String body = get("/cte_tesun_service/tesun/jobs/pending");
+            JAXBContext ctx = JAXBContext.newInstance(TesunPendingJobs.class.getPackage().getName());
+            return (TesunPendingJobs) ctx.createUnmarshaller().unmarshal(new StringReader(body));
+        } catch (Exception ex) {
+            throw new IOException("getTesunPendingJobs() fehlgeschlagen", ex);
         }
-        return new TesunPendingJobs(jobs);
     }
 
     // ========================================================================
     // System Info
     // ========================================================================
 
+    @SuppressWarnings("unchecked")
     public TesunSystemInfo getTesunSystemInfo() throws IOException, InterruptedException {
-        String body = get("/cte_tesun_service/tesun/systeminfo");
-        String version = extractXmlTag(body, "cte-version");
-        return new TesunSystemInfo(version != null ? version : "unbekannt");
+        try {
+            String body = get("/cte_tesun_service/tesun/systeminfo");
+            JAXBContext ctx = JAXBContext.newInstance(TesunSystemInfo.class.getPackage().getName());
+            Unmarshaller u = ctx.createUnmarshaller();
+            Object doc = u.unmarshal(new StringReader(body));
+            return doc instanceof JAXBElement
+                    ? (TesunSystemInfo) ((JAXBElement<?>) doc).getValue()
+                    : (TesunSystemInfo) doc;
+        } catch (Exception ex) {
+            throw new IOException("getTesunSystemInfo() fehlgeschlagen", ex);
+        }
     }
 
     // ========================================================================
@@ -348,61 +358,46 @@ public class TesunRestService {
     // ========================================================================
 
     public KundenKonfigList getAllCustomerConfigs() throws IOException, InterruptedException {
-        String body = get("/cte_tesun_service/tesun/fachwertconfig/customerCfgs");
-        List<KundenKonfig> konfigs = new ArrayList<>();
-        for (String block : extractXmlBlocks(body, "konfigs")) {
-            KundenKonfig k = new KundenKonfig();
-            k.setKundenKuerzel(extractXmlTag(block, "kundenKuerzel"));
-            k.setPdversion(extractXmlTag(block, "pdversion"));
-            k.setProzessName(extractXmlTag(block, "prozessName"));
-            String dateStr = extractXmlTag(block, "aktualisierungsdatum");
-            if (dateStr != null) k.setAktualisierungsdatum(parseCal(dateStr));
-            konfigs.add(k);
+        try {
+            String body = get("/cte_tesun_service/tesun/fachwertconfig/customerCfgs");
+            JAXBContext ctx = JAXBContext.newInstance(KundenKonfigList.class.getPackage().getName());
+            return (KundenKonfigList) ctx.createUnmarshaller().unmarshal(new StringReader(body));
+        } catch (Exception ex) {
+            throw new IOException("getAllCustomerConfigs() fehlgeschlagen", ex);
         }
-        return new KundenKonfigList(konfigs);
     }
 
     public TesunConfigInfo getTesunConfigInfo() throws IOException, InterruptedException {
-        String body = get("/cte_tesun_service/tesun/configinfo");
-        TesunConfigInfo info = new TesunConfigInfo();
-        info.setUmgebungsKuerzel(extractXmlTag(body, "umgebungs-kuerzel"));
-        List<TesunConfigExportInfo> exports = new ArrayList<>();
-        for (String block : extractXmlBlocks(body, "export-pfade")) {
-            TesunConfigExportInfo e = new TesunConfigExportInfo();
-            e.setKundenKuerzel(extractXmlTag(block, "kunden-kuerzel"));
-            e.setRelativePath(extractXmlTag(block, "relative-path"));
-            exports.add(e);
+        try {
+            String body = get("/cte_tesun_service/tesun/configinfo");
+            JAXBContext ctx = JAXBContext.newInstance(TesunConfigInfo.class.getPackage().getName());
+            return (TesunConfigInfo) ctx.createUnmarshaller().unmarshal(new StringReader(body));
+        } catch (Exception ex) {
+            throw new IOException("getTesunConfigInfo() fehlgeschlagen", ex);
         }
-        info.setExportPfade(exports);
-        List<TesunConfigUploadInfo> uploads = new ArrayList<>();
-        for (String block : extractXmlBlocks(body, "upload-pfade")) {
-            TesunConfigUploadInfo u = new TesunConfigUploadInfo();
-            u.setKundenKuerzel(extractXmlTag(block, "kunden-kuerzel"));
-            u.setCompletePath(extractXmlTag(block, "complete-path"));
-            uploads.add(u);
-        }
-        info.setUploadPfade(uploads);
-        return info;
     }
 
     public List<CteEnvironmentPropertiesTupel> getEnvironmentPropertiesFiltered(
             String filter, String scope, boolean withDbValues) throws IOException, InterruptedException {
-        StringBuilder path = new StringBuilder("/cte_tesun_service/tesun/environmentproperties?lfencoding=true");
-        if (filter != null && !filter.isEmpty()) {
-            path.append("&keyFilter=").append(encode(withDbValues ? filter + " -client" : filter));
+        try {
+            StringBuilder path = new StringBuilder("/cte_tesun_service/tesun/environmentproperties?lfencoding=true");
+            if (filter != null && !filter.isEmpty()) {
+                path.append("&keyFilter=").append(encode(withDbValues ? filter + " -client" : filter));
+            }
+            if (scope != null && !scope.isEmpty()) {
+                path.append("&valueFilter=").append(encode(scope));
+            }
+            String body = get(path.toString());
+            JAXBContext ctx = JAXBContext.newInstance(
+                    de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.environmentproperties
+                            .CteEnvironmentProperties.class.getPackage().getName());
+            de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.environmentproperties.CteEnvironmentProperties
+                    props = (de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.environmentproperties
+                            .CteEnvironmentProperties) ctx.createUnmarshaller().unmarshal(new StringReader(body));
+            return props.getProperties();
+        } catch (Exception ex) {
+            throw new IOException("getEnvironmentPropertiesFiltered() fehlgeschlagen", ex);
         }
-        if (scope != null && !scope.isEmpty()) {
-            path.append("&valueFilter=").append(encode(scope));
-        }
-        String body = get(path.toString());
-        List<CteEnvironmentPropertiesTupel> result = new ArrayList<>();
-        for (String block : extractXmlBlocks(body, "properties")) {
-            CteEnvironmentPropertiesTupel t = new CteEnvironmentPropertiesTupel();
-            t.setKey(extractXmlTag(block, "key"));
-            t.setValue(extractXmlTag(block, "value"));
-            result.add(t);
-        }
-        return result;
     }
 
     public SystemInfo getSystemPropertiesInfo() throws IOException, InterruptedException {
@@ -430,33 +425,4 @@ public class TesunRestService {
         tc.setPdVersion(kk.getPdversion());
     }
 
-    // ========================================================================
-    // XML-Hilfsroutinen
-    // ========================================================================
-
-    private static String extractXmlTag(String xml, String tag) {
-        String open  = "<"  + tag + ">";
-        String close = "</" + tag + ">";
-        int s = xml.indexOf(open);
-        if (s < 0) return null;
-        int e = xml.indexOf(close, s);
-        if (e < 0) return null;
-        return xml.substring(s + open.length(), e).trim();
-    }
-
-    private static List<String> extractXmlBlocks(String xml, String tag) {
-        List<String> blocks = new ArrayList<>();
-        String open  = "<"  + tag + ">";
-        String close = "</" + tag + ">";
-        int pos = 0;
-        while (true) {
-            int s = xml.indexOf(open, pos);
-            if (s < 0) break;
-            int e = xml.indexOf(close, s);
-            if (e < 0) break;
-            blocks.add(xml.substring(s + open.length(), e));
-            pos = e + close.length();
-        }
-        return blocks;
-    }
 }

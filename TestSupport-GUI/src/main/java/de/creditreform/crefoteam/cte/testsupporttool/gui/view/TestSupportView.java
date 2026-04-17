@@ -19,7 +19,7 @@ import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.UserTaskRunnable;
-import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunSystemInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.systeminfo.TesunSystemInfo;
 
 import java.awt.*;
 import java.io.File;

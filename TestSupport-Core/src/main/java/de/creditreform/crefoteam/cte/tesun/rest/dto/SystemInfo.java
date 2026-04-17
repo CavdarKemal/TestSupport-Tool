@@ -1,5 +1,11 @@
 package de.creditreform.crefoteam.cte.tesun.rest.dto;
 
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigExportInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.configinfo.TesunConfigUploadInfo;
+import de.creditreform.crefoteam.cte.restservices.tesun.xmlbinding.environmentproperties.CteEnvironmentPropertiesTupel;
+import de.creditreform.crefoteam.cte.restservices.xmlbinding.fachwertaktualisierung.KundenKonfig;
+import de.creditreform.crefoteam.cte.restservices.xmlbinding.fachwertaktualisierung.KundenKonfigList;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import org.apache.commons.lang3.tuple.MutablePair;
 
@@ -9,7 +15,7 @@ import java.util.List;
 
 /**
  * Aggregiertes Ergebnis von {@code TesunRestService.getSystemPropertiesInfo()} —
- * Port von {@code testsupport_client.tesun_factory.rest.SystemInfo} ohne JAXB.
+ * Port von {@code testsupport_client.tesun_factory.rest.SystemInfo}, nutzt JAXB-Typen.
  */
 public class SystemInfo {
 
@@ -19,7 +25,9 @@ public class SystemInfo {
 
     public void setKundenKonfigList(KundenKonfigList v) { this.kundenKonfigList = v; }
     public void setTesunConfigInfo(TesunConfigInfo v) { this.tesunConfigInfo = v; }
-    public void setEnvPropsList(List<CteEnvironmentPropertiesTupel> v) { this.envPropsList = v != null ? v : new ArrayList<>(); }
+    public void setEnvPropsList(List<CteEnvironmentPropertiesTupel> v) {
+        this.envPropsList = v != null ? v : new ArrayList<>();
+    }
 
     public void fillPropertyPairForCustomer(String propertyPrefix, MutablePair<String, String> pair) {
         if (pair.getLeft().contains("%")) {

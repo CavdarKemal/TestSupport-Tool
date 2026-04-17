@@ -54,6 +54,22 @@
             <artifactId>commons-email</artifactId>
         </dependency>
         <dependency>
+            <groupId>schnittstellen.cte_fachwert_rest</groupId>
+            <artifactId>cte_fachwert_rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>schnittstellen.cte_testsupport</groupId>
+            <artifactId>testsupport_xsd</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
         </dependency>
