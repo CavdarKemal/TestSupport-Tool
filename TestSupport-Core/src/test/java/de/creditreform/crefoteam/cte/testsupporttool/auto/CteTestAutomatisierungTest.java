@@ -91,7 +91,7 @@ class CteTestAutomatisierungTest {
 
         // Alle 16 Keys, die ActivitiTestSupport.buildTaskVariablesMap setzt
         assertThat(vars).containsKeys(
-                "DEMO_MODE", "MEIN_KEY", "ACTIVITI_PROCESS_NAME",
+                "DEMO_MODE", "MEIN_KEY", "STATE_ENGINE_PROCESS_NAME",
                 "TIME_BEFORE_BTLG_IMPORT", "TIME_BEFORE_CT_IMPORT", "TIME_BEFORE_EXPORT",
                 "TIME_BEFORE_EXPORTS_COLLECT", "TIME_BEFORE_SFTP_COLLECT",
                 "EMAIL_FROM", "SUCCESS_MAIL_TO", "FAILURE_MAIL_TO",
@@ -116,7 +116,7 @@ class CteTestAutomatisierungTest {
 
         // env-abgeleitete Werte aus ENE-config.properties
         assertThat(vars.get("MEIN_KEY")).isEqualTo("ENE");
-        assertThat(vars.get("ACTIVITI_PROCESS_NAME")).isEqualTo("ENE-TestAutomationProcess");
+        assertThat(vars.get("STATE_ENGINE_PROCESS_NAME")).isEqualTo("ENE-TestAutomationProcess");
         assertThat(vars.get("EMAIL_FROM")).isEqualTo("test-automatisierung@creditreform.de");
         assertThat(vars.get("SUCCESS_MAIL_TO")).isEqualTo("kemal@cavdar.de");
         assertThat(vars.get("FAILURE_MAIL_TO")).isEqualTo("kemal@cavdar.de");

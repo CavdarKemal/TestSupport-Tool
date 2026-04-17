@@ -93,16 +93,18 @@ class TestSupportHelperTest {
     }
 
     @Test
-    void claudeModeStubs_throwUnsupported() {
+    void checkRunningJobs_withoutServer_throwsException() {
+        // tesunRestServiceWLS ist null (kein Server konfiguriert) — muss Exception werfen.
         TestSupportHelper helper = newHelper();
-        Map<String, ?> empty = Map.of();
+        assertThatThrownBy(() -> helper.checkRunningJobs(Map.of()))
+                .isInstanceOf(Exception.class);
+    }
 
-        assertThatThrownBy(() -> helper.checkRunningJobs((Map) empty))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
-        assertThatThrownBy(() -> helper.checkJvms((Map) empty))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
+    @Test
+    void checkJvms_withoutServer_throwsException() {
+        TestSupportHelper helper = newHelper();
+        assertThatThrownBy(() -> helper.checkJvms(Map.of()))
+                .isInstanceOf(Exception.class);
     }
 
     @Test

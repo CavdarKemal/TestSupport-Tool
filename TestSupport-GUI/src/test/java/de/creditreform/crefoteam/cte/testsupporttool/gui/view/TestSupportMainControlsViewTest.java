@@ -50,8 +50,8 @@ class TestSupportMainControlsViewTest {
     void getComponentsToOnOff_containsExpectedCount() {
         assumeFalse(GraphicsEnvironment.isHeadless(), "Headless-JVM");
         TestSupportMainControlsView view = new TestSupportMainControlsView();
-        // 6 Host-ComboBoxes + Environment-CB + Refresh-Button + Manage-JVM = 9
-        assertThat(view.getComponentsToOnOff()).hasSize(9);
+        // 5 Host-ComboBoxes (ohne StateEngine-Host) + Environment-CB + Refresh-Button + Manage-JVM = 8
+        assertThat(view.getComponentsToOnOff()).hasSize(8);
     }
 
     @Test

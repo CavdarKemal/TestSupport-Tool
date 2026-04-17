@@ -42,9 +42,9 @@ class TestSupportMainProcessViewTest {
         assertThat(view.getLabelFachwertConfig().isVisible()).isFalse();
         assertThat(view.getRadioButtonFWConfigNewest().isVisible()).isFalse();
         assertThat(view.getLabelExportFormat().isVisible()).isFalse();
-        // CLAUDE_MODE: Demo-Mode immer aktiviert + disabled.
+        // Demo-Mode ist Default (true), aber User kann ihn deaktivieren (enabled).
         assertThat(view.isDemoMode()).isTrue();
-        assertThat(view.getCheckBoxDemoMode().isEnabled()).isFalse();
+        assertThat(view.getCheckBoxDemoMode().isEnabled()).isTrue();
     }
 
     @Test

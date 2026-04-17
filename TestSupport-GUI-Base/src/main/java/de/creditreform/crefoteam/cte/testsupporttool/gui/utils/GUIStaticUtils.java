@@ -379,6 +379,6 @@ public class GUIStaticUtils {
      * {@code EnvironmentConfig.getVersionFromBuildInfo()}.
      */
     public static String getVersionFromPOM(String pomFileName) {
-        return new de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig((String) null).getVersionFromBuildInfo();
+        return GUIFrame.readVersionFromBuildInfo();
     }
 }

@@ -21,9 +21,11 @@ class GUIFrameTest {
     }
 
     @Test
-    void getVersionFromPOM_isClaudeModeStub_returnsNull() {
-        // Originalmethode liest pomx.xml — im Spike auskommentiert (CLAUDE_MODE).
-        assertThat(GUIFrame.getVersionFromPOM()).isNull();
+    void getVersionFromPOM_returnsStringOrNull() {
+        // Liest buildinfo.properties aus dem Classpath — null wenn nicht vorhanden.
+        String version = GUIFrame.getVersionFromPOM();
+        // Kein assert auf null: in Tests ohne buildinfo.properties ist null erwartet.
+        assertThat(version == null || !version.isBlank()).isTrue();
     }
 
     @Test

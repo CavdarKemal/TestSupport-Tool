@@ -102,7 +102,19 @@ public abstract class GUIFrame extends JFrame implements ActionListener {
      * {@code META-INF/buildinfo/.../buildinfo.properties} liest.
      */
     public static String getVersionFromPOM() {
-        return new de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig((String) null).getVersionFromBuildInfo();
+        return readVersionFromBuildInfo();
+    }
+
+    static String readVersionFromBuildInfo() {
+        try (java.io.InputStream is = GUIFrame.class.getResourceAsStream(
+                "/META-INF/buildinfo/testsupport-tool/buildinfo.properties")) {
+            if (is == null) return null;
+            java.util.Properties props = new java.util.Properties();
+            props.load(is);
+            return props.getProperty("build.version");
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public JRadioButtonMenuItem createToLookAndFeelMenu(final UIManager.LookAndFeelInfo lookAndFeelInfo) {
