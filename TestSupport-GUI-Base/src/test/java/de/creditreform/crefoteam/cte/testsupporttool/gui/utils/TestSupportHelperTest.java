@@ -87,20 +87,20 @@ class TestSupportHelperTest {
     }
 
     @Test
+    void checkStartCoinditions_demoMode_doesNotThrow() {
+        TestSupportHelper helper = newHelper();
+        helper.checkStartCoinditions(Map.of(), true, false);
+    }
+
+    @Test
     void claudeModeStubs_throwUnsupported() {
         TestSupportHelper helper = newHelper();
         Map<String, ?> empty = Map.of();
 
-        assertThatThrownBy(() -> helper.checkStartCoinditions((Map) empty, false))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
         assertThatThrownBy(() -> helper.checkRunningJobs((Map) empty))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
         assertThatThrownBy(() -> helper.checkJvms((Map) empty))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
-        assertThatThrownBy(() -> helper.killOrContinueRunningStateEngineProcess("k", "p", false))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("CLAUDE_MODE");
     }

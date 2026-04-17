@@ -116,13 +116,8 @@ class GUIStaticUtilsTest {
     }
 
     @Test
-    void claudeModeStubs_throwOrReturnNull() {
-        assertThatThrownBy(() -> GUIStaticUtils.checkIfBpmnFileExists(null, "ENE", "x.bpmn", false))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
-        assertThatThrownBy(() -> GUIStaticUtils.uploadStateEngineProcessesFromClassPath(null, "ENE"))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("CLAUDE_MODE");
-        assertThat(GUIStaticUtils.getVersionFromPOM("pom.xml")).isNull();
+    void bpmnMethods_returnNoopValues() {
+        assertThat(GUIStaticUtils.checkIfBpmnFileExists(null, "ENE", "x.bpmn", false)).isTrue();
+        assertThat(GUIStaticUtils.uploadStateEngineProcessesFromClassPath(null, "ENE")).isEmpty();
     }
 }

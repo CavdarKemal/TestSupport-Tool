@@ -4,13 +4,16 @@ import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Level;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -54,68 +57,32 @@ public class TestSupportHelper {
         */
     }
 
-    public void checkStartCoinditions(Map<String, TestCustomer> activeTestCustomersMap, boolean confirmDlg) {
-        /* CLAUDE_MODE
-        tesunClientJobListener.notifyClientJob(Level.INFO, "\nPrüfe die Prozess-Start-Bedinbungen...");
-        String errString;
-        errString = tesunRestServiceJvmImportC.pruefeKundenInstallation(activeTestCustomersMap);
-        if (!errString.isEmpty()) {
-            throw new RuntimeException(errString);
+    public void checkStartCoinditions(Map<String, TestCustomer> activeTestCustomersMap, boolean isDemoMode, boolean confirmDlg) {
+        if (isDemoMode) {
+            return;
         }
-        errString = checkRunningJobs(activeTestCustomersMap);
-        if (!errString.isEmpty()) {
-            int confirmOpt =  (int)tesunClientJobListener.askClientJob(TesunClientJobListener.ASK_FOR.ASK_OBJECT_RETRY, errString);
-            if (confirmOpt == 1) {
-                throw new RuntimeException(errString);
-            }
-        }
-        errString = checkJvms(activeTestCustomersMap);
-        if (!errString.isEmpty()) {
-            throw new RuntimeException(errString);
-        }
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: Activiti/Apache4-RestInvoker im Spike nicht portiert.");
+        // Real-Mode: REST-Checks (checkRunningJobs + checkJvms) — folgen in Kategorie C
+        tesunClientJobListener.notifyClientJob(Level.INFO, "\nReal-Mode: Prozess-Start-Bedingungen werden noch nicht geprüft (REST-Port ausstehend).");
     }
 
-    public Object killOrContinueRunningStateEngineProcess(String prozessKey, String prozessDefName, boolean confirmDlg) {
-        /* CLAUDE_MODE — Original-Rueckgabetyp CteActivitiTask:
-        Map<String, Object> processVarsMap = new HashMap<>();
-        processVarsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MEIN_KEY, prozessKey);
-        // Zweistufig: erst Process-Instance-ID ermitteln (GET ohne Variablen-JOIN, client-seitig gefiltert),
-        // dann Tasks per processInstanceId abfragen
-        List<CteActivitiProcess> runningProcesses = cteActivitiService.queryProcessInstances(prozessDefName, processVarsMap);
-        if (runningProcesses.isEmpty()) {
-            return null;
+    public boolean killOrContinueRunningStateEngineProcess(String prozessKey, String prozessDefName, boolean confirmDlg) throws de.creditreform.crefoteam.cte.tesun.util.PropertiesException {
+        File resumeFile = new File(environmentConfig.getTestOutputsRoot(), ResumeState.FILE_NAME);
+        if (!resumeFile.exists()) {
+            return false;
         }
-        Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MEIN_KEY, prozessKey);
-        paramsMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_STATE_ENGINE_PROCESS_NAME, prozessDefName);
-        // Tasks per MEIN_KEY suchen (nicht per processInstanceId), damit auch Tasks in
-        // Sub-Prozessen (Call Activities) gefunden werden — diese haben eine eigene processInstanceId.
-        Map<String, Object> taskQueryMap = new HashMap<>();
-        taskQueryMap.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MEIN_KEY, prozessKey);
-        List<CteActivitiTask> cteActivitiTasksList = cteActivitiService.listTasks(taskQueryMap);
-        if (!cteActivitiTasksList.isEmpty()) {
-            if (confirmDlg) {
-                String strInfo = String.format("Der Prozess wurde zuvor gestartet und steht beim User-Task '%s'!\nSoll der Prozess fortgesetzt oder beendet und neu gestartet werden?", cteActivitiTasksList.get(0).getTaskDefinitionKey());
-                int answer = (int)tesunClientJobListener.askClientJob(TesunClientJobListener.ASK_FOR.ASK_OBJECT_CONTINUE, strInfo);
-                if (answer == JOptionPane.YES_OPTION) {
-                    return cteActivitiTasksList.get(0);
-                }
-                else if (answer == JOptionPane.CANCEL_OPTION) {
-                    throw new RequestAbortedException("Aborted!");
-                }
-                killRunningStateEngineProcess(paramsMap);
-                return null;
-            }
-        } else {
-            tesunClientJobListener.notifyClientJob(Level.INFO,
-                String.format("\nLaufender Prozess ohne User-Task gefunden (ID=%d) — wird automatisch beendet.", runningProcesses.get(0).getId()));
-            killRunningStateEngineProcess(paramsMap);
+        if (!confirmDlg) {
+            resumeFile.delete();
+            tesunClientJobListener.notifyClientJob(Level.INFO, "\nUnterbrochener Prozess-State gelöscht — Neustart.");
+            return false;
         }
-        return null;
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: Activiti im Spike nicht portiert.");
+        int answer = (int) tesunClientJobListener.askClientJob(
+                TesunClientJobListener.ASK_FOR.ASK_OBJECT_CONTINUE,
+                "Der Prozess wurde zuvor unterbrochen!\nSoll der Prozess fortgesetzt oder neu gestartet werden?");
+        if (answer == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        resumeFile.delete();
+        return false;
     }
 
     public String checkRunningJobs(Map<String, TestCustomer> activeTestCustomersMap) {

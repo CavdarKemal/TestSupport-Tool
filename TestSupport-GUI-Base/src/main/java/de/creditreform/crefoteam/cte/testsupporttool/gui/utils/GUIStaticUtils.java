@@ -355,57 +355,14 @@ public class GUIStaticUtils {
         return null;
     }
 
-    /**
-     * <p><b>CLAUDE_MODE:</b> Activiti-Service nicht portiert (Spike ist
-     * Activiti-frei) — Stub wirft UnsupportedOperationException. Original-
-     * Code als Block-Kommentar erhalten.
-     */
-    public static boolean checkIfBpmnFileExists(Object activitiRestService, String envName, String bpmnFileName, boolean askIfExists) {
-        /* CLAUDE_MODE
-        File bpmnFile = new File(bpmnFileName);
-        String envBpmnFileName = String.format("%s-%s", envName, bpmnFile.getName());
-        CteStateEngineDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(envBpmnFileName);
-        if (cteActivitiDeployment != null) {
-            if (askIfExists) {
-                String questionMsg = "Das Deployment " + envBpmnFileName + " existiert bereits! Soll es ersetzt werden?";
-                int option = JOptionPane.showConfirmDialog(null, questionMsg, "ACTIVITI-Prozess-Definitionsdatei deployen", JOptionPane.YES_NO_OPTION);
-                if (option != JOptionPane.OK_OPTION) {
-                    return false;
-                }
-            }
-            activitiRestService.deleteDeploymentForName(envBpmnFileName);
-        }
+    /** StateMachine braucht kein BPMN-Deployment — immer true. */
+    public static boolean checkIfBpmnFileExists(Object stateEngineRestService, String envName, String bpmnFileName, boolean askIfExists) {
         return true;
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: CteActivitiService im Spike nicht portiert.");
     }
 
-    /**
-     * <p><b>CLAUDE_MODE:</b> Stub — braucht CteActivitiService + TestFallFileUtil.
-     */
-    public static List<File> uploadStateEngineProcessesFromClassPath(Object activitiRestService, String envName) {
-        /* CLAUDE_MODE
-        List<File> uploadedBpmnFilesList = new ArrayList<>();
-        List<File> downloadedBpmnFilesList = new ArrayList<>();
-        File outputDir = new File(System.getProperty("user.dir"), "Tmp-BPMNs/" + envName);
-        downloadedBpmnFilesList.addAll(TestFallFileUtil.downloadFolderContentFromFolder("bpmns", ".bpmn", outputDir));
-        for (File bpmnFile : downloadedBpmnFilesList) {
-            File dstFile = new File(outputDir, String.format("%s-%s", envName, bpmnFile.getName()));
-            File newBpmnFile = GUIStaticUtils.prepareBpmnFileForEnvironment(bpmnFile, dstFile, envName);
-            CteStateEngineDeployment cteActivitiDeployment = activitiRestService.getDeploymentForName(newBpmnFile.getName());
-            if (cteActivitiDeployment != null) {
-                activitiRestService.deleteDeploymentForName(newBpmnFile.getName());
-            }
-            String deploymentID = activitiRestService.uploadDeploymentFile(newBpmnFile);
-            uploadedBpmnFilesList.add(newBpmnFile);
-            if (deploymentID == null) {
-                throw new RuntimeException("Der ACTIVITI-Prozess" + bpmnFile.getName() + " konnte nicht deployed werden!");
-            }
-        }
-        FileUtils.deleteQuietly(outputDir.getParentFile());
-        return uploadedBpmnFilesList;
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: CteActivitiService + TestFallFileUtil im Spike nicht portiert.");
+    /** StateMachine braucht kein BPMN-Deployment — leere Liste. */
+    public static List<File> uploadStateEngineProcessesFromClassPath(Object stateEngineRestService, String envName) {
+        return new ArrayList<>();
     }
 
     public static File prepareBpmnFileForEnvironment(File srcFile, File dstFile, String envName) throws Exception {

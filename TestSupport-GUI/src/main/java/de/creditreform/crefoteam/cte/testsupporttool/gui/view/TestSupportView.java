@@ -18,9 +18,12 @@ import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 
+import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.UserTaskRunnable;
+
 import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -353,18 +356,40 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         return resultMap;
     }
 
+    @SuppressWarnings("unchecked")
     private void startUserTaskRunnable(final TestJobsComboBoxItem testJobsComboBoxItem) {
-        /* CLAUDE_MODE
-         * Original lädt die UserTaskRunnable-Klasse dynamisch per Reflection
-         * ("de.creditreform.crefoteam.cte.tesun.activiti.handlers." + jobName)
-         * und ruft runTask(). Im Tool-Modul existieren diese Activiti-Handler
-         * nicht — Einzel-Task-Ausführung ist (noch) nicht auf die
-         * StateMachine-Steps gemappt.
-         */
-        JOptionPane.showMessageDialog(this,
-                "Einzelner Test-Job-Start ist im Tool-Modus (noch) nicht portiert.\n" +
-                        "Job: " + testJobsComboBoxItem.getDisplayName(),
-                "Nicht verfügbar", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            GUIStaticUtils.setWaitCursor(this, true);
+            enableComponentsToOnOff(false);
+            final boolean isDemoMode = getViewTestSupportMainProcess().isDemoMode();
+            new Thread(() -> {
+                try {
+                    Map<String, Object> lastVars = new HashMap<>();
+                    for (String jobName : testJobsComboBoxItem.getTestJobNamesList()) {
+                        String className = "de.creditreform.crefoteam.cte.testsupporttool.handlers." + jobName;
+                        Class<UserTaskRunnable> cls = (Class<UserTaskRunnable>) Class.forName(className);
+                        Constructor<UserTaskRunnable> ctor = cls.getConstructor(EnvironmentConfig.class, TesunClientJobListener.class);
+                        UserTaskRunnable task = ctor.newInstance(currentEnvironment, TestSupportView.this);
+                        Map<String, Object> vars = buildTaskVariablesMap(isDemoMode, getViewCustomersSelection().getActiveTestCustomersMapMap());
+                        vars.put(TesunClientJobListener.UT_TASK_PARAM_NAME_MANUEL_USER_TASK, Boolean.TRUE);
+                        vars.putAll(lastVars);
+                        vars.putAll(testJobsComboBoxItem.getTaskVariablesMap());
+                        lastVars = task.runTask(vars);
+                    }
+                } catch (Exception ex) {
+                    notifyClientJob(Level.ERROR, GUIStaticUtils.showExceptionMessage(TestSupportView.this,
+                            "Fehler beim Start des User-Tasks: " + testJobsComboBoxItem.getTestJobNamesList(), ex));
+                } finally {
+                    SwingUtilities.invokeLater(() -> {
+                        GUIStaticUtils.setWaitCursor(TestSupportView.this, false);
+                        enableComponentsToOnOff(true);
+                    });
+                }
+            }, "user-task-runner").start();
+        } catch (Exception ex) {
+            notifyClientJob(Level.ERROR, GUIStaticUtils.showExceptionMessage(this, "UserTask starten!", ex));
+            enableComponentsToOnOff(true);
+        }
     }
 
     /**
