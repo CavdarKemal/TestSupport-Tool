@@ -1,5 +1,7 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
+import org.custommonkey.xmlunit.Difference;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,13 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-/**
- * Port aus {@code testsupport_client.tesun_util}. {@link DiffenrenceInfo} ist
- * slim portiert — die {@code diffsMap} enthält im Original {@code
- * org.custommonkey.xmlunit.Difference}-Einträge, die mit den XML-Diff-Check-
- * Tasks später nachgezogen werden. Bis dahin nur die Metadaten (Testfall,
- * Quell-/Ziel-XML, Diff-Datei).
- */
 public class TestResults {
 
     private final List<ResultInfo> resultInfosList = new ArrayList<>();
@@ -41,8 +36,7 @@ public class TestResults {
     }
 
     public static class DiffenrenceInfo {
-        /** Im Original {@code Map<String, List<Difference>>} — Placeholder bis xmlunit-Port. */
-        private final Map<String, List<Object>> diffsMap = new HashMap<>();
+        private final Map<String, List<Difference>> diffsMap = new HashMap<>();
         private final File xmlFileSrc;
         private final File xmlFileDst;
         private final String testFallName;
@@ -55,11 +49,16 @@ public class TestResults {
             this.diffFile = diffFile;
         }
 
+        public DiffenrenceInfo(String testFallName, File xmlFileSrc, File xmlFileDst, File diffFile, List<Difference> differenceList) {
+            this(testFallName, xmlFileSrc, xmlFileDst, diffFile);
+            diffsMap.put(diffFile.getName(), differenceList);
+        }
+
         public String getTestFallName() { return testFallName; }
         public File getXmlFileSrc() { return xmlFileSrc; }
         public File getXmlFileDst() { return xmlFileDst; }
         public File getDiffFile() { return diffFile; }
-        public Map<String, List<Object>> getDiffsMap() { return diffsMap; }
+        public Map<String, List<Difference>> getDiffsMap() { return diffsMap; }
     }
 
     public static class ResultInfo {

@@ -1,6 +1,9 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
+import de.creditreform.crefoteam.cte.tesun.exports_checker.TextFileComparator;
 import org.apache.commons.io.FileUtils;
+import org.custommonkey.xmlunit.Difference;
+import org.custommonkey.xmlunit.XMLUnit;
 
 import java.io.File;
 import java.util.Collection;
@@ -9,17 +12,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-/**
- * Teilport aus {@code testsupport_client.tesun_util.CustomerTestResultsParser}.
- *
- * <p>Die Original-Klasse nutzt {@code xmlunit} (DetailedDiff/XMLUnit), um in
- * {@code paserseDiffFromErrorString} einen {@code List<Difference>} zu bauen
- * und an {@link TestResults.DiffenrenceInfo} zu uebergeben. Die
- * xmlunit-Dependency ist hier (noch) nicht vorhanden — deshalb liefert die
- * slim-Variante ein {@link TestResults.DiffenrenceInfo} ohne die
- * Difference-Liste (nur Dateien + Testfall-Name). Das reicht fuer die
- * GUI-Anzeige der Test-Result-Trees und der Diff-Files Seite-an-Seite.
- */
 public class CustomerTestResultsParser {
 
     public Map<String, TestCustomer> parseTestResultsFile(File testResultsFile) throws Exception {
@@ -116,15 +108,15 @@ public class CustomerTestResultsParser {
         File xmlFileSrc = buildXmlFileFor(diffFile, testFallName, splitCrefos[0], "REF-EXPORTS");
         File xmlFileDst = buildXmlFileFor(diffFile, testFallName, splitCrefos[0], "RESTORED-COLLECTS");
 
-        /* CLAUDE_MODE
-         * Original vergleicht hier via xmlunit DetailedDiff und reicht die
-         * List<Difference> an DiffenrenceInfo. Ohne xmlunit-Dep wird die
-         * Differences-Liste weggelassen — die Testfall-Metadaten reichen.
-         * List<Difference> differenceList = compareContent(
-         *     FileUtils.readFileToString(xmlFileSrc),
-         *     FileUtils.readFileToString(xmlFileDst));
-         */
-        return new TestResults.DiffenrenceInfo(testFallName, xmlFileSrc, xmlFileDst, diffFile);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
+        TextFileComparator textFileComparator = new TextFileComparator();
+        List<Difference> differenceList = textFileComparator.compareContent(
+                xmlFileSrc.getName(),
+                FileUtils.readFileToString(xmlFileSrc),
+                FileUtils.readFileToString(xmlFileDst),
+                null);
+        return new TestResults.DiffenrenceInfo(testFallName, xmlFileSrc, xmlFileDst, diffFile, differenceList);
     }
 
     private File buildXmlFileFor(File diffFile, String testFallName, String strCrefo, String subDirName) {

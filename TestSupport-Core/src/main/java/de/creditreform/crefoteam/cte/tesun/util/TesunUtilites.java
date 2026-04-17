@@ -1,6 +1,10 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Teilport von {@code testsupport_client.tesun_util.TesunUtilites}.
@@ -42,12 +46,23 @@ public final class TesunUtilites {
         return absolutePath;
     }
 
+    public static List<File> getFilesFromDir(File theRoot, final String regExp) throws IOException {
+        File[] files = null;
+        if (theRoot != null && theRoot.exists()) {
+            files = theRoot.listFiles((dir, fileName) -> fileName.endsWith(regExp) || fileName.matches(regExp));
+        }
+        List<File> filesFromDir = new ArrayList<>();
+        if (files != null) {
+            Collections.addAll(filesFromDir, files);
+        }
+        filesFromDir.sort((o1, o2) -> o1.getPath().compareTo(o2.getPath()));
+        return filesFromDir;
+    }
+
     /* CLAUDE_MODE
-     * Nicht portiert — folgen bei Bedarf:
-     *   public static void sendEmail(...)                 // SMTP-Versand
+     * Nicht portiert:
+     *   public static void sendEmail(...)
      *   public static Long extractCrefonummerFromString(...)
-     *   public static List<File> getFilesFromDir(...)
      *   public static void waitForFutureTasks(...)
-     *   ... (siehe Original testsupport_client.tesun_util.TesunUtilites)
      */
 }

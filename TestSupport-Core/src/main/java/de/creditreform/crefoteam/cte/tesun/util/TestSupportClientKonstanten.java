@@ -143,6 +143,9 @@ public interface TestSupportClientKonstanten {
         LOGIC_AND
     }
 
+    String CHECK_REF_EXPORTS_COMMAND = "UserTask CHECK-REF-EXPORTS";
+    String CHECK_COLLECTS_COMMAND = "UserTask CHECK-COLLECTS";
+
     String OPT_PATH_CRITERIA = "kriterien";
     String OPT_MUTABLE_TARGET_VC = "generatorTargetVC";
     String OPT_MUTABLE_NEXT_CREFO = "generatorNextCrefo";
