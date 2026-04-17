@@ -5,7 +5,12 @@ import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentProperties;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentPropertiesTupel;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.RelevanzDecisionMonitoring;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.KundenKonfig;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.KundenKonfigList;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigExportInfo;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigInfo;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunConfigUploadInfo;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunExportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunImportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunJobexecutionInfo;
@@ -339,17 +344,90 @@ public class TesunRestService {
     }
 
     // ========================================================================
-    // System Properties (Kunden-Konfiguration) — noch nicht vollstaendig portiert
+    // System Properties (Kunden-Konfiguration)
     // ========================================================================
 
-    public SystemInfo getSystemPropertiesInfo() {
-        // TODO!!! KundenKonfigList + TesunConfigInfo-Port ausstehend
-        return new SystemInfo(); // nur in demoMode, ansonsten ausimplementieren!
+    public KundenKonfigList getAllCustomerConfigs() throws IOException, InterruptedException {
+        String body = get("/cte_tesun_service/tesun/fachwertconfig/customerCfgs");
+        List<KundenKonfig> konfigs = new ArrayList<>();
+        for (String block : extractXmlBlocks(body, "konfigs")) {
+            KundenKonfig k = new KundenKonfig();
+            k.setKundenKuerzel(extractXmlTag(block, "kundenKuerzel"));
+            k.setPdversion(extractXmlTag(block, "pdversion"));
+            k.setProzessName(extractXmlTag(block, "prozessName"));
+            String dateStr = extractXmlTag(block, "aktualisierungsdatum");
+            if (dateStr != null) k.setAktualisierungsdatum(parseCal(dateStr));
+            konfigs.add(k);
+        }
+        return new KundenKonfigList(konfigs);
     }
 
-    public void extendTestCustomerProperiesInfos(de.creditreform.crefoteam.cte.tesun.util.TestCustomer testCustomer, SystemInfo systemInfo) {
-        // TODO!!! Portierung ausstehend — setzt exportUrl/uploadUrl/pdVersion aus Serverdaten
-        // nur in demoMode, ansonsten ausimplementieren!
+    public TesunConfigInfo getTesunConfigInfo() throws IOException, InterruptedException {
+        String body = get("/cte_tesun_service/tesun/configinfo");
+        TesunConfigInfo info = new TesunConfigInfo();
+        info.setUmgebungsKuerzel(extractXmlTag(body, "umgebungs-kuerzel"));
+        List<TesunConfigExportInfo> exports = new ArrayList<>();
+        for (String block : extractXmlBlocks(body, "export-pfade")) {
+            TesunConfigExportInfo e = new TesunConfigExportInfo();
+            e.setKundenKuerzel(extractXmlTag(block, "kunden-kuerzel"));
+            e.setRelativePath(extractXmlTag(block, "relative-path"));
+            exports.add(e);
+        }
+        info.setExportPfade(exports);
+        List<TesunConfigUploadInfo> uploads = new ArrayList<>();
+        for (String block : extractXmlBlocks(body, "upload-pfade")) {
+            TesunConfigUploadInfo u = new TesunConfigUploadInfo();
+            u.setKundenKuerzel(extractXmlTag(block, "kunden-kuerzel"));
+            u.setCompletePath(extractXmlTag(block, "complete-path"));
+            uploads.add(u);
+        }
+        info.setUploadPfade(uploads);
+        return info;
+    }
+
+    public List<CteEnvironmentPropertiesTupel> getEnvironmentPropertiesFiltered(
+            String filter, String scope, boolean withDbValues) throws IOException, InterruptedException {
+        StringBuilder path = new StringBuilder("/cte_tesun_service/tesun/environmentproperties?lfencoding=true");
+        if (filter != null && !filter.isEmpty()) {
+            path.append("&keyFilter=").append(encode(withDbValues ? filter + " -client" : filter));
+        }
+        if (scope != null && !scope.isEmpty()) {
+            path.append("&valueFilter=").append(encode(scope));
+        }
+        String body = get(path.toString());
+        List<CteEnvironmentPropertiesTupel> result = new ArrayList<>();
+        for (String block : extractXmlBlocks(body, "properties")) {
+            CteEnvironmentPropertiesTupel t = new CteEnvironmentPropertiesTupel();
+            t.setKey(extractXmlTag(block, "key"));
+            t.setValue(extractXmlTag(block, "value"));
+            result.add(t);
+        }
+        return result;
+    }
+
+    public SystemInfo getSystemPropertiesInfo() throws IOException, InterruptedException {
+        SystemInfo info = new SystemInfo();
+        info.setKundenKonfigList(getAllCustomerConfigs());
+        info.setTesunConfigInfo(getTesunConfigInfo());
+        info.setEnvPropsList(getEnvironmentPropertiesFiltered(".vc|.exportFormat|extra_xml", "", true));
+        return info;
+    }
+
+    public void extendTestCustomerProperiesInfos(de.creditreform.crefoteam.cte.tesun.util.TestCustomer tc,
+                                                 SystemInfo systemInfo) {
+        TesunConfigExportInfo exportInfo = systemInfo.findTesunConfigExportInfoForCustomer(tc);
+        if (exportInfo != null) tc.setExportUrl(exportInfo.getRelativePath());
+
+        TesunConfigUploadInfo uploadInfo = systemInfo.findTesunConfigUploadInfoForCustomer(tc);
+        if (uploadInfo != null) tc.setUploadUrl(uploadInfo.getCompletePath());
+
+        String prefix = tc.getCustomerPropertyPrefix();
+        tc.getPropertyPairsList().forEach(pair -> systemInfo.fillPropertyPairForCustomer(prefix, pair));
+
+        KundenKonfig kk = systemInfo.findFachwertconfigInfoForCustomer(tc);
+        tc.setFwAktualisierungsdatum(
+                de.creditreform.crefoteam.cte.tesun.util.TesunDateUtils.formatCalendar(kk.getAktualisierungsdatum()));
+        tc.setPdVersion(kk.getPdversion());
     }
 
     // ========================================================================
