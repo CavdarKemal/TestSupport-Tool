@@ -19,6 +19,7 @@ import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.UserTaskRunnable;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunSystemInfo;
 
 import java.awt.*;
 import java.io.File;
@@ -284,12 +285,18 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         new Thread(() -> {
             try {
                 notifyClientJob(Level.INFO, String.format("\nInitialisiere Test-Resourcen für die Umgebung %s...", getViewTestSupportMainControls().getSelectedEnvironmentName()));
-                /* CLAUDE_MODE
-                 * testSupportHelper = getTestSupportHelper();
-                 * TesunSystemInfo tesunSystemInfo = testSupportHelper.getTesunRestServiceWLS().getTesunSystemInfo();
-                 * String versionsInfoInTitle = String.format("[ %s ] - [ CTE-Version: %s ]", currentEnvironment.getAppVersionsInfo(), tesunSystemInfo.getCteVersion());
-                 * guiFrame.setVersionsInfoInTitle(versionsInfoInTitle);
-                 */
+                testSupportHelper = getTestSupportHelper();
+                if (!getViewTestSupportMainProcess().isDemoMode() && testSupportHelper != null
+                        && testSupportHelper.getTesunRestServiceWLS() != null) {
+                    try {
+                        TesunSystemInfo sysInfo = testSupportHelper.getTesunRestServiceWLS().getTesunSystemInfo();
+                        String versionsInfo = String.format("[ %s ] - [ CTE-Version: %s ]",
+                                currentEnvironment.getAppVersionsInfo(), sysInfo.getCteVersion());
+                        guiFrame.setVersionsInfoInTitle(versionsInfo);
+                    } catch (Exception ex) {
+                        notifyClientJob(Level.WARN, "\nSysteminfo nicht verfügbar: " + ex.getMessage());
+                    }
+                }
                 customerInitializer.initCustomers();
             } catch (Throwable ex) {
                 notifyClientJob(Level.ERROR, GUIStaticUtils.showExceptionMessage(TestSupportView.this, "Konfiguration laden", ex instanceof Exception ? (Exception) ex : new RuntimeException(ex)));

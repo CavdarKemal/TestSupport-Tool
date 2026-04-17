@@ -2,7 +2,11 @@ package de.creditreform.crefoteam.cte.testsupporttool.gui.utils;
 
 import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.rest.TesunRestService;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJob;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJobs;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.JobInfo;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import org.apache.commons.io.IOUtils;
@@ -16,6 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,13 +48,10 @@ import java.util.Map;
  */
 public class TestSupportHelper {
 
-    /* CLAUDE_MODE — original-Felder:
-    private final CteStateEngineService cteActivitiService;
-    private final TesunRestService tesunRestServiceWLS;
-    private final TesunRestService tesunRestServiceJvmImportC;
-    */
     private final TesunClientJobListener tesunClientJobListener;
     private final EnvironmentConfig environmentConfig;
+    private final TesunRestService tesunRestServiceWLS;
+    private final TesunRestService tesunRestServiceJvmImportC;
 
     public TestSupportHelper(EnvironmentConfig environmentConfig,
                              RestInvokerConfig masterConsoleRestInvokerConfig,
@@ -51,18 +59,34 @@ public class TestSupportHelper {
                              TesunClientJobListener tesunClientJobListener) {
         this.environmentConfig = environmentConfig;
         this.tesunClientJobListener = tesunClientJobListener;
-        /* CLAUDE_MODE
-        tesunRestServiceWLS = new TesunRestService(masterConsoleRestInvokerConfig, tesunClientJobListener);
-        tesunRestServiceJvmImportC = new TesunRestService(impCyleRestInvokerConfig, tesunClientJobListener);
-        */
+        this.tesunRestServiceWLS = masterConsoleRestInvokerConfig != null
+                ? new TesunRestService(masterConsoleRestInvokerConfig, tesunClientJobListener) : null;
+        this.tesunRestServiceJvmImportC = impCyleRestInvokerConfig != null
+                ? new TesunRestService(impCyleRestInvokerConfig, tesunClientJobListener) : null;
     }
 
     public void checkStartCoinditions(Map<String, TestCustomer> activeTestCustomersMap, boolean isDemoMode, boolean confirmDlg) {
         if (isDemoMode) {
             return;
         }
-        // Real-Mode: REST-Checks (checkRunningJobs + checkJvms) — folgen in Kategorie C
-        tesunClientJobListener.notifyClientJob(Level.INFO, "\nReal-Mode: Prozess-Start-Bedingungen werden noch nicht geprüft (REST-Port ausstehend).");
+        tesunClientJobListener.notifyClientJob(Level.INFO, "\nPrüfe die Prozess-Start-Bedingungen...");
+        try {
+            String errString = checkRunningJobs(activeTestCustomersMap);
+            if (!errString.isEmpty()) {
+                int confirmOpt = (int) tesunClientJobListener.askClientJob(TesunClientJobListener.ASK_FOR.ASK_OBJECT_RETRY, errString);
+                if (confirmOpt == 1) {
+                    throw new RuntimeException(errString);
+                }
+            }
+            errString = checkJvms(activeTestCustomersMap);
+            if (!errString.isEmpty()) {
+                throw new RuntimeException(errString);
+            }
+        } catch (RuntimeException re) {
+            throw re;
+        } catch (Exception ex) {
+            throw new RuntimeException("Fehler bei Prozess-Start-Bedingungsprüfung", ex);
+        }
     }
 
     public boolean killOrContinueRunningStateEngineProcess(String prozessKey, String prozessDefName, boolean confirmDlg) throws de.creditreform.crefoteam.cte.tesun.util.PropertiesException {
@@ -85,81 +109,69 @@ public class TestSupportHelper {
         return false;
     }
 
-    public String checkRunningJobs(Map<String, TestCustomer> activeTestCustomersMap) {
-        /* CLAUDE_MODE — Original nutzt TesunPendingJob[s] (XML-Binding):
+    public String checkRunningJobs(Map<String, TestCustomer> activeTestCustomersMap) throws Exception {
         tesunClientJobListener.notifyClientJob(Level.INFO, "\nPrüfe, ob Jobs aktiv sind...");
-        StringBuilder errStringBuilder = new StringBuilder();
-        StringBuilder jobsStringBuilder = new StringBuilder();
-        final RestInvokerConfig restServiceConfigTesun = environmentConfig.getRestServiceConfigsForMasterkonsole().get(0);
-        TesunRestService tesunRestService = new TesunRestService(restServiceConfigTesun, tesunClientJobListener);
-        TesunPendingJobs tesunPendingJobs = tesunRestService.getTesunPendingJobs();
-        List<TesunPendingJob> pendingJobsList = tesunPendingJobs.getJobs();
-        if (!pendingJobsList.isEmpty()) {
-            errStringBuilder.append("\nDer Test in der Umgebung '");
-            errStringBuilder.append(environmentConfig.getCurrentEnvName());
-            errStringBuilder.append("' kann nicht gestartet werden, solange noch JVM-Jobs aktiv sind!");
-            errStringBuilder.append("\nEs sind derzeit folgende JVM-Jobs aktiv:");
-            for (TesunPendingJob tesunPendingJob : pendingJobsList) {
-                String theKey = tesunPendingJob.getProzessIdentifier().replace("EXPORT_CTE_TO_", "");
-                if (activeTestCustomersMap.containsKey(theKey)) {
-                    jobsStringBuilder.append("\n\t");
-                    jobsStringBuilder.append(tesunPendingJob.getProzessIdentifier());
-                    jobsStringBuilder.append(" mit ");
-                    jobsStringBuilder.append(tesunPendingJob.getAnzahlTodoBloecke());
-                    jobsStringBuilder.append(" Blöcken\n");
+        StringBuilder errSb = new StringBuilder();
+        StringBuilder jobsSb = new StringBuilder();
+        TesunPendingJobs pending = tesunRestServiceWLS.getTesunPendingJobs();
+        List<TesunPendingJob> pendingList = pending.getJobs();
+        if (!pendingList.isEmpty()) {
+            errSb.append("\nDer Test in der Umgebung '").append(environmentConfig.getCurrentEnvName())
+                 .append("' kann nicht gestartet werden, solange noch JVM-Jobs aktiv sind!")
+                 .append("\nEs sind derzeit folgende JVM-Jobs aktiv:");
+            for (TesunPendingJob job : pendingList) {
+                String key = job.getProzessIdentifier().replace("EXPORT_CTE_TO_", "");
+                if (activeTestCustomersMap.containsKey(key)) {
+                    jobsSb.append("\n\t").append(job.getProzessIdentifier())
+                          .append(" mit ").append(job.getAnzahlTodoBloecke()).append(" Blöcken\n");
                 }
             }
-            if (!jobsStringBuilder.toString().isEmpty()) {
-                errStringBuilder.append(jobsStringBuilder);
-                errStringBuilder.append("\nSoll der Test dennoch gestartet werden?");
+            if (!jobsSb.toString().isEmpty()) {
+                errSb.append(jobsSb).append("\nSoll der Test dennoch gestartet werden?");
             }
         }
-        return jobsStringBuilder.toString().isEmpty() ? "" : errStringBuilder.toString();
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: TesunPendingJob[s]-XML-Binding im Spike nicht portiert.");
+        return jobsSb.toString().isEmpty() ? "" : errSb.toString();
     }
 
-    public String checkJvms(Map<String, TestCustomer> activeTestCustomersMap) {
-        /* CLAUDE_MODE — Original nutzt Apache4-RestInvokerFactory:
+    public String checkJvms(Map<String, TestCustomer> activeTestCustomersMap) throws Exception {
         tesunClientJobListener.notifyClientJob(Level.INFO, "\nPrüfe, ob alle JVM's erreichbar sind...");
-        TesunRestService tesunRestServiceCteBatchGUI = new TesunRestService(environmentConfig.getRestServiceConfigsForBatchGUI().get(0), tesunClientJobListener);
-        Map<String, String> jvmInstallationMap = tesunRestServiceCteBatchGUI.getJvmInstallationMap();
+        TesunRestService batchGuiService = new TesunRestService(
+                environmentConfig.getRestServiceConfigsForBatchGUI().get(0), tesunClientJobListener);
+        Map<String, String> jvmInstallationMap = batchGuiService.getJvmInstallationMap();
         JobInfo jobInfoForImportCycle = environmentConfig.getJobInfoForImportCycle();
 
-        StringBuilder errStringBuilder = new StringBuilder();
-        List<String> notReachableJvmsList = new ArrayList<>();
-        RestInvokerConfig restServiceConfigTesun = environmentConfig.getRestServiceConfigsForMasterkonsole().get(0);
-        RestInvokerFactory restInvokerFactory = new Apache4RestInvokerFactory(restServiceConfigTesun.getServiceUser(), restServiceConfigTesun.getServicePassword(), 10000);
+        HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        List<String> notReachable = new ArrayList<>();
         for (Map.Entry<String, String> entry : jvmInstallationMap.entrySet()) {
-            if (activeTestCustomersMap.containsKey(entry.getKey()) || jobInfoForImportCycle.getJvmName().equals(entry.getKey())) {
-                try {
-                    RestInvoker restInvoker = restInvokerFactory.getRestInvoker(entry.getValue());
-                    restInvoker.appendPath("/jvm-info/maven-modules");
-                    RestInvokerResponse restInvokerResponse = restInvoker.invokeGetWithRetry(null, 10, 5000L).expectStatusOK();
-                    String responseBody = restInvokerResponse.getResponseBody();
-                    String s1 = "<maven-module-list";
-                    if (!responseBody.contains(s1)) {
-                        throw new RuntimeException("getMavenModulesForJvm() : Response enthält nicht: " + s1);
-                    }
-                    String s2 = "<java-client-id>" + entry.getKey().toLowerCase().substring(0, 3) + "</java-client-id>";
-                    if (!responseBody.contains(s2)) {
-                        throw new RuntimeException("getMavenModulesForJvm() : Response enthält nicht: " + s2);
-                    }
-                    tesunClientJobListener.notifyClientJob(Level.INFO, String.format("\n\tJVM '%s' mit der URL '%s' ist erreichbar.", entry.getKey(), entry.getValue()));
-                } catch (Exception ex) {
-                    notReachableJvmsList.add(entry.getKey());
-                } finally {
-                    restInvokerFactory.close();
+            String jvmName = entry.getKey();
+            String jvmUrl  = entry.getValue();
+            if (!activeTestCustomersMap.containsKey(jvmName) && !jobInfoForImportCycle.getJvmName().equals(jvmName)) {
+                continue;
+            }
+            try {
+                HttpRequest req = HttpRequest.newBuilder()
+                        .uri(URI.create(jvmUrl + "/jvm-info/maven-modules"))
+                        .timeout(Duration.ofSeconds(10)).GET().build();
+                HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+                String body = resp.body() == null ? "" : resp.body();
+                if (!body.contains("<maven-module-list")) {
+                    throw new RuntimeException("Response enthält nicht: <maven-module-list");
                 }
+                String expectedId = "<java-client-id>" + jvmName.toLowerCase().substring(0, 3) + "</java-client-id>";
+                if (!body.contains(expectedId)) {
+                    throw new RuntimeException("Response enthält nicht: " + expectedId);
+                }
+                tesunClientJobListener.notifyClientJob(Level.INFO,
+                        String.format("\n\tJVM '%s' (%s) ist erreichbar.", jvmName, jvmUrl));
+            } catch (Exception ex) {
+                notReachable.add(jvmName);
             }
         }
-        if (!notReachableJvmsList.isEmpty()) {
-            errStringBuilder.append(String.format("\nFolgende JVM's konnten in der Umgebung '%s' nicht angesprochen werden!\n", environmentConfig.getCurrentEnvName()));
-            errStringBuilder.append(notReachableJvmsList);
+        if (!notReachable.isEmpty()) {
+            return String.format("\nFolgende JVM's in '%s' nicht erreichbar: %s",
+                    environmentConfig.getCurrentEnvName(), notReachable);
         }
-        return errStringBuilder.toString();
-        */
-        throw new UnsupportedOperationException("CLAUDE_MODE: Apache4-RestInvoker im Spike nicht portiert.");
+        return "";
     }
 
     public Dimension getScaledDimension(JLabel jLabel, BufferedImage lastProcessImage) {
@@ -192,10 +204,8 @@ public class TestSupportHelper {
         return lastProcessImage;
     }
 
-    public Object getTesunRestServiceWLS() {
-        /* CLAUDE_MODE: Original liefert die im Konstruktor gebaute TesunRestService —
-           im Stub nicht instantiert. */
-        return null;
+    public TesunRestService getTesunRestServiceWLS() {
+        return tesunRestServiceWLS;
     }
 
 }

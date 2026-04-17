@@ -5,9 +5,13 @@ import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentProperties;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.CteEnvironmentPropertiesTupel;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.RelevanzDecisionMonitoring;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunExportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunImportTrackingErgebnis;
 import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunJobexecutionInfo;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJob;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunPendingJobs;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.TesunSystemInfo;
 import de.creditreform.crefoteam.cte.tesun.rest.inso.TesunInsoAktuellerStand;
 import de.creditreform.crefoteam.cte.tesun.rest.inso.XmlKunde;
 import de.creditreform.crefoteam.cte.tesun.util.TestCrefo;
@@ -304,5 +308,76 @@ public class TesunRestService {
     /** Legacy-Alias für die alte Methode {@code getJobExecutionInfo}. */
     public TesunJobexecutionInfo getJobExecutionInfo(String processIdentifier) throws IOException, InterruptedException {
         return getTesunJobExecutionInfo(processIdentifier);
+    }
+
+    // ========================================================================
+    // Pending Jobs
+    // ========================================================================
+
+    public TesunPendingJobs getTesunPendingJobs() throws IOException, InterruptedException {
+        String body = get("/cte_tesun_service/tesun/jobs/pending");
+        List<TesunPendingJob> jobs = new ArrayList<>();
+        for (String block : extractXmlBlocks(body, "job")) {
+            String id  = extractXmlTag(block, "prozess-identifier");
+            String cnt = extractXmlTag(block, "anzahl-todo-bloecke");
+            String key = extractXmlTag(block, "infokey-start");
+            if (id != null) {
+                jobs.add(new TesunPendingJob(id, cnt == null ? 0 : Integer.parseInt(cnt.trim()), key));
+            }
+        }
+        return new TesunPendingJobs(jobs);
+    }
+
+    // ========================================================================
+    // System Info
+    // ========================================================================
+
+    public TesunSystemInfo getTesunSystemInfo() throws IOException, InterruptedException {
+        String body = get("/cte_tesun_service/tesun/systeminfo");
+        String version = extractXmlTag(body, "cte-version");
+        return new TesunSystemInfo(version != null ? version : "unbekannt");
+    }
+
+    // ========================================================================
+    // System Properties (Kunden-Konfiguration) — noch nicht vollstaendig portiert
+    // ========================================================================
+
+    public SystemInfo getSystemPropertiesInfo() {
+        // KundenKonfigList + TesunConfigInfo-Port ausstehend
+        return new SystemInfo();
+    }
+
+    public void extendTestCustomerProperiesInfos(de.creditreform.crefoteam.cte.tesun.util.TestCustomer testCustomer, SystemInfo systemInfo) {
+        // Portierung ausstehend — setzt exportUrl/uploadUrl/pdVersion aus Serverdaten
+    }
+
+    // ========================================================================
+    // XML-Hilfsroutinen
+    // ========================================================================
+
+    private static String extractXmlTag(String xml, String tag) {
+        String open  = "<"  + tag + ">";
+        String close = "</" + tag + ">";
+        int s = xml.indexOf(open);
+        if (s < 0) return null;
+        int e = xml.indexOf(close, s);
+        if (e < 0) return null;
+        return xml.substring(s + open.length(), e).trim();
+    }
+
+    private static List<String> extractXmlBlocks(String xml, String tag) {
+        List<String> blocks = new ArrayList<>();
+        String open  = "<"  + tag + ">";
+        String close = "</" + tag + ">";
+        int pos = 0;
+        while (true) {
+            int s = xml.indexOf(open, pos);
+            if (s < 0) break;
+            int e = xml.indexOf(close, s);
+            if (e < 0) break;
+            blocks.add(xml.substring(s + open.length(), e));
+            pos = e + close.length();
+        }
+        return blocks;
     }
 }

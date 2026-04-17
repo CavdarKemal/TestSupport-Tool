@@ -2,6 +2,8 @@ package de.creditreform.crefoteam.cte.testsupporttool.gui.view;
 
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIStaticUtils;
 import de.creditreform.crefoteam.cte.testsupporttool.util.CustomerUtils;
+import de.creditreform.crefoteam.cte.tesun.rest.TesunRestService;
+import de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo;
 import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 
@@ -64,11 +66,18 @@ class CustomerInitializer {
     void initTestCasesForCustomers() throws Exception {
         view.notifyClientJob(Level.INFO, "\n\tLese die Test-Crefos-Konfiguration aus dem ITSQ-Verzeichnis...");
         Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> customerTestInfoMapMap = view.currentEnvironment.getCustomerTestInfoMapMap();
+        boolean isDemoMode = view.getViewTestSupportMainProcess().isDemoMode();
         view.notifyClientJob(Level.INFO, "\n\tErmittle TesunConfigInfo für die Kunden...");
-        /* CLAUDE_MODE
-         * TesunRestService tesunRestServiceWLS = view.testSupportHelper.getTesunRestServiceWLS();
-         * SystemInfo systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
-         */
+        TesunRestService tesunRestServiceWLS = null;
+        SystemInfo systemInfo = null;
+        if (!isDemoMode && view.testSupportHelper != null) {
+            tesunRestServiceWLS = view.testSupportHelper.getTesunRestServiceWLS();
+            if (tesunRestServiceWLS != null) {
+                systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
+            }
+        }
+        final TesunRestService restService = tesunRestServiceWLS;
+        final SystemInfo sysInfo = systemInfo;
         view.notifyClientJob(Level.INFO, "\n\tErmittle KundenKonfigList für die Kunden...");
         for (TestSupportClientKonstanten.TEST_PHASE testPhase : customerTestInfoMapMap.keySet()) {
             Map<String, TestCustomer> testCustomerMap = customerTestInfoMapMap.get(testPhase);
@@ -77,9 +86,9 @@ class CustomerInitializer {
                 try {
                     TestCustomer testCustomer = testCustomerEntry.getValue();
                     view.notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle des Kunden für " + testCustomer.getCustomerName() + " aus " + testPhase);
-                    /* CLAUDE_MODE
-                     * tesunRestServiceWLS.extendTestCustomerProperiesInfos(testCustomer, systemInfo);
-                     */
+                    if (!isDemoMode && restService != null && sysInfo != null) {
+                        restService.extendTestCustomerProperiesInfos(testCustomer, sysInfo);
+                    }
                 } catch (Exception ex) {
                     view.notifyClientJob(Level.ERROR, GUIStaticUtils.showExceptionMessage(view, "Konfiguration vervollständigen", ex));
                 }

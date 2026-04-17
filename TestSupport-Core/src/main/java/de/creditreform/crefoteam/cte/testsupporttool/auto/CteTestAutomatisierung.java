@@ -35,6 +35,7 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
     public static final String TIMELINE_LOG_FILE = "TimeLine.log";
 
     private final EnvironmentConfig environmentConfig;
+    private boolean isDemoMode = true; // sicherer Default für Init-Phase
     private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> testCustomerMapMap;
     /** Länge des über alle Phasen aggregierten TestResults-Dumps aus dem letzten Lauf. */
     private int lastResultsBodyLength;
@@ -81,10 +82,20 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
         notifyClientJob(Level.INFO, "\n\tLese die Test-Crefos-Konfiguration aus dem ITSQ-Verzeichnis...");
         this.testCustomerMapMap = environmentConfig.getCustomerTestInfoMapMap();
         notifyClientJob(Level.INFO, "\n\tErmittle TesunConfigInfo für die Kunden...");
-/* CLAUDE_MODE
-        TesunRestService tesunRestServiceWLS = getTestSupportHelper().getTesunRestServiceWLS();
-        SystemInfo systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
-*/
+        de.creditreform.crefoteam.cte.tesun.rest.TesunRestService tesunRestServiceWLS = null;
+        de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo systemInfo = null;
+        if (!isDemoMode) {
+            try {
+                de.creditreform.crefoteam.cte.rest.RestInvokerConfig cfg =
+                        environmentConfig.getRestServiceConfigsForMasterkonsole().get(0);
+                tesunRestServiceWLS = new de.creditreform.crefoteam.cte.tesun.rest.TesunRestService(cfg, this);
+                systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
+            } catch (Exception ex) {
+                notifyClientJob(Level.WARN, "\nSysteminfo nicht verfügbar: " + ex.getMessage());
+            }
+        }
+        final de.creditreform.crefoteam.cte.tesun.rest.TesunRestService restSvc = tesunRestServiceWLS;
+        final de.creditreform.crefoteam.cte.tesun.rest.dto.SystemInfo sysInfo = systemInfo;
         notifyClientJob(Level.INFO, "\n\tErmittle KundenKonfigList für die Kunden...");
         for (TestSupportClientKonstanten.TEST_PHASE testPhase : testCustomerMapMap.keySet()) {
             Map<String, TestCustomer> testCustomerMap = testCustomerMapMap.get(testPhase);
@@ -93,9 +104,9 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
                 try {
                     TestCustomer testCustomer = testCustomerEntry.getValue();
                     notifyClientJob(Level.INFO, "\n\t\tInitialisiere Testfälle des Kunden für " + testCustomer.getCustomerName() + " aus " + testPhase);
-/* CLAUDE_MODE
-                    tesunRestServiceWLS.extendTestCustomerProperiesInfos(testCustomer, systemInfo);
-*/
+                    if (!isDemoMode && restSvc != null && sysInfo != null) {
+                        restSvc.extendTestCustomerProperiesInfos(testCustomer, sysInfo);
+                    }
                 } catch (Exception ex) {
                     notifyClientJob(Level.ERROR, ex.toString());
                 }
@@ -105,6 +116,12 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
     }
 
      public ProcessOutcome startProcess(boolean isDemoMode) throws PropertiesException {
+        this.isDemoMode = isDemoMode;
+        try {
+            initTestCasesForCustomers(); // mit korrektem isDemoMode re-initialisieren (REST im Real-Mode)
+        } catch (Exception ex) {
+            notifyClientJob(Level.ERROR, "Fehler beim Re-Initialisieren der Kunden: " + ex.getMessage());
+        }
         try (TimelineLogger.Action overall = TimelineLogger.action("CteAutomatedTestProcess", environmentConfig.getCurrentEnvName())) {
             CteAutomatedTestProcess.Assembly assembly = CteAutomatedTestProcess.build(environmentConfig, this);
             Map<String, Object> taskVariablesMap = buildTaskVariablesMap(
