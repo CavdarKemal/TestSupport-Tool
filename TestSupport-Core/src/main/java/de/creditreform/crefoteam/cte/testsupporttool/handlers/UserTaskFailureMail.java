@@ -4,6 +4,7 @@ import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractUserTaskRunnable;
+import de.creditreform.crefoteam.cte.tesun.util.TesunUtilites;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import org.apache.log4j.Level;
 
@@ -33,12 +34,13 @@ public class UserTaskFailureMail extends AbstractUserTaskRunnable {
         try {
             String subject = "CTE Test-Automatisierung: " + environmentConfig.getCurrentEnvName();
             String content = "Fehler beim Ausführen des Test-Automatisierungs-Prozesses!";
-            TimelineLogger.warn(getClass(),
-                    "[Mail-Stub: subject='{}', from='{}', to='{}', content='{}']",
-                    subject, environmentConfig.getStateEngineEmailFrom(),
-                    environmentConfig.getStateEngineFailureEmailTo(), content);
+            String from = environmentConfig.getStateEngineEmailFrom();
+            String to   = environmentConfig.getStateEngineFailureEmailTo();
+            TimelineLogger.warn(getClass(), "Sende Fehler-Mail: subject='{}', from='{}', to='{}'", subject, from, to);
+            TesunUtilites.sendEmail(environmentConfig.getSmtpHost(), environmentConfig.getSmtpPort(),
+                    from, to, subject, content, null);
         } catch (Exception ex) {
-            notifyUserTask(Level.WARN, "\nWARNING: Mail-Stub fehlgeschlagen: " + ex.getMessage());
+            notifyUserTask(Level.WARN, "\nWARNING: Fehler-Mail fehlgeschlagen: " + ex.getMessage());
         }
         return taskVariablesMap;
     }

@@ -343,12 +343,13 @@ public class TesunRestService {
     // ========================================================================
 
     public SystemInfo getSystemPropertiesInfo() {
-        // KundenKonfigList + TesunConfigInfo-Port ausstehend
-        return new SystemInfo();
+        // TODO!!! KundenKonfigList + TesunConfigInfo-Port ausstehend
+        return new SystemInfo(); // nur in demoMode, ansonsten ausimplementieren!
     }
 
     public void extendTestCustomerProperiesInfos(de.creditreform.crefoteam.cte.tesun.util.TestCustomer testCustomer, SystemInfo systemInfo) {
-        // Portierung ausstehend — setzt exportUrl/uploadUrl/pdVersion aus Serverdaten
+        // TODO!!! Portierung ausstehend — setzt exportUrl/uploadUrl/pdVersion aus Serverdaten
+        // nur in demoMode, ansonsten ausimplementieren!
     }
 
     // ========================================================================

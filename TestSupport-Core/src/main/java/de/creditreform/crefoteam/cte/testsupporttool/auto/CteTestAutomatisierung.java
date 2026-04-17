@@ -89,7 +89,7 @@ public final class CteTestAutomatisierung implements TesunClientJobListener {
                 de.creditreform.crefoteam.cte.rest.RestInvokerConfig cfg =
                         environmentConfig.getRestServiceConfigsForMasterkonsole().get(0);
                 tesunRestServiceWLS = new de.creditreform.crefoteam.cte.tesun.rest.TesunRestService(cfg, this);
-                systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo();
+                systemInfo = tesunRestServiceWLS.getSystemPropertiesInfo(); // nur in RealMode (!demoMode)
             } catch (Exception ex) {
                 notifyClientJob(Level.WARN, "\nSysteminfo nicht verfügbar: " + ex.getMessage());
             }

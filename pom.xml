@@ -33,6 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <statemachine.version>1.0.0-SNAPSHOT</statemachine.version>
+        <commons-email.version>1.5</commons-email.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <commons-io.version>2.15.1</commons-io.version>
@@ -70,6 +71,11 @@
                 <groupId>de.creditreform.crefoteam.cte</groupId>
                 <artifactId>testsupport-statemachine</artifactId>
                 <version>${statemachine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.creditreform.crefoteam.cte</groupId>

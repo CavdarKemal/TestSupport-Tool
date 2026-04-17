@@ -1,5 +1,7 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.MultiPartEmail;
 import org.w3c.dom.Document;
 
 import java.io.PrintWriter;
@@ -132,10 +134,21 @@ public final class TesunUtilites {
         return stringWriter.toString();
     }
 
-    /* CLAUDE_MODE
-     * Nicht portiert:
-     *   public static void sendEmail(...)
-     *   public static Long extractCrefonummerFromString(...)
-     *   public static void waitForFutureTasks(...)
-     */
+    public static void sendEmail(String smtpHost, int smtpPort, String emailFrom, String emailTo,
+                                 String emailSubject, String emailContent, String attachmentFileName)
+            throws EmailException {
+        MultiPartEmail email = new MultiPartEmail();
+        email.setHostName(smtpHost);
+        email.setSmtpPort(smtpPort);
+        email.setFrom(emailFrom);
+        for (String rcv : emailTo.split("[,;]")) {
+            String trimmed = rcv.trim();
+            if (!trimmed.isEmpty()) {
+                email.addTo(trimmed);
+            }
+        }
+        email.setSubject(emailSubject);
+        email.setMsg(emailContent.isBlank() ? "(kein Inhalt)" : emailContent);
+        email.send();
+    }
 }
