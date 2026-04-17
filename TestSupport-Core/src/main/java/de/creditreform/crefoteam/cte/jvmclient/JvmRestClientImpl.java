@@ -2,6 +2,7 @@ package de.creditreform.crefoteam.cte.jvmclient;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -60,6 +61,30 @@ public final class JvmRestClientImpl implements JvmRestClient {
         jsr.setId(extract(response.body(), "id"));
         jsr.setJobId(extract(response.body(), "jobId"));
         return jsr;
+    }
+
+    @Override
+    public List<JvmJobInfo> readJvmJobInfos(String jvmName) throws IOException, InterruptedException {
+        return new java.util.ArrayList<>();
+    }
+
+    @Override
+    public List<JvmJobExecutionInfo> readJobExecutions(String jobName) throws IOException, InterruptedException {
+        return new java.util.ArrayList<>();
+    }
+
+    @Override
+    public void abortJob(String jobName, String jobId) throws IOException, InterruptedException {
+        // Stub: no-op
+    }
+
+    @Override
+    public JobStatusResponse getJobStatus(String jobName, String processId) throws IOException, InterruptedException {
+        JobStatusResponse response = new JobStatusResponse();
+        response.setRunning("false");
+        response.setStatus("COMPLETED");
+        response.setExitCode("COMPLETED");
+        return response;
     }
 
     public boolean isAborted() { return abortFlag != null && abortFlag.get(); }

@@ -1,6 +1,7 @@
 package de.creditreform.crefoteam.cte.testsupporttool.gui.view;
 
 import de.creditreform.crefoteam.cte.rest.RestInvokerConfig;
+import de.creditreform.crefoteam.cte.testsupporttool.gui.jvm.ManageJvmsDlgView;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.design.TestSupportPanel;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.model.TestJobsComboBoxItem;
@@ -55,6 +56,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
     private static final String APP_TITLE = "CTE-Testautomatisierung";
     private static final int MAIN_DIVIDER_POSITION = 500;
     private static final int EXIT_CODE_CONFIG_MISSING = -1;
+    private static final int JVM_DIALOG_OPEN_DELAY_MS = 1000;
 
     private ProcessController processController;
     List<JComponent> componentsToOnOff;
@@ -306,18 +308,11 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
     }
 
     private void doManageJVMs() {
-        /* CLAUDE_MODE
-         * Original:
-         * GUIStaticUtils.setWaitCursor(this, true);
-         * ManageJvmsDlg manageJvmsDialog = new ManageJvmsDlgView(GUIStaticUtils.getParentFrame(this), "Verfügbare JVMs und Jobs", currentEnvironment);
-         * GUIStaticUtils.warteBisken(JVM_DIALOG_OPEN_DELAY_MS);
-         * manageJvmsDialog.setVisible(true);
-         * GUIStaticUtils.setWaitCursor(this, false);
-         * ManageJVM-Dialog wird in Phase J nachgezogen.
-         */
-        JOptionPane.showMessageDialog(this,
-                "JVM-Verwaltung ist im Tool-Modus noch nicht portiert (Phase J).",
-                "Nicht verfügbar", JOptionPane.INFORMATION_MESSAGE);
+        GUIStaticUtils.setWaitCursor(this, true);
+        ManageJvmsDlgView manageJvmsDialog = new ManageJvmsDlgView(GUIStaticUtils.getParentFrame(this), "Verfügbare JVMs und Jobs", currentEnvironment);
+        GUIStaticUtils.warteBisken(JVM_DIALOG_OPEN_DELAY_MS);
+        manageJvmsDialog.setVisible(true);
+        GUIStaticUtils.setWaitCursor(this, false);
     }
 
     private Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> getAndCheckActiveCustomers() {
