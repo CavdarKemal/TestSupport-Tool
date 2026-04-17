@@ -9,6 +9,7 @@ import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
 import de.creditreform.crefoteam.cte.testsupporttool.ConsoleProcessListener;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
+import de.creditreform.crefoteam.cte.testsupporttool.process.PhaseTrackingListener;
 import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeMarker;
 import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeState;
 import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeStateWriter;
@@ -98,6 +99,11 @@ public final class ProcessController {
 
     private ProcessListener buildEngineListener(CteAutomatedTestProcess.Assembly assembly, File resumeFile) {
         ConsoleProcessListener consoleListener = new ConsoleProcessListener();
+        // PhaseTracking muss VOR allem anderen laufen, damit die TEST_PHASE-
+        // Variable korrekt gesetzt ist, bevor der erste Handler sie fuer
+        // buildNotifyStringForClassName() liest oder der ResumeStateWriter
+        // sie fuer den Snapshot persistiert.
+        PhaseTrackingListener phaseTracker = new PhaseTrackingListener(assembly.phase1(), assembly.phase2());
         ProcessListener resumeWriter = resumeFile != null ? new ResumeStateWriter(resumeFile) : null;
         try {
             DiagramImageListener images = DiagramImageListener.builder()
@@ -110,13 +116,13 @@ public final class ProcessController {
                     .onImage(png -> listener.notifyClientJob(Level.INFO, new ByteArrayInputStream(png)))
                     .forProcess(assembly.definition());
             return resumeWriter != null
-                    ? ProcessListener.compose(consoleListener, images, resumeWriter)
-                    : ProcessListener.compose(consoleListener, images);
+                    ? ProcessListener.compose(phaseTracker, consoleListener, images, resumeWriter)
+                    : ProcessListener.compose(phaseTracker, consoleListener, images);
         } catch (Exception ex) {
             listener.notifyClientJob(Level.WARN, "Prozess-Diagramm deaktiviert (Template nicht ladbar): " + ex.getMessage());
             return resumeWriter != null
-                    ? ProcessListener.compose(consoleListener, resumeWriter)
-                    : consoleListener;
+                    ? ProcessListener.compose(phaseTracker, consoleListener, resumeWriter)
+                    : ProcessListener.compose(phaseTracker, consoleListener);
         }
     }
 }

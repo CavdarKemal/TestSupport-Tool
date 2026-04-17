@@ -99,17 +99,66 @@ class ProcessControllerResumeTest {
         ProcessOutcome outcome = controller.runProcess(env, vars, null);
 
         assertThat(outcome).isEqualTo(ProcessOutcome.COMPLETED);
-        // StartUploads laeuft je einmal in Phase-1 und Phase-2 → mindestens
-        // 2 Vorkommen. (Phase-Label im String bleibt "PHASE_1", da die
-        // TEST_PHASE-Variable nicht pro SubProcess umgesetzt wird.)
+        // StartUploads laeuft je einmal in Phase-1 und Phase-2 → 2 Vorkommen,
+        // jeweils mit dem korrekten Phase-Label (via PhaseTrackingListener).
         assertThat(listener.joined())
                 .contains("@UserTaskPrepareTestSystem")
                 .contains("@UserTaskGeneratePseudoCrefos")
-                .contains("@UserTaskStartUploads")
+                .contains("@UserTaskStartUploads für PHASE_1")
+                .contains("@UserTaskStartUploads für PHASE_2")
                 .contains("@UserTaskSuccessMail")
                 .doesNotContain("→ Resume erreicht");
         long startUploadsCount = countOccurrences(listener.joined(), "@UserTaskStartUploads");
         assertThat(startUploadsCount).isEqualTo(2L);
+    }
+
+    @Test
+    void phaseTracking_updatesTestPhaseVariable_atSubProcessEntry() throws Exception {
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
+        runner = new CteTestAutomatisierung(env);
+        MessageCollector listener = new MessageCollector();
+
+        ProcessController controller = new ProcessController(listener);
+        Map<String, Object> vars = runner.buildTaskVariablesMap(
+                true,
+                runner.getTestCustomerMapMap(),
+                TestSupportClientKonstanten.TEST_TYPES.PHASE1_AND_PHASE2,
+                TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
+                true, false);
+
+        controller.runProcess(env, vars, null);
+        // Jeder Sub-Step muss unter dem richtigen Phase-Label erscheinen —
+        // nicht alle mit PHASE_1.
+        String console = listener.joined();
+        assertThat(console).contains("@UserTaskWaitForBeteiligtenImport für PHASE_1");
+        assertThat(console).contains("@UserTaskWaitForBeteiligtenImport für PHASE_2");
+        assertThat(console).contains("@UserTaskCheckSftpUploads für PHASE_1");
+        assertThat(console).contains("@UserTaskCheckSftpUploads für PHASE_2");
+    }
+
+    @Test
+    void phaseTracking_resumeSnapshotRecordsCorrectPhase() throws Exception {
+        EnvironmentConfig env = new EnvironmentConfig("ENE");
+        runner = new CteTestAutomatisierung(env);
+        File resumeFile = new File(env.getTestOutputsRoot(), ResumeState.FILE_NAME);
+
+        // Abbruch in Phase-2 — der Listener muss PHASE_2 in den Snapshot schreiben.
+        CancelWhenPhase2Listener listener = new CancelWhenPhase2Listener();
+        ProcessController controller = new ProcessController(listener);
+        listener.controller = controller;
+
+        Map<String, Object> vars = runner.buildTaskVariablesMap(
+                true,
+                runner.getTestCustomerMapMap(),
+                TestSupportClientKonstanten.TEST_TYPES.PHASE1_AND_PHASE2,
+                TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
+                true, false);
+
+        controller.runProcess(env, vars, null);
+        assertThat(resumeFile).exists();
+        ResumeState state = ResumeState.load(resumeFile);
+        assertThat(state).isNotNull();
+        assertThat(state.testPhase()).isEqualTo("PHASE_2");
     }
 
     @Test
@@ -184,6 +233,18 @@ class ProcessControllerResumeTest {
         boolean cancelled;
         @Override public void notifyClientJob(Level level, Object notifyObject) {
             if (!cancelled && notifyObject instanceof String && notifyObject.toString().contains("@UserTask")) {
+                cancelled = true;
+                controller.stop();
+            }
+        }
+        @Override public Object askClientJob(ASK_FOR askFor, Object userObject) { return Boolean.FALSE; }
+    }
+
+    private static class CancelWhenPhase2Listener implements TesunClientJobListener {
+        ProcessController controller;
+        boolean cancelled;
+        @Override public void notifyClientJob(Level level, Object notifyObject) {
+            if (!cancelled && notifyObject instanceof String && notifyObject.toString().contains("für PHASE_2")) {
                 cancelled = true;
                 controller.stop();
             }
