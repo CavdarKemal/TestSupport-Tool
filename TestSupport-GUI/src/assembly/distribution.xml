@@ -14,13 +14,21 @@
     </dependencySets>
 
     <fileSets>
+        <!-- ABE/ENE/GEE-config.properties liegen im GUI-Modul selbst. -->
         <fileSet>
-            <!-- Configs + log4j leben im Parent-Root, nicht im Core-Modul. -->
-            <directory>${project.basedir}/..</directory>
+            <directory>${project.basedir}</directory>
             <includes>
                 <include>ABE-config.properties</include>
                 <include>ENE-config.properties</include>
                 <include>GEE-config.properties</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+
+        <!-- log4j.properties liegt im Parent-Root. -->
+        <fileSet>
+            <directory>${project.basedir}/..</directory>
+            <includes>
                 <include>log4j.properties</include>
             </includes>
             <outputDirectory>/</outputDirectory>
