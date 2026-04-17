@@ -68,8 +68,8 @@ public class TestSupportMainProcessView extends TestSupportMainProcessPanel {
         getRadioButtonExportFormatNewest().setVisible(false);
         getRadioButtonExportFormatLikePRE().setVisible(false);
 
-        getCheckBoxDemoMode().setSelected(true);  // CLAUDE_MODE
-        getCheckBoxDemoMode().setEnabled(false);  // CLAUDE_MODE
+        getCheckBoxDemoMode().setSelected(false);
+        getCheckBoxDemoMode().setEnabled(true);
 
         getCheckBoxUseOnlyTestCLZs().setSelected(currentEnvironment.isLastUseOnlyTestClz());
         getCheckBoxUploadSynthetics().setSelected(currentEnvironment.isLastUploadSynthetics());

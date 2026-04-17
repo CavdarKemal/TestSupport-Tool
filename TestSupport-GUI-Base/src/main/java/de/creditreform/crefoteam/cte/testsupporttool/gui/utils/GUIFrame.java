@@ -102,23 +102,7 @@ public abstract class GUIFrame extends JFrame implements ActionListener {
      * {@code META-INF/buildinfo/.../buildinfo.properties} liest.
      */
     public static String getVersionFromPOM() {
-        /* CLAUDE_MODE
-        MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
-        String version = null;
-        try {
-            Model model = mavenXpp3Reader.read(new FileReader("pomx.xml"));
-            Parent parent = null;
-            version = model.getVersion();
-            while (version == null) {
-                parent = model.getParent();
-                version = parent.getVersion();
-            }
-            return "POM:" + version;
-        } catch (Exception ex) {
-            return null;
-        }
-        */
-        return null;
+        return new de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig((String) null).getVersionFromBuildInfo();
     }
 
     public JRadioButtonMenuItem createToLookAndFeelMenu(final UIManager.LookAndFeelInfo lookAndFeelInfo) {
