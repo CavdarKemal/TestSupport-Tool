@@ -155,9 +155,9 @@ public class TestSupportMainProcessPanel extends JPanel {
 
         //======== this ========
         setLayout(new GridBagLayout());
-        ((GridBagLayout)getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        ((GridBagLayout)getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         ((GridBagLayout)getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0};
-        ((GridBagLayout)getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0E-4};
+        ((GridBagLayout)getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0E-4};
         ((GridBagLayout)getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
         //---- labelTestType3 ----
@@ -189,7 +189,7 @@ public class TestSupportMainProcessPanel extends JPanel {
 
         //---- checkBoxDemoMode ----
         checkBoxDemoMode.setText("Demo Mode");
-        add(checkBoxDemoMode, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0,
+        add(checkBoxDemoMode, new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0,
            GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
            new Insets(0, 0, 5, 5), 0, 0));
 
@@ -199,7 +199,7 @@ public class TestSupportMainProcessPanel extends JPanel {
         buttonStartProcess.setMinimumSize(new Dimension(80, 24));
         buttonStartProcess.setMaximumSize(new Dimension(120, 24));
         buttonStartProcess.setPreferredSize(new Dimension(80, 24));
-        add(buttonStartProcess, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0,
+        add(buttonStartProcess, new GridBagConstraints(8, 0, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 6), 0, 0));
 
@@ -210,7 +210,7 @@ public class TestSupportMainProcessPanel extends JPanel {
         buttonStopUserTasksThread.setMinimumSize(new Dimension(24, 24));
         buttonStopUserTasksThread.setMaximumSize(new Dimension(24, 24));
         buttonStopUserTasksThread.setPreferredSize(new Dimension(24, 24));
-        add(buttonStopUserTasksThread, new GridBagConstraints(10, 0, 1, 1, 0.0, 0.0,
+        add(buttonStopUserTasksThread, new GridBagConstraints(9, 0, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 3), 0, 0));
 
@@ -222,21 +222,21 @@ public class TestSupportMainProcessPanel extends JPanel {
 
         //---- textFieldTestCasesPath ----
         textFieldTestCasesPath.setEditable(false);
-        add(textFieldTestCasesPath, new GridBagConstraints(1, 1, 5, 1, 0.0, 0.0,
+        add(textFieldTestCasesPath, new GridBagConstraints(1, 1, 4, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 6), 0, 0));
 
         //---- checkBoxUploadSynthetics ----
         checkBoxUploadSynthetics.setText("Synthetische Tests hochladen");
         checkBoxUploadSynthetics.setSelected(true);
-        add(checkBoxUploadSynthetics, new GridBagConstraints(6, 1, 2, 1, 0.0, 0.0,
+        add(checkBoxUploadSynthetics, new GridBagConstraints(5, 1, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 2, 7, 7), 0, 0));
 
         //---- checkBoxUseOnlyTestCLZs ----
         checkBoxUseOnlyTestCLZs.setText("Nur Test-CLZs in VC-Liste");
         checkBoxUseOnlyTestCLZs.setSelected(true);
-        add(checkBoxUseOnlyTestCLZs, new GridBagConstraints(8, 1, 2, 1, 0.0, 0.0,
+        add(checkBoxUseOnlyTestCLZs, new GridBagConstraints(7, 1, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 2, 7, 7), 0, 0));
 
@@ -275,7 +275,7 @@ public class TestSupportMainProcessPanel extends JPanel {
         add(radioButtonExportFormatLikePRE, new GridBagConstraints(5, 2, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 6), 0, 0));
-        add(separator1, new GridBagConstraints(0, 3, 11, 1, 0.0, 0.0,
+        add(separator1, new GridBagConstraints(0, 3, 10, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 1), 0, 0));
 
@@ -303,7 +303,7 @@ public class TestSupportMainProcessPanel extends JPanel {
         buttonStartTestJob.setPreferredSize(new Dimension(58, 24));
         buttonStartTestJob.setMinimumSize(new Dimension(18, 24));
         buttonStartTestJob.setMaximumSize(new Dimension(88, 24));
-        add(buttonStartTestJob, new GridBagConstraints(7, 4, 3, 1, 0.0, 0.0,
+        add(buttonStartTestJob, new GridBagConstraints(7, 4, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 6, 6), 0, 0));
 
@@ -313,7 +313,7 @@ public class TestSupportMainProcessPanel extends JPanel {
         add(labelJobParams, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 1, 6), 0, 0));
-        add(textFieldJobParams, new GridBagConstraints(1, 5, 9, 1, 0.0, 0.0,
+        add(textFieldJobParams, new GridBagConstraints(1, 5, 8, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(2, 1, 1, 6), 0, 0));
 

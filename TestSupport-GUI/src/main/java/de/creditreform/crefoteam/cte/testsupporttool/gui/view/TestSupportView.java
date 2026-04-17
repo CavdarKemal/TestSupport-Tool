@@ -298,13 +298,12 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
     }
 
     private TestSupportHelper getTestSupportHelper() throws Exception {
-        RestInvokerConfig activitiConfig = getViewTestSupportMainControls().getSelectedStateEngineConfig();
         RestInvokerConfig restServicesConfig = getViewTestSupportMainControls().getSelectedRestServicesConfig();
         RestInvokerConfig impCycleConfig = getViewTestSupportMainControls().getSelectedImpCycleConfig();
-        if (activitiConfig == null || restServicesConfig == null || impCycleConfig == null) {
+        if (restServicesConfig == null || impCycleConfig == null) {
             return null;
         }
-        return new TestSupportHelper(currentEnvironment, activitiConfig, restServicesConfig, impCycleConfig, TestSupportView.this);
+        return new TestSupportHelper(currentEnvironment, restServicesConfig, impCycleConfig, TestSupportView.this);
     }
 
     private void doManageJVMs() {
@@ -385,7 +384,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         vars.put(UT_TASK_PARAM_NAME_TIME_BEFORE_SFTP_COLLECT, currentEnvironment.getMillisBeforeCollectSftpUploads(isDemoMode));
         vars.put(UT_TASK_PARAM_NAME_EMAIL_FROM, currentEnvironment.getStateEngineEmailFrom());
         vars.put(UT_TASK_PARAM_NAME_SUCCESS_EMAIL_TO, currentEnvironment.getStateEngineSuccessEmailTo());
-        vars.put(UT_TASK_PARAM_NAME_FAILURE_EMAIL_TO, currentEnvironment.getActivitiFailureEmailTo());
+        vars.put(UT_TASK_PARAM_NAME_FAILURE_EMAIL_TO, currentEnvironment.getStateEngineFailureEmailTo());
         vars.put(UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS, activeCustomers);
         vars.put(UT_TASK_PARAM_NAME_TEST_TYPE, getViewTestSupportMainProcess().getSelectedTestType());
         vars.put(UT_TASK_PARAM_NAME_TEST_PHASE, getViewTestSupportMainProcess().getSelectedTestPhase());

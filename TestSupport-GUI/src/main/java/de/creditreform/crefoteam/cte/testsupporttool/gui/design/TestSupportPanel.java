@@ -71,48 +71,48 @@ public class TestSupportPanel extends JPanel {
 
         //======== splitPaneMain ========
         {
-            splitPaneMain.setDividerLocation(340);
-            splitPaneMain.setDividerSize(5);
-            splitPaneMain.setName("splitPaneMain");
+           splitPaneMain.setDividerLocation(340);
+           splitPaneMain.setDividerSize(5);
+           splitPaneMain.setName("splitPaneMain");
 
-            //======== panelLeft ========
-            {
-                panelLeft.setName("panelLeft");
-                panelLeft.setLayout(new BorderLayout());
+           //======== panelLeft ========
+           {
+              panelLeft.setName("panelLeft");
+              panelLeft.setLayout(new BorderLayout());
 
-                //---- viewTestSupportMainControls ----
-                viewTestSupportMainControls.setBorder(new BevelBorder(BevelBorder.LOWERED));
-                viewTestSupportMainControls.setName("viewTestSupportMainControls");
-                panelLeft.add(viewTestSupportMainControls, BorderLayout.NORTH);
+              //---- viewTestSupportMainControls ----
+              viewTestSupportMainControls.setBorder(new BevelBorder(BevelBorder.LOWERED));
+              viewTestSupportMainControls.setName("viewTestSupportMainControls");
+              panelLeft.add(viewTestSupportMainControls, BorderLayout.NORTH);
 
-                //---- viewCustomersSelection ----
-                viewCustomersSelection.setBorder(new BevelBorder(BevelBorder.LOWERED));
-                viewCustomersSelection.setName("viewCustomersSelection");
-                panelLeft.add(viewCustomersSelection, BorderLayout.CENTER);
-            }
-            splitPaneMain.setLeftComponent(panelLeft);
+              //---- viewCustomersSelection ----
+              viewCustomersSelection.setBorder(new BevelBorder(BevelBorder.LOWERED));
+              viewCustomersSelection.setName("viewCustomersSelection");
+              panelLeft.add(viewCustomersSelection, BorderLayout.CENTER);
+           }
+           splitPaneMain.setLeftComponent(panelLeft);
 
-            //======== panelRight ========
-            {
-                panelRight.setBorder(null);
-                panelRight.setName("panelRight");
-                panelRight.setLayout(new BorderLayout());
+           //======== panelRight ========
+           {
+              panelRight.setBorder(null);
+              panelRight.setName("panelRight");
+              panelRight.setLayout(new BorderLayout());
 
-                //---- viewTestSupportMainProcess ----
-                viewTestSupportMainProcess.setName("viewTestSupportMainProcess");
-                panelRight.add(viewTestSupportMainProcess, BorderLayout.NORTH);
+              //---- viewTestSupportMainProcess ----
+              viewTestSupportMainProcess.setName("viewTestSupportMainProcess");
+              panelRight.add(viewTestSupportMainProcess, BorderLayout.NORTH);
 
-                //======== tabbedPaneMonitor ========
-                {
-                    tabbedPaneMonitor.setName("tabbedPaneMonitor");
-                }
-                panelRight.add(tabbedPaneMonitor, BorderLayout.CENTER);
-            }
-            splitPaneMain.setRightComponent(panelRight);
+              //======== tabbedPaneMonitor ========
+              {
+                 tabbedPaneMonitor.setName("tabbedPaneMonitor");
+              }
+              panelRight.add(tabbedPaneMonitor, BorderLayout.CENTER);
+           }
+           splitPaneMain.setRightComponent(panelRight);
         }
         add(splitPaneMain, new GridBagConstraints(0, 0, 5, 2, 0.0, 0.0,
-            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-            new Insets(0, 0, 0, 0), 0, 0));
+           GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+           new Insets(0, 0, 0, 0), 0, 0));
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.2.4.0.393" Java: "17.0.9" encoding: "UTF-8"
+JFDML JFormDesigner: "8.3" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -15,12 +15,12 @@ new FormModel {
 			auxiliary() {
 				"JavaCodeGenerator.variableGetter": true
 			}
-			add( new FormContainer( "de.creditreform.crefoteam.cte.tesun.gui.view.ClosableTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+			add( new FormContainer( "de.creditreform.crefoteam.cte.testsupporttool.guiview.ClosableTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 				name: "tabbedPaneTestResults"
 				auxiliary() {
 					"JavaCodeGenerator.variableGetter": true
 				}
-				add( new FormComponent( "de.creditreform.crefoteam.cte.tesun.gui.view.TestResultsTabView" ) {
+				add( new FormComponent( "de.creditreform.crefoteam.cte.testsupporttool.gui.view.TestResultsTabView" ) {
 					name: "testResultsTabView"
 					auxiliary() {
 						"JavaCodeGenerator.variableGetter": true

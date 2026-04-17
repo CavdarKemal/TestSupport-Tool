@@ -19,7 +19,7 @@ class TestSupportHelperTest {
 
     private static TestSupportHelper newHelper() {
         EnvironmentConfig env = new EnvironmentConfig("ENE");
-        return new TestSupportHelper(env, null, null, null, null);
+        return new TestSupportHelper(null, null, null, null);
     }
 
     @Test

@@ -55,48 +55,48 @@ public class TestSupportMainTabPabel extends JTabbedPane {
 
         //======== panelLogs ========
         {
-            panelLogs.setLayout(new GridBagLayout());
-            ((GridBagLayout)panelLogs.getLayout()).columnWidths = new int[] {0, 0, 0};
-            ((GridBagLayout)panelLogs.getLayout()).rowHeights = new int[] {0, 0, 0};
-            ((GridBagLayout)panelLogs.getLayout()).columnWeights = new double[] {0.0, 1.0, 1.0E-4};
-            ((GridBagLayout)panelLogs.getLayout()).rowWeights = new double[] {1.0, 0.0, 1.0E-4};
+           panelLogs.setLayout(new GridBagLayout());
+           ((GridBagLayout)panelLogs.getLayout()).columnWidths = new int[] {0, 0, 0};
+           ((GridBagLayout)panelLogs.getLayout()).rowHeights = new int[] {0, 0, 0};
+           ((GridBagLayout)panelLogs.getLayout()).columnWeights = new double[] {0.0, 1.0, 1.0E-4};
+           ((GridBagLayout)panelLogs.getLayout()).rowWeights = new double[] {1.0, 0.0, 1.0E-4};
 
-            //======== scrollPaneTaskListenerInfo ========
-            {
+           //======== scrollPaneTaskListenerInfo ========
+           {
 
-                //---- textAreaTaskListenerInfo ----
-                textAreaTaskListenerInfo.setTabSize(4);
-                textAreaTaskListenerInfo.setLineWrap(true);
-                textAreaTaskListenerInfo.setEditable(false);
-                textAreaTaskListenerInfo.setBackground(Color.white);
-                textAreaTaskListenerInfo.setFont(new Font("Verdana", Font.PLAIN, 12));
-                textAreaTaskListenerInfo.setMinimumSize(new Dimension(455, 16));
-                scrollPaneTaskListenerInfo.setViewportView(textAreaTaskListenerInfo);
-            }
-            panelLogs.add(scrollPaneTaskListenerInfo, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0));
+              //---- textAreaTaskListenerInfo ----
+              textAreaTaskListenerInfo.setTabSize(4);
+              textAreaTaskListenerInfo.setLineWrap(true);
+              textAreaTaskListenerInfo.setEditable(false);
+              textAreaTaskListenerInfo.setBackground(Color.white);
+              textAreaTaskListenerInfo.setFont(new Font("Verdana", Font.PLAIN, 12));
+              textAreaTaskListenerInfo.setMinimumSize(new Dimension(455, 16));
+              scrollPaneTaskListenerInfo.setViewportView(textAreaTaskListenerInfo);
+           }
+           panelLogs.add(scrollPaneTaskListenerInfo, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(0, 0, 0, 0), 0, 0));
 
-            //---- checkBoxScrollToEnd ----
-            checkBoxScrollToEnd.setText("Auto-Scroll");
-            panelLogs.add(checkBoxScrollToEnd, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(2, 2, 2, 2), 0, 0));
+           //---- checkBoxScrollToEnd ----
+           checkBoxScrollToEnd.setText("Auto-Scroll");
+           panelLogs.add(checkBoxScrollToEnd, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+              new Insets(2, 2, 2, 2), 0, 0));
 
-            //---- buttonClearLOGPanel ----
-            buttonClearLOGPanel.setIcon(new ImageIcon(getClass().getResource("/icons/table_replace.png")));
-            buttonClearLOGPanel.setActionCommand("clearLOGs");
-            buttonClearLOGPanel.setToolTipText("LOG's aus dem Panel l\u00f6schen");
-            buttonClearLOGPanel.setText("LOG's l\u00f6schen");
-            panelLogs.add(buttonClearLOGPanel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                new Insets(2, 2, 2, 2), 0, 0));
+           //---- buttonClearLOGPanel ----
+           buttonClearLOGPanel.setIcon(new ImageIcon(getClass().getResource("/icons/table_replace.png")));
+           buttonClearLOGPanel.setActionCommand("clearLOGs");
+           buttonClearLOGPanel.setToolTipText("LOG's aus dem Panel l\u00f6schen");
+           buttonClearLOGPanel.setText("LOG's l\u00f6schen");
+           panelLogs.add(buttonClearLOGPanel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+              GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+              new Insets(2, 2, 2, 2), 0, 0));
         }
         addTab("LOG's", panelLogs);
 
         //======== scrollPanelProcessImage ========
         {
-            scrollPanelProcessImage.setViewportView(labelProcessImage);
+           scrollPanelProcessImage.setViewportView(labelProcessImage);
         }
         addTab("Prozess", scrollPanelProcessImage);
         addTab("Test-Results", viewTestResults);

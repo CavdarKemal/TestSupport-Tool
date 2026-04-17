@@ -65,7 +65,7 @@ new FormModel {
 			}, new FormLayoutConstraints( null ) {
 				"title": "Prozess"
 			} )
-			add( new FormComponent( "de.creditreform.crefoteam.cte.tesun.gui.view.TestResultsView" ) {
+			add( new FormComponent( "de.creditreform.crefoteam.cte.testsupporttool.gui.view.TestResultsView" ) {
 				name: "viewTestResults"
 				auxiliary() {
 					"JavaCodeGenerator.variableGetter": true

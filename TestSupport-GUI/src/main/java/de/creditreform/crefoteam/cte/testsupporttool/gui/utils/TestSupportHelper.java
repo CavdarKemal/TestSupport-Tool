@@ -43,14 +43,12 @@ public class TestSupportHelper {
     private final EnvironmentConfig environmentConfig;
 
     public TestSupportHelper(EnvironmentConfig environmentConfig,
-                             RestInvokerConfig activitiRestInvokerConfig,
                              RestInvokerConfig masterConsoleRestInvokerConfig,
                              RestInvokerConfig impCyleRestInvokerConfig,
                              TesunClientJobListener tesunClientJobListener) {
         this.environmentConfig = environmentConfig;
         this.tesunClientJobListener = tesunClientJobListener;
         /* CLAUDE_MODE
-        cteActivitiService = new CteStateEngineServiceRestImpl(activitiRestInvokerConfig);
         tesunRestServiceWLS = new TesunRestService(masterConsoleRestInvokerConfig, tesunClientJobListener);
         tesunRestServiceJvmImportC = new TesunRestService(impCyleRestInvokerConfig, tesunClientJobListener);
         */

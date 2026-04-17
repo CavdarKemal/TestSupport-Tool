@@ -38,7 +38,6 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
 
     private void initListeners() {
         getComboBoxEnvironment().addActionListener(e -> onEnvironmentChanged.run());
-        getComboBoxStateEngineHost().addActionListener(e -> onHostChanged.run());
         getComboBoxImpCycleHost().addActionListener(e -> onHostChanged.run());
         getComboBoxRestServicesHost().addActionListener(e -> onHostChanged.run());
         getButtonRefreshEnvironment().addActionListener(e -> onRefreshEnvironment.run());
@@ -56,8 +55,6 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
     }
 
     public void initHostsFields(EnvironmentConfig currentEnvironment) throws PropertiesException {
-        getComboBoxStateEngineHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
-
         getComboBoxRestServicesHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
         currentEnvironment.getRestServiceConfigsForMasterkonsole().forEach(c ->
                 getComboBoxRestServicesHost().addItem(new RestInvokerConfigCbItem(c.getServiceURI(), c)));
@@ -77,11 +74,6 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
         getComboBoxInsoBackEndHost().setModel(new DefaultComboBoxModel<RestInvokerConfigCbItem>());
         currentEnvironment.getRestServiceConfigsForJvmInsoBackend().forEach(c ->
                 getComboBoxInsoBackEndHost().addItem(new RestInvokerConfigCbItem(c.getServiceURI(), c)));
-    }
-
-    public RestInvokerConfig getSelectedStateEngineConfig() {
-        RestInvokerConfigCbItem item = (RestInvokerConfigCbItem) getComboBoxStateEngineHost().getSelectedItem();
-        return item != null ? item.getRestInvokerConfig() : null;
     }
 
     public RestInvokerConfig getSelectedRestServicesConfig() {
@@ -106,7 +98,6 @@ public class TestSupportMainControlsView extends TestSupportMainControlsPanel {
 
     public List<JComponent> getComponentsToOnOff() {
         List<JComponent> list = new ArrayList<>();
-        list.add(getComboBoxStateEngineHost());
         list.add(getComboBoxRestServicesHost());
         list.add(getComboBoxBatchGUIHost());
         list.add(getComboBoxImpCycleHost());
