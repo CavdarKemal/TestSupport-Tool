@@ -1,5 +1,6 @@
 package de.creditreform.crefoteam.cte.testsupporttool.gui;
 
+import de.creditreform.crefoteam.cte.testsupporttool.gui.logsearch.SearchLOGsGUI;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIFrame;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.view.TestSupportView;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
@@ -24,6 +25,22 @@ public final class TestSupportGUI extends GUIFrame {
         setTitle("CTE-Testautomatisierung — Tool");
         setSize(1400, 900);
         setLocationRelativeTo(null);
+        addToolsMenu();
+    }
+
+    private void addToolsMenu() {
+        JMenu toolsMenu = new JMenu("Tools");
+        toolsMenu.setName("menuTools");
+        JMenuItem logSearchItem = new JMenuItem("LOG-Suche...");
+        logSearchItem.setName("menuItemLogSearch");
+        logSearchItem.addActionListener(e -> openLogSearch());
+        toolsMenu.add(logSearchItem);
+        getJMenuBar().add(toolsMenu);
+    }
+
+    private void openLogSearch() {
+        SearchLOGsGUI logSearchGui = new SearchLOGsGUI(getEnvironmentConfig());
+        logSearchGui.setVisible(true);
     }
 
     /** Zugriff für Jemmy-basierte GUI-Tests. */
