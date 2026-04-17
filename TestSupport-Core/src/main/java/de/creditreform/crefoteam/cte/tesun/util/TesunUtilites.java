@@ -1,6 +1,8 @@
 package de.creditreform.crefoteam.cte.tesun.util;
 
 import org.w3c.dom.Document;
+
+import java.io.PrintWriter;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -74,6 +76,30 @@ public final class TesunUtilites {
         }
         filesFromDir.sort((o1, o2) -> o1.getPath().compareTo(o2.getPath()));
         return filesFromDir;
+    }
+
+    public static String buildExceptionMessage(Throwable ex, int maxLines) {
+        String className = "";
+        String errMsg = "";
+        if (ex != null) {
+            className = ex.getClass().getName();
+            StringWriter writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            ex.printStackTrace(printWriter);
+            printWriter.flush();
+            errMsg = writer.toString();
+        }
+        if (errMsg.startsWith("null") || errMsg.isBlank()) {
+            while (ex != null) {
+                errMsg += ex.getMessage();
+                errMsg += "\n\t";
+                ex = ex.getCause();
+            }
+        }
+        if (errMsg.startsWith("null") || errMsg.isBlank()) {
+            errMsg = className;
+        }
+        return errMsg;
     }
 
     public static String toPrettyString(String xml, int indent) {
