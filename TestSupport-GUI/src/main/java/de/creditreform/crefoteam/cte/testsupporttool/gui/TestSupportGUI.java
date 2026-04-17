@@ -1,6 +1,7 @@
 package de.creditreform.crefoteam.cte.testsupporttool.gui;
 
 import de.creditreform.crefoteam.cte.testsupporttool.gui.logsearch.SearchLOGsGUI;
+import de.creditreform.crefoteam.cte.testsupporttool.gui.xmlsearch.SearchXMLsGUI;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIFrame;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.view.TestSupportView;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
@@ -35,12 +36,29 @@ public final class TestSupportGUI extends GUIFrame {
         logSearchItem.setName("menuItemLogSearch");
         logSearchItem.addActionListener(e -> openLogSearch());
         toolsMenu.add(logSearchItem);
+
+        JMenuItem xmlSearchItem = new JMenuItem("XML-Suche...");
+        xmlSearchItem.setName("menuItemXmlSearch");
+        xmlSearchItem.addActionListener(e -> doSearchXMLs());
+        toolsMenu.add(xmlSearchItem);
+
         getJMenuBar().add(toolsMenu);
     }
 
     private void openLogSearch() {
         SearchLOGsGUI logSearchGui = new SearchLOGsGUI(getEnvironmentConfig());
         logSearchGui.setVisible(true);
+    }
+
+    private void doSearchXMLs() {
+        try {
+            SearchXMLsGUI xmlSearchGui = new SearchXMLsGUI(null);
+            xmlSearchGui.setVisible(true);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Fehler beim Öffnen der XML-Suche:\n" + ex.getMessage(),
+                    "XML-Suche", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /** Zugriff für Jemmy-basierte GUI-Tests. */
