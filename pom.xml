@@ -18,6 +18,8 @@
 
     <modules>
         <module>TestSupport-Core</module>
+        <module>TestSupport-XmlSearcher</module>
+        <module>TestSupport-LogSearcher</module>
         <module>TestSupport-GUI</module>
     </modules>
 
@@ -64,6 +66,16 @@
                 <groupId>de.creditreform.crefoteam.cte</groupId>
                 <artifactId>testsupport-statemachine</artifactId>
                 <version>${statemachine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-xmlsearcher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.creditreform.crefoteam.cte</groupId>
+                <artifactId>testsupport-logsearcher</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

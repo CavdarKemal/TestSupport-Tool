@@ -11,15 +11,13 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>testsupport-gui</artifactId>
+    <artifactId>testsupport-logsearcher</artifactId>
     <packaging>jar</packaging>
 
-    <name>TestSupport Tool — GUI</name>
+    <name>TestSupport Tool — LogSearcher</name>
     <description>
-        Swing-GUI fuer den Activiti-freien TestSupport-Client. 1:1-Port aus
-        testsupport_client/TestSupportGUI mit MVC-Trennung; JFormDesigner
-        bleibt das primaere Form-Design-Werkzeug (.jfd-Dateien werden
-        mitgepflegt).
+        Port von testsupport_client/tesun_logs_searcher.
+        Suche in Log-Dateien (Text-Parsing).
     </description>
 
     <dependencies>
@@ -28,13 +26,14 @@
             <artifactId>testsupport-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-xmlsearcher</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.creditreform.crefoteam.cte</groupId>
-            <artifactId>testsupport-logsearcher</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
@@ -45,11 +44,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans</groupId>
-            <artifactId>jemmy</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
