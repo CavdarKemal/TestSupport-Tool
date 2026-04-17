@@ -63,8 +63,8 @@ new FormModel {
 				"gridwidth": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
-				name: "labelActivitiHost"
-				"text": "Activiti-Host:"
+				name: "labelStateEngineHost"
+				"text": "State-Engine-Host:"
 				auxiliary() {
 					"JavaCodeGenerator.variableGetter": true
 				}
@@ -73,7 +73,7 @@ new FormModel {
 				"insets": new java.awt.Insets( 0, 1, 0, 1 )
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
-				name: "comboBoxActivitiHost"
+				name: "comboBoxStateEngineHost"
 				auxiliary() {
 					"JavaCodeGenerator.variableGetter": true
 				}

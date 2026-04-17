@@ -31,14 +31,6 @@ public class TestSupportMainControlsPanel extends JPanel {
         return buttonManageJVMs;
     }
 
-    public JLabel getLabelActivitiHost() {
-        return labelActivitiHost;
-    }
-
-    public JComboBox getComboBoxActivitiHost() {
-        return comboBoxActivitiHost;
-    }
-
     public JLabel getLabelRestServicesHost() {
         return labelRestServicesHost;
     }
@@ -79,14 +71,22 @@ public class TestSupportMainControlsPanel extends JPanel {
         return comboBoxInsoBackEndHost;
     }
 
+    public JLabel getLabelStateEngineHost() {
+       return labelStateEngineHost;
+    }
+
+    public JComboBox getComboBoxStateEngineHost() {
+       return comboBoxStateEngineHost;
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         labelEnvironment = new JLabel();
         comboBoxEnvironment = new JComboBox();
         buttonRefreshEnvironment = new JButton();
         buttonManageJVMs = new JButton();
-        labelActivitiHost = new JLabel();
-        comboBoxActivitiHost = new JComboBox();
+        labelStateEngineHost = new JLabel();
+        comboBoxStateEngineHost = new JComboBox();
         labelRestServicesHost = new JLabel();
         comboBoxRestServicesHost = new JComboBox();
         labelBatchGUIHost = new JLabel();
@@ -134,12 +134,12 @@ public class TestSupportMainControlsPanel extends JPanel {
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(1, 1, 6, 1), 0, 0));
 
-        //---- labelActivitiHost ----
-        labelActivitiHost.setText("Activiti-Host:");
-        add(labelActivitiHost, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+        //---- labelStateEngineHost ----
+        labelStateEngineHost.setText("State-Engine-Host:");
+        add(labelStateEngineHost, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 6), 0, 0));
-        add(comboBoxActivitiHost, new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0,
+        add(comboBoxStateEngineHost, new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0,
            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
            new Insets(0, 1, 5, 1), 0, 0));
 
@@ -195,8 +195,8 @@ public class TestSupportMainControlsPanel extends JPanel {
     private JComboBox comboBoxEnvironment;
     private JButton buttonRefreshEnvironment;
     private JButton buttonManageJVMs;
-    private JLabel labelActivitiHost;
-    private JComboBox comboBoxActivitiHost;
+    private JLabel labelStateEngineHost;
+    private JComboBox comboBoxStateEngineHost;
     private JLabel labelRestServicesHost;
     private JComboBox comboBoxRestServicesHost;
     private JLabel labelBatchGUIHost;
