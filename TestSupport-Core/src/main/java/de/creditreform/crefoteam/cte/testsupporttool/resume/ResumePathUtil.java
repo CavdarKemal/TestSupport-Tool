@@ -40,11 +40,19 @@ public final class ResumePathUtil {
         for (int i = 0; i < path.size(); i++) {
             Step s = path.get(i);
             indices[i] = indexOfIdentity(current.steps(), s);
-            if (s instanceof SubProcessStep && i < path.size() - 1) {
-                current = ((SubProcessStep) s).subDefinition();
+            if (i < path.size() - 1) {
+                ProcessDefinition subDef = subDefinitionOf(s);
+                if (subDef != null) current = subDef;
             }
         }
         return indices;
+    }
+
+    /** Gibt die Sub-Definition eines Steps zurück, falls er einen Sub-Prozess kapselt. */
+    private static ProcessDefinition subDefinitionOf(Step s) {
+        if (s instanceof SubProcessStep) return ((SubProcessStep) s).subDefinition();
+        if (s instanceof ResumeAwareSubProcessStep) return ((ResumeAwareSubProcessStep) s).delegate().subDefinition();
+        return null;
     }
 
     private static int indexOfIdentity(List<Step> list, Step target) {

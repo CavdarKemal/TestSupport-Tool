@@ -62,6 +62,7 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
         // die Handler-Logik uebersprungen. Ab dem Resume-Step laeuft alles
         // normal (REACHED-Flag gesetzt).
         if (shouldSkipForResume(context)) {
+            notifyUserTask(Level.DEBUG, "    [Resume-Skip] " + this.getClass().getSimpleName());
             return StepResult.NEXT;
         }
         Map<String, Object> updated = runTask(context.variables());

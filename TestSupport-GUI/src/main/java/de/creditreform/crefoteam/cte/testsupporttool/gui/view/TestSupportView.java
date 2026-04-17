@@ -148,6 +148,12 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
                 getViewTestSupportMainProcess().setStopButtonEnabled(true);
             });
             try {
+                if (finalResumePath != null && finalResumePath.length > 0) {
+                    notifyClientJob(Level.INFO,
+                            "\n▶ RESUME-Modus: Überspringe Steps bis Index-Pfad "
+                            + java.util.Arrays.toString(finalResumePath)
+                            + " — übersprungene Steps erscheinen im Log, führen aber keine Aktionen aus.");
+                }
                 Map<String, Object> taskVariablesMap = buildTaskVariablesMap(isDemoMode, activeCustomers);
                 ProcessOutcome outcome = processController.runProcess(currentEnvironment, taskVariablesMap, finalResumePath);
                 notifyClientJob(Level.INFO, "\nProzess beendet: " + outcome);

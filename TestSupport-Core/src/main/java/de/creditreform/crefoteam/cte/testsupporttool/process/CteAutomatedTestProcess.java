@@ -11,6 +11,7 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskGeneratePs
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskPrepareTestSystem;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskRestoreTestSystem;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskSuccessMail;
+import de.creditreform.crefoteam.cte.testsupporttool.resume.ResumeAwareSubProcessStep;
 
 /**
  * State-Machine-Factory für den Haupt-Prozess. Spiegelt den Original-BPMN
@@ -43,8 +44,8 @@ public final class CteAutomatedTestProcess {
      */
     public static Assembly build(EnvironmentConfig env, TesunClientJobListener listener) throws PropertiesException {
         ProcessDefinition sub = CteAutomatedTestProcessSUB.build(env, listener);
-        SubProcessStep phase1 = new SubProcessStep(sub);
-        SubProcessStep phase2 = new SubProcessStep(sub);
+        ResumeAwareSubProcessStep phase1 = new ResumeAwareSubProcessStep(sub);
+        ResumeAwareSubProcessStep phase2 = new ResumeAwareSubProcessStep(sub);
 
         ProcessDefinition definition = ProcessDefinition.builder("CteAutomatedTestProcess")
                 .step(new UserTaskPrepareTestSystem(env, listener))
@@ -76,17 +77,21 @@ public final class CteAutomatedTestProcess {
     /** Tuple: Definition + Sub-Step-Referenzen für Diagramm-Bindings. */
     public static final class Assembly {
         private final ProcessDefinition definition;
-        private final SubProcessStep phase1;
-        private final SubProcessStep phase2;
+        private final ResumeAwareSubProcessStep phase1;
+        private final ResumeAwareSubProcessStep phase2;
 
-        Assembly(ProcessDefinition definition, SubProcessStep phase1, SubProcessStep phase2) {
+        Assembly(ProcessDefinition definition, ResumeAwareSubProcessStep phase1, ResumeAwareSubProcessStep phase2) {
             this.definition = definition;
             this.phase1 = phase1;
             this.phase2 = phase2;
         }
 
         public ProcessDefinition definition() { return definition; }
-        public SubProcessStep phase1() { return phase1; }
-        public SubProcessStep phase2() { return phase2; }
+        /** Gibt den Wrapper zurück (für PhaseTrackingListener, identity-Vergleich). */
+        public ResumeAwareSubProcessStep phase1() { return phase1; }
+        public ResumeAwareSubProcessStep phase2() { return phase2; }
+        /** Delegierter SubProcessStep — für DiagramImageListener.bind(). */
+        public SubProcessStep phase1Delegate() { return phase1.delegate(); }
+        public SubProcessStep phase2Delegate() { return phase2.delegate(); }
     }
 }
