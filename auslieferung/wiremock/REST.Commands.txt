@@ -1,0 +1,4 @@
+START:java -jar wiremock-1.57-standalone.jar --port=9998
+GET: http://localhost:9998/cte_tesun_service/tesun/xmlaccess/4112000347
+GET: http://localhost:9998/cte_tesun_service/tesun/configinfo/
+POST:http://localhost:9998/__admin/shutdown

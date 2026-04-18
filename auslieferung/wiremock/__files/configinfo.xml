@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tesun-config-info xmlns="http://crefoteam.creditreform.de/cte/tesun/configinfo/2014/01">
+	<umgebungs-kuerzel>ENE</umgebungs-kuerzel>
+	<export-pfad-prefix>./TEST-INPUTS/ENE/EXPORTS</export-pfad-prefix>
+	<export-pfade>
+		<named-as>cteTestclient.acb.exportDir</named-as>
+		<relative-path>acb\export\delta</relative-path>
+	</export-pfade>
+	<export-pfade>
+		<named-as>cteTestclient.bvd.exportDir</named-as>
+		<relative-path>bvd\export\delta</relative-path>
+	</export-pfade>
+	<export-pfade>
+		<named-as>cteTestclient.fw.exportDir</named-as>
+		<relative-path>fw\export\delta</relative-path>
+	</export-pfade>
+	<export-pfade>
+		<named-as>cteTestclient.rtn.exportDir</named-as>
+		<relative-path>rtn\export\delta</relative-path>
+	</export-pfade>
+	<export-pfade>
+		<named-as>cteTestclient.vsh.exportDir</named-as>
+		<relative-path>vsh\export\delta</relative-path>
+	</export-pfade>
+</tesun-config-info>

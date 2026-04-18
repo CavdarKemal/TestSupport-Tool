@@ -1,0 +1,10 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "/cte_tesun_service/tesun/xmlaccess/4112000319"
+    },
+    "response": {
+        "status": 200,
+        "bodyFileName": "/4112000319.xml"
+    }
+}
