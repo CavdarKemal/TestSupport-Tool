@@ -60,6 +60,14 @@ public class EnvironmentConfig {
     public static final String PROPNAME_STATE_ENGINE_EMAIL_FAILURE_TO = "STATE-ENGINE-EMAIL-FAILURE-TO";
     public static final String PROPNAME_EMAIL_SMTP_HOST = "EMAIL-SMTP-HOST";
     public static final String PROPNAME_EMAIL_SMTP_PORT = "EMAIL-SMTP-PORT";
+
+    /**
+     * Wartezeit vor jedem Demo-Mode-Schritt. ISO-8601-Duration-Format.
+     * Zentral einstellbar — hier anheben macht den Demo-Durchlauf optisch
+     * besser verfolgbar, senken macht Tests schneller.
+     */
+    public static final String DEMO_MODE_WAIT_TIME = "PT3S";
+
     public static final String PROPNAME_TIME_BEFORE_CT_IMPORT = "TIME_BEFORE_CT_IMPORT";
     public static final String PROPNAME_TIME_BEFORE_BTLG_IMPORT = "TIME_BEFORE_BTLG_IMPORT";
     public static final String TIME_BEFORE_EXPORTS_COLLECT = "TIME_BEFORE_EXPORTS_COLLECT";
@@ -742,7 +750,7 @@ public class EnvironmentConfig {
     }
 
     public String getStrTimeBeforeCollectExports(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(TIME_BEFORE_EXPORTS_COLLECT, true, "PT30S");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(TIME_BEFORE_EXPORTS_COLLECT, true, "PT30S");
     }
 
     public long getMillisBeforeCollectExports(boolean isDemoMode) throws PropertiesException {
@@ -750,7 +758,7 @@ public class EnvironmentConfig {
     }
 
     public String getStrTimeBeforeCollectSftpUploads(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(TIME_BEFORE_SFTP_COLLECT, true, "PT30S");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(TIME_BEFORE_SFTP_COLLECT, true, "PT30S");
     }
 
     public long getMillisBeforeCollectSftpUploads(boolean isDemoMode) throws PropertiesException {
@@ -758,7 +766,7 @@ public class EnvironmentConfig {
     }
 
     public String getStrTimeBeforeBtlgImport(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(PROPNAME_TIME_BEFORE_BTLG_IMPORT, true, "PT6M");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(PROPNAME_TIME_BEFORE_BTLG_IMPORT, true, "PT6M");
     }
 
     public long getMillisBeforeBtlgImport(boolean isDemoMode) throws PropertiesException {
@@ -766,11 +774,11 @@ public class EnvironmentConfig {
     }
 
     public String getStrTimeBeforeExport(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(PROPNAME_TIME_BEFORE_EXPORT, true, "PT6M");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(PROPNAME_TIME_BEFORE_EXPORT, true, "PT6M");
     }
 
     public String getStrTimeBeforeInsoExports(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(PROPNAME_TIME_BEFORE_INSO_EXPORT, true, "PT15S");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(PROPNAME_TIME_BEFORE_INSO_EXPORT, true, "PT15S");
     }
 
     public long getMillisBeforeExports(boolean isDemoMode) throws PropertiesException {
@@ -778,7 +786,7 @@ public class EnvironmentConfig {
     }
 
     public String getStrTimeBeforeCtImport(boolean isDemoMode) throws PropertiesException {
-        return isDemoMode ? "PT1S" : getProperty(PROPNAME_TIME_BEFORE_CT_IMPORT, true, "PT30S");
+        return isDemoMode ? DEMO_MODE_WAIT_TIME : getProperty(PROPNAME_TIME_BEFORE_CT_IMPORT, true, "PT30S");
     }
 
     public long getMillisBeforeCtImport(boolean isDemoMode) throws PropertiesException {
