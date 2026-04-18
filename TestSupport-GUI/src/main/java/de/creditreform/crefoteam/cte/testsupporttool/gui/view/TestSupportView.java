@@ -38,22 +38,6 @@ import org.apache.log4j.Level;
 /**
  * Haupt-View der Test-Support-GUI — Port aus
  * {@code testsupport_client.tesun.gui.view.TestSupportView}.
- *
- * <p>Anpassungen ggü. Original:
- * <ul>
- *   <li>{@code ActivitiProcessController} → {@link ProcessController} (um
- *       {@code ProcessEngine} + {@code DiagramImageListener}).</li>
- *   <li>{@code ActivitiTestSupport} komplett entfernt — die Task-Variablen
- *       werden inline via {@link #buildTaskVariablesMap(boolean, Map)}
- *       zusammengebaut.</li>
- *   <li>{@code CteActivitiTask}-Notify-Branch in {@link #notifyClientJob}
- *       entfällt — der StateMachine-Weg liefert nur {@code InputStream}
- *       (Diagramm-PNG) und {@code String} (Log-Meldungen).</li>
- *   <li>Dynamisches {@code Class.forName(UserTaskRunnable)} für einzelne
- *       Test-Jobs ist als CLAUDE_MODE-Stub auskommentiert — im Tool-Modus
- *       zeigt die Methode eine Info-MessageBox.</li>
- *   <li>{@code ManageJvmsDlgView} ist als CLAUDE_MODE-Stub — Phase J.</li>
- * </ul>
  */
 public class TestSupportView extends TestSupportPanel implements TesunClientJobListener, CommandExecutorListener {
 
@@ -91,8 +75,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
 
         getViewTestSupportMainControls().init(this, this::doChangeComboBoxesHost, this::initForEnvironment, this::doManageJVMs, environmentSwitchHandler::doChangeEnvironment);
         getViewTestSupportMainProcess().init(this::startStateEngineProcess, this::stopStateEngineProcess, this::startSelectedTestJob, this::doChangeTestResources, this::doChangeITSQRevision, this::doChangeTestType,
-                () -> currentEnvironment.setLastUseOnlyTestClz(getViewTestSupportMainProcess().isUseOnlyTestCLZs()),
-                currentEnvironment);
+                () -> currentEnvironment.setLastUseOnlyTestClz(getViewTestSupportMainProcess().isUseOnlyTestCLZs()), currentEnvironment);
 
         getTabbedPaneMonitor().init(() -> testSupportHelper);
 
@@ -150,8 +133,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
             try {
                 if (finalResumePath != null && finalResumePath.length > 0) {
                     notifyClientJob(Level.INFO,
-                            "\n▶ RESUME-Modus: Überspringe Steps bis Index-Pfad "
-                            + java.util.Arrays.toString(finalResumePath)
+                            "\n▶ RESUME-Modus: Überspringe Steps bis Index-Pfad " + java.util.Arrays.toString(finalResumePath)
                             + " — übersprungene Steps erscheinen im Log, führen aber keine Aktionen aus.");
                 }
                 Map<String, Object> taskVariablesMap = buildTaskVariablesMap(isDemoMode, activeCustomers);
@@ -292,12 +274,10 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
             try {
                 notifyClientJob(Level.INFO, String.format("\nInitialisiere Test-Resourcen für die Umgebung %s...", getViewTestSupportMainControls().getSelectedEnvironmentName()));
                 testSupportHelper = getTestSupportHelper();
-                if (!getViewTestSupportMainProcess().isDemoMode() && testSupportHelper != null
-                        && testSupportHelper.getTesunRestServiceWLS() != null) {
+                if (!getViewTestSupportMainProcess().isDemoMode() && testSupportHelper != null && testSupportHelper.getTesunRestServiceWLS() != null) {
                     try {
                         TesunSystemInfo sysInfo = testSupportHelper.getTesunRestServiceWLS().getTesunSystemInfo();
-                        String versionsInfo = String.format("[ %s ] - [ CTE-Version: %s ]",
-                                currentEnvironment.getAppVersionsInfo(), sysInfo.getCteVersion());
+                        String versionsInfo = String.format("[ %s ] - [ CTE-Version: %s ]", currentEnvironment.getAppVersionsInfo(), sysInfo.getCteVersion());
                         guiFrame.setVersionsInfoInTitle(versionsInfo);
                     } catch (Exception ex) {
                         notifyClientJob(Level.WARN, "\nSysteminfo nicht verfügbar: " + ex.getMessage());
@@ -409,8 +389,7 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
      * Baut die Task-Variablen-Map für den State-Machine-Prozess — inlined aus
      * dem ehemaligen {@code ActivitiTestSupport#buildTaskVariablesMap}.
      */
-    private Map<String, Object> buildTaskVariablesMap(boolean isDemoMode,
-                                                      Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeCustomers) throws PropertiesException {
+    private Map<String, Object> buildTaskVariablesMap(boolean isDemoMode, Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeCustomers) throws PropertiesException {
         Map<String, Object> vars = new HashMap<>();
         vars.put(UT_TASK_PARAM_NAME_DEMO_MODE, isDemoMode);
         vars.put(UT_TASK_PARAM_NAME_MEIN_KEY, currentEnvironment.getActivitProcessKey());
@@ -516,11 +495,6 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
 
     @Override
     public void notifyClientJob(Level level, Object notifyObject) {
-        /* CLAUDE_MODE
-         * Original: if (notifyObject instanceof CteActivitiTask) { notifyTask(...); }
-         * Der CteActivitiTask-Branch entfällt im Tool — die StateMachine kennt
-         * keine User-Tasks, nur Step-Namen, die als String-Meldungen kommen.
-         */
         if (notifyObject instanceof InputStream) {
             notifyImage((InputStream) notifyObject);
         } else if (notifyObject instanceof String) {
@@ -548,10 +522,8 @@ public class TestSupportView extends TestSupportPanel implements TesunClientJobL
         TimelineLogger.info(this.getClass(), "===========    Prozess beendet.    ===========");
         String msg = "\n***********    Prozess-Thread beendet.    ***********\n===========    Prozess beendet.    ===========\nTest-Results sind im Output-Ordner gespeichert";
         processController.stop();
-        /* CLAUDE_MODE
-         * Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeTestCustomersMapMap = getAndCheckActiveCustomers();
-         * viewTestResults.refreshTestResultsForMap(activeTestCustomersMapMap, true);
-         */
+        Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> activeTestCustomersMapMap = getAndCheckActiveCustomers();
+        viewTestResults.refreshTestResultsForMap(activeTestCustomersMapMap, true);
         TimelineLogger.info(TestSupportView.class, msg);
         getTabbedPaneMonitor().appendToConsole(msg);
         SwingUtilities.invokeLater(() -> {

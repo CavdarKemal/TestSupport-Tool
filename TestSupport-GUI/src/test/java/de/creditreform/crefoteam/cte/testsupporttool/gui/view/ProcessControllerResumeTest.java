@@ -57,7 +57,7 @@ class ProcessControllerResumeTest {
                 TestSupportClientKonstanten.TEST_PHASE.PHASE_1,
                 true, false);
 
-        // Resume bei Phase-2 (Main-Index 3), Sub-Step 19 (= UserTaskCheckSftpUploads).
+        // Resume bei Phase-2 (Haupt-Prozess-Index 3), Sub-Step 19 (= UserTaskCheckSftpUploads).
         int[] resumePath = {3, 19};
         ProcessOutcome outcome = controller.runProcess(env, vars, resumePath);
 

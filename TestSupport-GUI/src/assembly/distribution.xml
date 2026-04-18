@@ -14,31 +14,62 @@
     </dependencySets>
 
     <fileSets>
-        <!-- ABE/ENE/GEE-config.properties liegen im GUI-Modul selbst. -->
         <fileSet>
-            <directory>${project.basedir}</directory>
+            <directory>${project.basedir}/../auslieferung</directory>
             <includes>
-                <include>ABE-config.properties</include>
+                <include>Creditreform.png</include>
                 <include>ENE-config.properties</include>
+                <include>ENE-PG-config.properties</include>
                 <include>GEE-config.properties</include>
-            </includes>
-            <outputDirectory>/</outputDirectory>
-        </fileSet>
-
-        <!-- log4j.properties liegt im Parent-Root. -->
-        <fileSet>
-            <directory>${project.basedir}/..</directory>
-            <includes>
+                <include>ABE-config.properties</include>
+                <include>REE-config.properties</include>
                 <include>log4j.properties</include>
+                <include>tesun.cmd</include>
+                <include>TestSupport-GUI.cmd</include>
+                <include>auto_cte_tests.cmd</include>
+                <include>auto_cte_tests.sh</include>
+                <include>LogSearch-GUI.cmd</include>
+                <include>XmlSearch-GUI.cmd</include>
+                <include>XmlSearch-GUI.sh</include>
+                <include>CompareXmlExports.cmd</include>
+                <include>TestUtils.doc</include>
+                <include>XML-Such Util.doc</include>
+                <include>gee_searchitems.properties</include>
+                <include>cte_private_key_lieferant.asc</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
 
-        <!-- Entpackte ITSQ-Testfälle — Pendant zum assembly-Setup in
-             testsupport_client/TestSupportGUI/src/assembly/distribution.xml. -->
+        <fileSet>
+            <directory>${project.basedir}/../auslieferung/search_criterias</directory>
+            <outputDirectory>/search_criterias</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/../auslieferung/lookandfeels</directory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.basedir}/../auslieferung/Diff-Tools</directory>
+            <outputDirectory>/Diff-Tools</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.build.directory}/buildinfo-template</directory>
+            <includes>
+                <include>buildinfo.properties</include>
+            </includes>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
+
+        <!-- Entpackte ITSQ-Testfaelle aus Projektverzeichnis einbinden -->
         <fileSet>
             <directory>${itsq_testfaelle.unpacked-dir}</directory>
-            <outputDirectory>/X-TESTS/ITSQ</outputDirectory>
+            <outputDirectory>/TESTS/ITSQ</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>

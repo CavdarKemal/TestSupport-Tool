@@ -17,9 +17,9 @@ package de.creditreform.crefoteam.cte.testsupporttool;
  * Jeweils mit oder ohne führendem Bindestrich. Als Trenner sind {@code :}
  * und {@code =} erlaubt. Beispiel:
  * <pre>
- *   java ... Main e:ENE -Demo:true
- *   java ... Main -e=GEE d=false
- *   java ... Main                 (Defaults: kein env → Demo)
+ *   java ... CteTestAutomatisierungMain e:ENE -Demo:true
+ *   java ... CteTestAutomatisierungMain -e=GEE d=false
+ *   java ... CteTestAutomatisierungMain                 (Defaults: kein env → Demo)
  * </pre>
  *
  * Defaults: {@code envName == null} → in-memory Demo-Config;
@@ -107,7 +107,7 @@ public final class CliArgs {
     }
 
     public static String usage() {
-        return "Usage: java ... Main e:<envName> [Demo:<true|false>]\n"
+        return "Usage: java ... CteTestAutomatisierungMain e:<envName> [Demo:<true|false>]\n"
                 + "  e:<envName>       Pflicht. Lädt <envName>-config.properties (z. B. e:ENE).\n"
                 + "                    Aliases: env, environment. Mit oder ohne führendes '-'.\n"
                 + "  Demo:<true|false> Optional. Default false (Real-Mode).\n"
@@ -115,8 +115,8 @@ public final class CliArgs {
                 + "                    Wirkt ausschließlich in den Handlern via checkDemoMode.\n"
                 + "Trenner: ':' oder '=' (z. B. e:ENE oder e=ENE).\n"
                 + "Beispiele:\n"
-                + "  Main e:ENE                 → Real-Mode gegen ENE-config.properties\n"
-                + "  Main -e=ENE -Demo:true     → ENE-Config, Handler simulieren REST-Aufrufe\n"
-                + "  Main env:GEE d=false       → Real-Mode gegen GEE-config.properties";
+                + "  CteTestAutomatisierungMain e:ENE                 → Real-Mode gegen ENE-config.properties\n"
+                + "  CteTestAutomatisierungMain -e=ENE -Demo:true     → ENE-Config, Handler simulieren REST-Aufrufe\n"
+                + "  CteTestAutomatisierungMain env:GEE d=false       → Real-Mode gegen GEE-config.properties";
     }
 }

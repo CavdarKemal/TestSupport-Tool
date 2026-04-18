@@ -1,11 +1,12 @@
 package de.creditreform.crefoteam.cte.testsupporttool.gui;
 
+import de.creditreform.crefoteam.cte.testsupporttool.CliArgs;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.logsearch.SearchLOGsGUI;
-import de.creditreform.crefoteam.cte.testsupporttool.gui.xmlsearch.SearchXMLsGUI;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.utils.GUIFrame;
 import de.creditreform.crefoteam.cte.testsupporttool.gui.view.TestSupportView;
+import de.creditreform.crefoteam.cte.testsupporttool.gui.xmlsearch.SearchXMLsGUI;
+import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
-
 import javax.swing.*;
 
 /**
@@ -55,9 +56,7 @@ public final class TestSupportGUI extends GUIFrame {
             SearchXMLsGUI xmlSearchGui = new SearchXMLsGUI(null);
             xmlSearchGui.setVisible(true);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Fehler beim Öffnen der XML-Suche:\n" + ex.getMessage(),
-                    "XML-Suche", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Fehler beim Öffnen der XML-Suche:\n" + ex.getMessage(), "XML-Suche", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -67,17 +66,25 @@ public final class TestSupportGUI extends GUIFrame {
     }
 
     public static void main(String[] args) {
+        CliArgs cli;
+        try {
+            cli = CliArgs.parse(args);
+            cli.requireValid();
+        } catch (IllegalArgumentException ex) {
+            TimelineLogger.error(TestSupportGUI.class, ex.getMessage());
+            TimelineLogger.info(TestSupportGUI.class, CliArgs.usage());
+            System.exit(64); // EX_USAGE
+            return;
+        }
+        EnvironmentConfig environmentConfig = new EnvironmentConfig(cli.getEnvName());
         SwingUtilities.invokeLater(() -> {
             TestSupportGUI frame = null;
             try {
-                EnvironmentConfig environmentConfig = new EnvironmentConfig();
                 frame = new TestSupportGUI(environmentConfig);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame,
-                        "Fehler beim Starten:\n" + ex.getMessage(),
-                        "Start-Fehler", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Fehler beim Starten:\n" + ex.getMessage(), "Start-Fehler", JOptionPane.ERROR_MESSAGE);
                 System.exit(1);
             }
         });

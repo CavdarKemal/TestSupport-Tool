@@ -18,7 +18,7 @@ cit.cmd 11       # mit Tests (WireMock)
 
 ```
 java -cp target/testsupport-tool-0.1.0-SNAPSHOT.jar:... \
-     de.creditreform.crefoteam.cte.testsupporttool.Main
+     de.creditreform.crefoteam.cte.testsupporttool.auto.CteTestAutomatisierungMain
 ```
 
 Im Demo-Mode werden REST-Aufrufe simuliert, der Prozess läuft End-to-End

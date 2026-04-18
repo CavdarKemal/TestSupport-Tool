@@ -4,28 +4,25 @@ import de.creditreform.crefoteam.cte.statemachine.ProcessEngine;
 import de.creditreform.crefoteam.cte.statemachine.ProcessListener;
 import de.creditreform.crefoteam.cte.statemachine.ProcessOutcome;
 import de.creditreform.crefoteam.cte.statemachine.diagram.DiagramImageListener;
-import de.creditreform.crefoteam.cte.testsupporttool.env.TestEnvironmentManager;
-import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
-import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
-import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
-import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.ConsoleProcessListener;
 import de.creditreform.crefoteam.cte.testsupporttool.ProcessRunner;
 import de.creditreform.crefoteam.cte.testsupporttool.logging.TimelineLogger;
 import de.creditreform.crefoteam.cte.testsupporttool.process.CteAutomatedTestProcess;
 import de.creditreform.crefoteam.cte.testsupporttool.util.CustomerUtils;
 import de.creditreform.crefoteam.cte.testsupporttool.util.FileSystemUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
+import de.creditreform.crefoteam.cte.tesun.util.TestCustomer;
+import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 public final class CteTestAutomatisierung implements TesunClientJobListener {
 

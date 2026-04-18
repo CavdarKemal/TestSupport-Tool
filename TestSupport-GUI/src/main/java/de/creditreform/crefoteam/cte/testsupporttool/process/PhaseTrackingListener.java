@@ -45,7 +45,7 @@ public final class PhaseTrackingListener implements ProcessListener {
         if (detected != null) {
             context.variables().put(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE, detected);
         }
-        // Ausserhalb der SubProcesses (Main-Start/End) bleibt die Variable
+        // Ausserhalb der SubProcesses (Haupt-Prozess-Start/End) bleibt die Variable
         // auf ihrem vorherigen Wert — PrepareTestSystem laeuft damit mit dem
         // initialen GUI-Wert (meist PHASE_1), SuccessMail/Restore bleiben
         // auf dem zuletzt gesetzten PHASE_2.

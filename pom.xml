@@ -118,7 +118,7 @@
             </dependency>
             <dependency>
                 <groupId>de.creditreform.crefoteam.cte</groupId>
-                <artifactId>testsupport-jvm-dialog</artifactId>
+                <artifactId>testsupport-jvmdialog</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

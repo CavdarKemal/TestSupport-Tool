@@ -1,9 +1,6 @@
 package de.creditreform.crefoteam.cte.testsupporttool.process;
 
 import de.creditreform.crefoteam.cte.statemachine.ProcessDefinition;
-import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
-import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskCheckCollects;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskCheckExportProtokoll;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskCheckRefExports;
@@ -24,6 +21,9 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForBet
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForBtlgAktualisierung;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForCtImport;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.UserTaskWaitForEntgBerechnung;
+import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
+import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
+import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 
 /**
  * State-Machine-Factory für den Sub-Prozess. Spiegelt den Original-BPMN

@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="CteTestAutomatisierung Main DemoMode" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="de.creditreform.crefoteam.cte.testsupporttool.Main" />
-    <module name="testsupport-core" />
+    <option name="MAIN_CLASS_NAME" value="de.creditreform.crefoteam.cte.testsupporttool.auto.CteTestAutomatisierungMain" />
+    <module name="testsupport-gui" />
     <option name="PROGRAM_PARAMETERS" value="e:ENE d:TRUE" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestSupport-GUI/" />
     <extension name="coverage">

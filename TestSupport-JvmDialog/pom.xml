@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>testsupport-jvm-dialog</artifactId>
+    <artifactId>testsupport-jvmdialog</artifactId>
     <packaging>jar</packaging>
 
     <name>TestSupport Tool — JVM Dialog</name>
