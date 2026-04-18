@@ -41,20 +41,10 @@ public class UserTaskPrepareTestSystem extends AbstractUserTaskRunnable {
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE)
-                taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
-
-        Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> customersMapMap =
-                (Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>>)
-                        taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
+        Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> customersMapMap = (Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>>)taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
         Map<String, TestCustomer> customersPhase2 = customersMapMap.get(TestSupportClientKonstanten.TEST_PHASE.PHASE_2);
         appendInsoCustomers(customersPhase2);
-        boolean onlyTestCrefos = Boolean.parseBoolean(
-                String.valueOf(taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_USE_ONLY_TEST_CLZ)));
+        boolean onlyTestCrefos = Boolean.parseBoolean(String.valueOf(taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_USE_ONLY_TEST_CLZ)));
 
         CustomerUtils.dumpCustomers(environmentConfig.getLogOutputsRoot(), "VOR-" + COMMAND, customersPhase2);
 

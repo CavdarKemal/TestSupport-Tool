@@ -19,8 +19,7 @@ public abstract class AbstractJvmJobStarter extends AbstractUserTaskRunnable {
     protected final JobInfo jobInfo;
     protected final String startDateVariable;
 
-    protected AbstractJvmJobStarter(JobInfo jobInfo, String startDateVariable,
-                                    EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
+    protected AbstractJvmJobStarter(JobInfo jobInfo, String startDateVariable, EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
         super(environmentConfig, listener);
         this.jobInfo = jobInfo;
         this.startDateVariable = startDateVariable;
@@ -28,17 +27,17 @@ public abstract class AbstractJvmJobStarter extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE phase =
-                (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            taskVariablesMap.put(startDateVariable, Instant.now().toString());
-            return taskVariablesMap;
-        }
+        TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
         Map<String, JvmInstallation> jvms = getJvmInstallationsMap();
         Instant startedAt = Instant.now();
         doStartJvmJob(jobInfo, jvms, phase);
         taskVariablesMap.put(startDateVariable, startedAt.toString());
+        return taskVariablesMap;
+    }
+
+    @Override
+    protected Map<String, Object> onDemoMode(Map<String, Object> taskVariablesMap) {
+        taskVariablesMap.put(startDateVariable, Instant.now().toString());
         return taskVariablesMap;
     }
 }

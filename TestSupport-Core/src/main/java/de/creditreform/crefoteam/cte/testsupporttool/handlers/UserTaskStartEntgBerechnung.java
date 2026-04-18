@@ -9,8 +9,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractJvmJo
 /** Literal-Port aus {@code testsupport_client.tesun_activiti.handlers}. */
 public class UserTaskStartEntgBerechnung extends AbstractJvmJobStarter {
     public UserTaskStartEntgBerechnung(EnvironmentConfig environmentConfig, TesunClientJobListener listener) throws PropertiesException {
-        super(environmentConfig.getJobInfoForEntgBerechnung(),
-                TestSupportClientKonstanten.ENTG_BERECHNUNG_STARTET_AT,
-                environmentConfig, listener);
+        super(environmentConfig.getJobInfoForEntgBerechnung(), TestSupportClientKonstanten.ENTG_BERECHNUNG_STARTET_AT, environmentConfig, listener);
     }
 }

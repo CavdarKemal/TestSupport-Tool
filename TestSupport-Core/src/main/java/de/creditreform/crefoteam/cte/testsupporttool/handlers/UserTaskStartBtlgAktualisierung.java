@@ -9,8 +9,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractJvmJo
 /** Literal-Port aus {@code testsupport_client.tesun_activiti.handlers}. */
 public class UserTaskStartBtlgAktualisierung extends AbstractJvmJobStarter {
     public UserTaskStartBtlgAktualisierung(EnvironmentConfig environmentConfig, TesunClientJobListener listener) throws PropertiesException {
-        super(environmentConfig.getJobInfoForBtlgAktualisierung(),
-                TestSupportClientKonstanten.BTLG_UPDATE_TRIGGER_STARTET_AT,
-                environmentConfig, listener);
+        super(environmentConfig.getJobInfoForBtlgAktualisierung(), TestSupportClientKonstanten.BTLG_UPDATE_TRIGGER_STARTET_AT, environmentConfig, listener);
     }
 }

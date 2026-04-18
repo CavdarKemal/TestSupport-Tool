@@ -24,16 +24,12 @@ public class UserTaskCheckSftpUploads extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws PropertiesException {
-        TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
         if (!environmentConfig.isSftpUploadEnabled()) {
+            TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
             notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase) + " wird übersprungen, da deaktiviert!");
             return taskVariablesMap;
         }
-        throw new UnsupportedOperationException(
-                "CheckSftpUploads im Real-Mode erfordert TestFallCollectSftpUploads (noch nicht portiert).");
+        // TODO aus Original wiederherstellen!
+        throw new UnsupportedOperationException("CheckSftpUploads im Real-Mode erfordert TestFallCollectSftpUploads (noch nicht portiert).");
     }
 }

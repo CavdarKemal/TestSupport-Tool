@@ -20,12 +20,6 @@ public class UserTaskRestoreTestSystem extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE)
-                taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
         RestInvokerConfig cfg = environmentConfig.getRestServiceConfigsForMasterkonsole().get(0);
         TesunRestService rest = getTesunRestServiceInstance(cfg);
         rest.restoreEnvironmentProperties();

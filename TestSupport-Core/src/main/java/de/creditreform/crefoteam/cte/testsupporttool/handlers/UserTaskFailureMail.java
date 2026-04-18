@@ -25,20 +25,13 @@ public class UserTaskFailureMail extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) {
-        TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE)
-                taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
         try {
             String subject = "CTE Test-Automatisierung: " + environmentConfig.getCurrentEnvName();
             String content = "Fehler beim Ausführen des Test-Automatisierungs-Prozesses!";
             String from = environmentConfig.getStateEngineEmailFrom();
             String to   = environmentConfig.getStateEngineFailureEmailTo();
             TimelineLogger.warn(getClass(), "Sende Fehler-Mail: subject='{}', from='{}', to='{}'", subject, from, to);
-            TesunUtilites.sendEmail(environmentConfig.getSmtpHost(), environmentConfig.getSmtpPort(),
-                    from, to, subject, content, null);
+            TesunUtilites.sendEmail(environmentConfig.getSmtpHost(), environmentConfig.getSmtpPort(), from, to, subject, content, null);
         } catch (Exception ex) {
             notifyUserTask(Level.WARN, "\nWARNING: Fehler-Mail fehlgeschlagen: " + ex.getMessage());
         }

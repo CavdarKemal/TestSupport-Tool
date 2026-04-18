@@ -66,7 +66,7 @@ public class EnvironmentConfig {
      * Zentral einstellbar — hier anheben macht den Demo-Durchlauf optisch
      * besser verfolgbar, senken macht Tests schneller.
      */
-    public static final String DEMO_MODE_WAIT_TIME = "PT3S";
+    public static final String DEMO_MODE_WAIT_TIME = "PT1S";
 
     public static final String PROPNAME_TIME_BEFORE_CT_IMPORT = "TIME_BEFORE_CT_IMPORT";
     public static final String PROPNAME_TIME_BEFORE_BTLG_IMPORT = "TIME_BEFORE_BTLG_IMPORT";
@@ -812,7 +812,7 @@ public class EnvironmentConfig {
         return new ArrayList<>(Arrays.asList(testTypes.split(DELIMITER)));
     }
 
-    private long calculateTimeInMillis(String strTime) {
+    public long calculateTimeInMillis(String strTime) {
         String strTemp = strTime.substring(2, strTime.length() - 1);
         long time = Long.parseLong(strTemp);
         String strEinheit = strTime.substring(strTime.length() - 1);

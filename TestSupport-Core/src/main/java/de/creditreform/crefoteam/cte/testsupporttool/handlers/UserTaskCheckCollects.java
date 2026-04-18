@@ -18,12 +18,6 @@ public class UserTaskCheckCollects extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
-
         @SuppressWarnings("unchecked")
         Map<String, TestCustomer> activeCustomersMap = (Map<String, TestCustomer>) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
         CollectsChecker collectsChecker = new CollectsChecker(environmentConfig, tesunClientJobListener);

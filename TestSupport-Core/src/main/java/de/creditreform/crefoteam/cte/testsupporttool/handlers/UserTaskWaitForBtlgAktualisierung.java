@@ -14,8 +14,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractUserT
 public class UserTaskWaitForBtlgAktualisierung extends AbstractUserTaskWaiter {
 
     public UserTaskWaitForBtlgAktualisierung(EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
-        super("BTLG_UPDATE_TRIGGER",
-                TestSupportClientKonstanten.BTLG_UPDATE_TRIGGER_STARTET_AT,
-                environmentConfig, listener);
+        super("BTLG_UPDATE_TRIGGER", TestSupportClientKonstanten.BTLG_UPDATE_TRIGGER_STARTET_AT, environmentConfig, listener);
     }
 }

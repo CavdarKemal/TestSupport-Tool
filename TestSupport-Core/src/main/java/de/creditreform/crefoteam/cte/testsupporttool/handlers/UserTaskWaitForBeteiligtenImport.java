@@ -14,8 +14,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractUserT
 public class UserTaskWaitForBeteiligtenImport extends AbstractUserTaskWaiter {
 
     public UserTaskWaitForBeteiligtenImport(EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
-        super("BETEILIGUNGEN_IMPORT",
-                TestSupportClientKonstanten.BTLG_IMPORT_STARTET_AT,
-                environmentConfig, listener);
+        super("BETEILIGUNGEN_IMPORT", TestSupportClientKonstanten.BTLG_IMPORT_STARTET_AT, environmentConfig, listener);
     }
 }

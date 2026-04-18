@@ -65,14 +65,31 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
             notifyUserTask(Level.DEBUG, "    [Resume-Skip] " + this.getClass().getSimpleName());
             return StepResult.NEXT;
         }
-        Map<String, Object> updated = runTask(context.variables());
-        if (updated != null && updated != context.variables()) {
-            context.variables().putAll(updated);
+        Map<String, Object> vars = context.variables();
+        TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE) vars.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
+        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
+        boolean isDemoMode = checkDemoMode(vars);
+        Map<String, Object> updated = isDemoMode ? onDemoMode(vars) : runTask(vars);
+        if (updated != null && updated != vars) {
+            vars.putAll(updated);
         }
         if (canceled || context.isCancelled()) {
             return StepResult.ABORT;
         }
+        if (isDemoMode) {
+            waitMillisForUserTask(environmentConfig.calculateTimeInMillis(EnvironmentConfig.DEMO_MODE_WAIT_TIME));
+        }
         return StepResult.NEXT;
+    }
+
+    /**
+     * Wird statt {@link #runTask(Map)} aufgerufen, wenn Demo-Mode aktiv ist.
+     * Default: keine weitere Logik — Map unveraendert zurueck. Subklassen,
+     * die im Demo-Mode trotzdem Variablen setzen muessen (z.B. Startzeit-
+     * Marker in {@link AbstractJvmJobStarter}), ueberschreiben dies.
+     */
+    protected Map<String, Object> onDemoMode(Map<String, Object> taskVariablesMap) throws Exception {
+        return taskVariablesMap;
     }
 
     private boolean shouldSkipForResume(ProcessContext context) {
@@ -151,8 +168,8 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
         }
     }
 
-    protected Boolean checkDemoMode(Boolean demoMode) {
-        if (Boolean.TRUE.equals(demoMode)) {
+    protected Boolean checkDemoMode(Map<String, Object> taskVariablesMap) {
+        if (Boolean.TRUE.equals(taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
             notifyUserTask(Level.INFO, "\nDemo-Mode: UserTask-Start wird simuliert!");
             return true;
         }
@@ -168,8 +185,7 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
     }
 
     public Map<String, JvmInstallation> getJvmInstallationsMap() throws Exception {
-        TesunRestService rest = new TesunRestService(
-                environmentConfig.getRestServiceConfigsForBatchGUI().get(0), tesunClientJobListener);
+        TesunRestService rest = new TesunRestService(environmentConfig.getRestServiceConfigsForBatchGUI().get(0), tesunClientJobListener);
         Map<String, JvmInstallation> installations = new HashMap<>();
         for (Map.Entry<String, String> entry : rest.getJvmInstallationMap().entrySet()) {
             JvmInstallation jvm = new JvmInstallation();
@@ -305,24 +321,13 @@ public abstract class AbstractUserTaskRunnable implements UserTaskRunnable, Step
         return cal;
     }
 
-    /**
-     * Wait-Entscheidung aus dem ehemaligen Activiti-Controller: wird der Task
-     * per GUI manuell gestartet ({@code UT_TASK_PARAM_NAME_MANUEL_USER_TASK=true}),
-     * wird nicht gewartet — stattdessen wird der angegebene Completion-Cal aus
-     * der Variablen-Map an alle aktiven Kunden als {@code lastJobStartetAt}
-     * gesetzt (für nachfolgende Export-Protokoll-Checks).
-     * Sonst schläft der Handler {@code waitForTime} ms.
-     */
     @SuppressWarnings("unchecked")
     protected void checkForWait(Map<String, Object> taskVariablesMap, String waitForTime) {
         Object obj = taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_MANUEL_USER_TASK);
         if (obj != null && ((Boolean) obj).booleanValue()) {
             Calendar jobGestartetCal = extractCalendarFromMap(taskVariablesMap, TestSupportClientKonstanten.LAST_COMPLETITION_TIME);
-            Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> selectedCustomersMapMap =
-                    (Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>>)
-                            taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
-            TestSupportClientKonstanten.TEST_PHASE testPhase =
-                    (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
+            Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>> selectedCustomersMapMap = (Map<TestSupportClientKonstanten.TEST_PHASE, Map<String, TestCustomer>>) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
+            TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
             Map<String, TestCustomer> selectedCustomersMapPhaseX = selectedCustomersMapMap.get(testPhase);
             selectedCustomersMapPhaseX.entrySet().forEach(e -> e.getValue().setLastJobStartetAt(jobGestartetCal));
         } else {

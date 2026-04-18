@@ -21,8 +21,6 @@ public class UserTaskWaitBeforBeteiligtenImport extends AbstractUserTaskRunnable
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase));
         checkForWait(taskVariablesMap, TesunClientJobListener.UT_TASK_PARAM_NAME_TIME_BEFORE_BTLG_IMPORT);
         return taskVariablesMap;
     }

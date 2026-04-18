@@ -14,8 +14,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractUserT
 public class UserTaskWaitForEntgBerechnung extends AbstractUserTaskWaiter {
 
     public UserTaskWaitForEntgBerechnung(EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
-        super("ENTSCHEIDUNGSTRAEGER_BERECHNUNG",
-                TestSupportClientKonstanten.ENTG_BERECHNUNG_STARTET_AT,
-                environmentConfig, listener);
+        super("ENTSCHEIDUNGSTRAEGER_BERECHNUNG", TestSupportClientKonstanten.ENTG_BERECHNUNG_STARTET_AT, environmentConfig, listener);
     }
 }

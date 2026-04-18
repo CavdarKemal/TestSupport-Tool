@@ -22,15 +22,9 @@ public class UserTaskCheckRefExports extends AbstractUserTaskRunnable {
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
         TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
-
         @SuppressWarnings("unchecked")
         Map<String, TestCustomer> activeCustomersMap = (Map<String, TestCustomer>) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_ACTIVE_CUSTOMERS);
-        String strIgnorableXPaths = environmentConfig.getProperty(TestSupportClientKonstanten.OPT_IGNORABLE_XPATHS, false,
-                "firma-bonitaet/ratingstufe;auftrags-referenz;identification-number");
+        String strIgnorableXPaths = environmentConfig.getProperty(TestSupportClientKonstanten.OPT_IGNORABLE_XPATHS, false, "firma-bonitaet/ratingstufe;auftrags-referenz;identification-number");
         List<String> ignorableXPaths = parseIgnorablePaths(strIgnorableXPaths);
 
         notifyUserTask(Level.INFO, String.format("\nVergleiche XML's für Phase %s...", testPhase.getDirName()));
@@ -41,7 +35,6 @@ public class UserTaskCheckRefExports extends AbstractUserTaskRunnable {
             comparator.compareFileContents(testCustomer);
             notifyUserTask(Level.INFO, ".");
         });
-
         return taskVariablesMap;
     }
 

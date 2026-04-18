@@ -9,8 +9,6 @@ import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractJvmJo
 /** Literal-Port aus {@code testsupport_client.tesun_activiti.handlers}. */
 public class UserTaskStartCtImport extends AbstractJvmJobStarter {
     public UserTaskStartCtImport(EnvironmentConfig environmentConfig, TesunClientJobListener listener) throws PropertiesException {
-        super(environmentConfig.getJobInfoForCtImport(),
-                TestSupportClientKonstanten.CT_IMPORT_STARTET_AT,
-                environmentConfig, listener);
+        super(environmentConfig.getJobInfoForCtImport(), TestSupportClientKonstanten.CT_IMPORT_STARTET_AT, environmentConfig, listener);
     }
 }

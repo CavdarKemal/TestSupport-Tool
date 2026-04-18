@@ -1,8 +1,9 @@
 package de.creditreform.crefoteam.cte.testsupporttool.handlers;
 
+import de.creditreform.crefoteam.cte.statemachine.ProcessContext;
+import de.creditreform.crefoteam.cte.statemachine.StepResult;
 import de.creditreform.crefoteam.cte.tesun.TesunClientJobListener;
 import de.creditreform.crefoteam.cte.tesun.util.EnvironmentConfig;
-import de.creditreform.crefoteam.cte.tesun.util.PropertiesException;
 import de.creditreform.crefoteam.cte.tesun.util.TestSupportClientKonstanten;
 import de.creditreform.crefoteam.cte.testsupporttool.handlers.base.AbstractUserTaskRunnable;
 import org.apache.log4j.Level;
@@ -23,18 +24,21 @@ public class UserTaskCheckExportProtokoll extends AbstractUserTaskRunnable {
         super(environmentConfig, tesunClientJobListener);
     }
 
+    // Sonderfall: Wenn disabled, wird komplett anstelle des Standard-Preambles
+    // geloggt (ersetzt die Standard-Notify, kommt nicht zusätzlich).
     @Override
-    public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws PropertiesException {
-        TestSupportClientKonstanten.TEST_PHASE testPhase = (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
+    public StepResult execute(ProcessContext context) throws Exception {
         if (!environmentConfig.isCheckExportProtokollEnabled()) {
-            notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase) + " wird übersprungen, da deaktiviert!");
-            return taskVariablesMap;
+            TestSupportClientKonstanten.TEST_PHASE phase = (TestSupportClientKonstanten.TEST_PHASE) context.variables().get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
+            notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase) + " wird übersprungen, da deaktiviert!");
+            return StepResult.NEXT;
         }
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(testPhase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
-        throw new UnsupportedOperationException(
-                "CheckExportProtokoll im Real-Mode erfordert TesunRestService.getExportTrackingInfo + xmlbinding.trackingexport (noch nicht portiert).");
+        return super.execute(context);
+    }
+
+    @Override
+    public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) {
+        // TODO aus Original wiederherstellen!
+        throw new UnsupportedOperationException("CheckExportProtokoll im Real-Mode erfordert TesunRestService.getExportTrackingInfo + xmlbinding.trackingexport (noch nicht portiert).");
     }
 }

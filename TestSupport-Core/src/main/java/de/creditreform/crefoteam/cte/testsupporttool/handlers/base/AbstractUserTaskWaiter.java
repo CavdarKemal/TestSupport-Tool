@@ -25,8 +25,7 @@ public abstract class AbstractUserTaskWaiter extends AbstractUserTaskRunnable {
     protected final String processIdentifier;
     protected final String lastStartDateVariable;
 
-    protected AbstractUserTaskWaiter(String processIdentifier, String lastStartDateVariable,
-                                     EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
+    protected AbstractUserTaskWaiter(String processIdentifier, String lastStartDateVariable, EnvironmentConfig environmentConfig, TesunClientJobListener listener) {
         super(environmentConfig, listener);
         this.processIdentifier = processIdentifier;
         this.lastStartDateVariable = lastStartDateVariable;
@@ -34,12 +33,6 @@ public abstract class AbstractUserTaskWaiter extends AbstractUserTaskRunnable {
 
     @Override
     public Map<String, Object> runTask(Map<String, Object> taskVariablesMap) throws Exception {
-        TestSupportClientKonstanten.TEST_PHASE phase =
-                (TestSupportClientKonstanten.TEST_PHASE) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_TEST_PHASE);
-        notifyUserTask(Level.INFO, buildNotifyStringForClassName(phase));
-        if (checkDemoMode((Boolean) taskVariablesMap.get(TesunClientJobListener.UT_TASK_PARAM_NAME_DEMO_MODE))) {
-            return taskVariablesMap;
-        }
         Calendar jobStartedCal = extractCalendarFromMap(taskVariablesMap, lastStartDateVariable);
         doWaitForFinish(jobStartedCal);
         return taskVariablesMap;
