@@ -69,8 +69,35 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
 
-            <!-- Runtime-Dependencies nach target/lib kopieren — fuer die
-                 Distribution-ZIP des GUI-Moduls (Haupt-Entry-Point). -->
+            <!-- buildinfo.properties: 3-stufige Plugin-Kette (portiert aus testsupport_client).
+                 1) buildnumber-maven-plugin setzt ${buildNumber} und ${build.date}.
+                 2) maven-dependency-plugin entpackt das ctebuildinfotemplate-Artefakt
+                    nach ${buildinfoTemplateDir} — die rohe Vorlage landet dort.
+                 3) maven-resources-plugin filtert die Vorlage (${project.version},
+                    ${buildNumber}, ${build.date} etc.) und legt sie in
+                    target/classes/META-INF/buildinfo/<groupId>/<artifactId>/ ab.
+                 Die Distribution-Assembly zieht die ROHE Vorlage aus
+                 ${buildinfoTemplateDir} nach lib/ (wie im Original). -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${buildnumber-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>cte-build-number-create-timestamp</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create-timestamp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <timestampFormat>yyyy-MM-dd HH:mm:ss</timestampFormat>
+                    <timestampPropertyName>build.date</timestampPropertyName>
+                </configuration>
+            </plugin>
+
+            <!-- Runtime-Dependencies nach target/lib kopieren + buildinfo-Template auspacken. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -84,6 +111,54 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                             <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cte-build-number-unpack</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ctebuildinfotemplate</groupId>
+                                    <artifactId>ctebuildinfotemplate</artifactId>
+                                    <version>${ctebuildinfotemplate.version}</version>
+                                    <outputDirectory>${buildinfoTemplateDir}</outputDirectory>
+                                    <includes>**/*.*</includes>
+                                    <excludes>META-INF/**/*.*</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Variablen-Ersetzung im buildinfo-Template. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>cte-build-number-process-buildinfo-template</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${buildinfoTemplateDir}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/buildinfo/${project.groupId}/${project.artifactId}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

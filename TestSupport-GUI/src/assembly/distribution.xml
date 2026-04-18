@@ -19,12 +19,9 @@
             <includes>
                 <include>Creditreform.png</include>
                 <include>ENE-config.properties</include>
-                <include>ENE-PG-config.properties</include>
                 <include>GEE-config.properties</include>
                 <include>ABE-config.properties</include>
-                <include>REE-config.properties</include>
                 <include>log4j.properties</include>
-                <include>tesun.cmd</include>
                 <include>TestSupport-GUI.cmd</include>
                 <include>auto_cte_tests.cmd</include>
                 <include>auto_cte_tests.sh</include>

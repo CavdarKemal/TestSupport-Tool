@@ -56,6 +56,14 @@
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <buildnumber-maven-plugin.version>1.2</buildnumber-maven-plugin.version>
+        <ctebuildinfotemplate.version>1.2</ctebuildinfotemplate.version>
+
+        <!-- Default fuer die Build-Nummer beim lokalen Test. In CI per -DbuildNummer=... ueberschreiben. -->
+        <buildNummer>manual-build-by-${user.name}</buildNummer>
+        <!-- Ziel fuer das entpackte buildinfo-Template (wird dann gefiltert). -->
+        <buildinfoTemplateDir>${project.basedir}/target/buildinfo-template</buildinfoTemplateDir>
 
         <!-- ITSQ-Testfaelle — Pendant zu testsupport_client/TestSupportGUI/pom.xml.
              Per maven-dependency-plugin aus dem Repo geholt, nach
