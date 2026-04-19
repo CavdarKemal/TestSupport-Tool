@@ -28,11 +28,22 @@ public final class EnvironmentLockManager {
     private static final String LOCK_FILE_NAME = ".env.lock";
     private static final int BASE_PORT = 47100;
 
-    private static final Map<String, Integer> ENV_PORTS = new HashMap<>();
+    /**
+     * Pro Umgebung reservieren wir einen Port-Range (10 Ports). Hintergrund:
+     * unter Windows mit Hyper-V/WSL/Antivirus sind einzelne Loopback-Ports
+     * gelegentlich unbindable, ohne dass {@code netstat} oder
+     * {@code netsh excludedportrange} sie ausweisen. Durch den Range findet
+     * {@link #acquireLock} immer einen freien Port; {@link #isLocked} prüft
+     * den gesamten Range — eine zweite JVM kann den Lock also nicht stillschweigend
+     * umgehen.
+     */
+    private static final int PORT_RANGE_SIZE = 10;
+
+    private static final Map<String, Integer> ENV_PORT_BASES = new HashMap<>();
     static {
-        ENV_PORTS.put("ENE", BASE_PORT);
-        ENV_PORTS.put("ABE", BASE_PORT + 1);
-        ENV_PORTS.put("GEE", BASE_PORT + 2);
+        ENV_PORT_BASES.put("ENE", BASE_PORT);                        // 47100-47109
+        ENV_PORT_BASES.put("ABE", BASE_PORT + PORT_RANGE_SIZE);      // 47110-47119
+        ENV_PORT_BASES.put("GEE", BASE_PORT + 2 * PORT_RANGE_SIZE);  // 47120-47129
     }
 
     private static ServerSocket lockSocket;
@@ -42,9 +53,9 @@ public final class EnvironmentLockManager {
 
     private EnvironmentLockManager() { }
 
-    private static int getPortForEnvironment(String envName) {
-        return ENV_PORTS.getOrDefault(envName.toUpperCase(),
-                BASE_PORT + Math.abs(envName.hashCode() % 100));
+    private static int getPortBaseForEnvironment(String envName) {
+        return ENV_PORT_BASES.getOrDefault(envName.toUpperCase(),
+                BASE_PORT + Math.abs(envName.hashCode() % 100) * PORT_RANGE_SIZE);
     }
 
     /**
@@ -64,11 +75,21 @@ public final class EnvironmentLockManager {
                     "Konnte Umgebungsverzeichnis nicht anlegen: {}", envDir.getAbsolutePath());
             return false;
         }
-        int port = getPortForEnvironment(envName);
-        ServerSocket socket = bindLoopbackPortWithRetry(port);
+        int basePort = getPortBaseForEnvironment(envName);
+        int boundPort = -1;
+        ServerSocket socket = null;
+        for (int offset = 0; offset < PORT_RANGE_SIZE; offset++) {
+            int port = basePort + offset;
+            socket = bindLoopbackPortWithRetry(port);
+            if (socket != null) {
+                boundPort = port;
+                break;
+            }
+        }
         if (socket == null) {
             TimelineLogger.warn(EnvironmentLockManager.class,
-                    "Umgebung {} ist bereits gesperrt (Port {} belegt)", envName, port);
+                    "Umgebung {} ist bereits gesperrt (Port-Range {}-{} komplett belegt)",
+                    envName, basePort, basePort + PORT_RANGE_SIZE - 1);
             return false;
         }
         try {
@@ -77,13 +98,13 @@ public final class EnvironmentLockManager {
             File lockFile = new File(envDir, LOCK_FILE_NAME);
             String lockInfo = "Locked by PID: " + ProcessHandle.current().pid() + "\n"
                     + "Environment: " + envName + "\n"
-                    + "Port: " + port + "\n"
+                    + "Port: " + boundPort + "\n"
                     + "Time: " + java.time.LocalDateTime.now() + "\n";
             Files.writeString(lockFile.toPath(), lockInfo,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             currentLockFile = lockFile;
             TimelineLogger.info(EnvironmentLockManager.class,
-                    "Lock für Umgebung {} erworben (Port {})", envName, port);
+                    "Lock für Umgebung {} erworben (Port {})", envName, boundPort);
             return true;
         } catch (IOException e) {
             // Lock-Datei konnte nicht geschrieben werden → Socket sauber zuruecknehmen.
@@ -168,20 +189,27 @@ public final class EnvironmentLockManager {
     /**
      * {@code true} wenn die Umgebung anhand des Verzeichnis-Namens gesperrt ist.
      *
-     * <p>Nutzt denselben {@link #bindLoopbackPortWithRetry} wie {@code acquireLock}:
-     * gelingt das probe-bind, ist der Port frei → nicht gesperrt.
+     * <p>Prüft den vollständigen Port-Range: gelingt das probe-bind auf ALLEN
+     * Ports im Range → Port-Range frei → nicht gesperrt. Sobald ein Port
+     * belegt ist → gesperrt (Lock läuft auf diesem Port).
+     *
+     * <p>Nicht-bindbare Ports aus OS-Gründen (Hyper-V-Reservierung etc.)
+     * würden hier als "gesperrt" gelten; das ist bewusst konservativ.
      */
     public static boolean isLocked(File envDir) {
         String envName = envDir.getName().toUpperCase();
-        int port = getPortForEnvironment(envName);
-        ServerSocket probe = bindLoopbackPortWithRetry(port);
-        if (probe == null) {
-            return true;
-        }
-        try {
-            probe.close();
-        } catch (IOException ignored) {
-            // best-effort
+        int basePort = getPortBaseForEnvironment(envName);
+        for (int offset = 0; offset < PORT_RANGE_SIZE; offset++) {
+            int port = basePort + offset;
+            ServerSocket probe = bindLoopbackPortWithRetry(port);
+            if (probe == null) {
+                return true;
+            }
+            try {
+                probe.close();
+            } catch (IOException ignored) {
+                // best-effort
+            }
         }
         return false;
     }
